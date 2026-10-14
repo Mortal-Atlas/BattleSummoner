@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f5fe42af20f60942bf62780355a339d, type: 3}
+  m_Name: NPC_Barnaby_Data
+  m_EditorClassIdentifier: Assembly-CSharp::BespokeNPCObject
+  npcId: npc_barnaby
+  displayName: Barnaby
+  title: Master Anvil Artisan
+  primaryRole: 0
+  quirk: 2
+  profilePortrait: {fileID: 0}
+  sideProfileReference: {fileID: 0}
+  systemPromptPersona: You are Barnaby, a grizzled, booming-voiced blacksmith who
+    respects steel and edge temper above all else. You warn delvers of the Three-Strike
+    Anvil rule and take immense pride in quenching fractured Damascus blades.
+  affinityLevel: 3
+  maxAffinity: 10
+  combatAttackPower: 65
+  companionSupportCooldown: 8
+  expeditionSpeedMultiplier: 0.9
+  rareDiscoveryBonus: 0.1

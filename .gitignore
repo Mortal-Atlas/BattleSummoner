@@ -105,3 +105,12 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# API Keys & Secrets (Must NEVER be tracked or committed)
+.env
+.env.*
+*.secret
+*.key
+.elevenlabs*
+secrets/
+config.secret.*
