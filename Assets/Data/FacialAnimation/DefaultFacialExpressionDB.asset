@@ -14,75 +14,75 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleSummoner.Character.FacialAnimation.FacialExpressionDatabaseSO
   emotionSets:
   - emotion: 0
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: 7dedc53bf349bc542ae42784225fe772, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: 432da53e3e7f64d47ad33e0973a0208b, type: 3}
     uvAtlasOpenCoord: {x: 0, y: 0}
     uvAtlasBlinkCoord: {x: 0, y: 2}
     uvAtlasRestingMouthCoord: {x: 0, y: 4}
   - emotion: 1
-    eyesAndBrowsOpen: {fileID: 21300000, guid: 6791705457922eb4e893ff8e524674f7, type: 3}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: 0b6072653b36b5249b9a91f82f471130, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: 57d1fa4ddffc2f4448707ebec6f772bf, type: 3}
     uvAtlasOpenCoord: {x: 1, y: 0}
     uvAtlasBlinkCoord: {x: 1, y: 2}
     uvAtlasRestingMouthCoord: {x: 1, y: 4}
   - emotion: 2
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: c7e41e241cc94884f960b4b689c4ba8b, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 7bc065b1c1a63fe479767f09e57af68e, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: d3066067975de8645b5ce7234599f670, type: 3}
     uvAtlasOpenCoord: {x: 2, y: 0}
     uvAtlasBlinkCoord: {x: 2, y: 2}
     uvAtlasRestingMouthCoord: {x: 2, y: 4}
   - emotion: 3
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: e102851b3cdc6b042bf26584ddc7f648, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: 0c02b56c10e501f4bba44d2f3c04843f, type: 3}
     uvAtlasOpenCoord: {x: 3, y: 0}
     uvAtlasBlinkCoord: {x: 3, y: 2}
     uvAtlasRestingMouthCoord: {x: 3, y: 4}
   - emotion: 4
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: a76034523db3d6f4e92640bf87d1840d, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 943eedcd7617aaa4aae70b653762ed8c, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: 2089cd2fd3a6bd645b98628a2d00addb, type: 3}
     uvAtlasOpenCoord: {x: 0, y: 1}
     uvAtlasBlinkCoord: {x: 0, y: 3}
     uvAtlasRestingMouthCoord: {x: 0, y: 5}
   - emotion: 5
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: 76b11e36fa6c36a448f08c9d6f69bb02, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: f37d9897f35792e408209ae3077d82ce, type: 3}
     uvAtlasOpenCoord: {x: 1, y: 1}
     uvAtlasBlinkCoord: {x: 1, y: 3}
     uvAtlasRestingMouthCoord: {x: 1, y: 5}
   - emotion: 6
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: d061d27ef85b4fa4581192e18c35536b, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: c63890f3e299fa84ea5802a4bab658f4, type: 3}
     uvAtlasOpenCoord: {x: 2, y: 1}
     uvAtlasBlinkCoord: {x: 2, y: 3}
     uvAtlasRestingMouthCoord: {x: 2, y: 5}
   - emotion: 7
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: 42228b02d2d05c14fa2fecd816867c66, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 7bc065b1c1a63fe479767f09e57af68e, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: ef304e77ac11fa74794f40ee229d7d91, type: 3}
     uvAtlasOpenCoord: {x: 3, y: 1}
     uvAtlasBlinkCoord: {x: 3, y: 3}
     uvAtlasRestingMouthCoord: {x: 3, y: 5}
   - emotion: 8
-    eyesAndBrowsOpen: {fileID: 0}
-    eyesAndBrowsBlink: {fileID: 0}
-    restingEmotionMouth: {fileID: 0}
+    eyesAndBrowsOpen: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    eyesAndBrowsBlink: {fileID: 21300000, guid: 4ec496d36737e494d88c5a14d0196771, type: 3}
+    restingEmotionMouth: {fileID: 21300000, guid: ea7e19295f8444743be75ccf8123f54e, type: 3}
     uvAtlasOpenCoord: {x: 0, y: 2}
     uvAtlasBlinkCoord: {x: 0, y: 4}
     uvAtlasRestingMouthCoord: {x: 0, y: 6}
   phoneticMouthVisemes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 21300000, guid: 8f5ecceab41980546a431eba9b2eb5ef, type: 3}
+  - {fileID: 21300000, guid: 91a2afcc05a57f649a66f8ceb0da8212, type: 3}
+  - {fileID: 21300000, guid: 6a4e264280ae66148b5d06e63a1a1636, type: 3}
+  - {fileID: 21300000, guid: 212f56e986f988849853f5e7322ce622, type: 3}
+  - {fileID: 21300000, guid: 057e39045a0f0044bacd6280b56cf9d2, type: 3}
+  - {fileID: 21300000, guid: f7fe74352b2827a468521f408435c197, type: 3}
   phoneticMouthUVCoords:
   - {x: 0, y: 0}
   - {x: 1, y: 0}

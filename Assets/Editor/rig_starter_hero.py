@@ -1,3 +1,8 @@
+"""
+Blender headless Python script for auto-rigging starter hero humanoids.
+Executed inside Blender's embedded Python runtime.
+"""
+
 import bpy  # type: ignore
 import mathutils  # type: ignore
 import numpy as np  # type: ignore

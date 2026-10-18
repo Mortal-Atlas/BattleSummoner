@@ -21,7 +21,7 @@ namespace BattleSummoner.EditorScripts
             Debug.Log("======================================================================");
 
             int passed = 0;
-            int total = 13;
+            int total = 14;
 
             if (VerifySection0_1_FirstPlayableVerticalSlice()) passed++;
             if (VerifySection1_GuardianPactSignature()) passed++;
@@ -36,6 +36,7 @@ namespace BattleSummoner.EditorScripts
             if (VerifySection10_CharacterAnimationsAndBlending()) passed++;
             if (VerifySection11_MotionMatchingAndMocapCentral()) passed++;
             if (VerifySection12_AssetStorePropPacksAndUrbanLamps()) passed++;
+            if (VerifySection13_ModularFacialAnimationAndVisemeRig()) passed++;
 
             Debug.Log("======================================================================");
             if (passed == total)
@@ -689,6 +690,45 @@ namespace BattleSummoner.EditorScripts
             bool pass = prefabsValid && lampValid && scenePopulationValid;
 
             Debug.Log($"[VERIFY 12 - ASSET STORE PROPS & URBAN LAMPS] Result: {(pass ? "PASS" : "FAIL")} | Prefabs Found: {foundPrefabs}/{expectedPrefabs.Length}, Lamp Component Setup: {lampValid}, Active Scene Props Count: {(propsRoot != null ? propsRoot.transform.childCount : 0)}");
+            return pass;
+        }
+
+        private static bool VerifySection13_ModularFacialAnimationAndVisemeRig()
+        {
+            // 1. Verify FacialExpressionDatabaseSO
+            string dbPath = "Assets/Data/FacialAnimation/DefaultFacialExpressionDB.asset";
+            var db = AssetDatabase.LoadAssetAtPath<BattleSummoner.Character.FacialAnimation.FacialExpressionDatabaseSO>(dbPath);
+            bool dbValid = db != null && db.emotionSets.Count >= 9 && db.phoneticMouthVisemes != null && db.phoneticMouthVisemes.Length == 6;
+
+            // 2. Verify CharacterFaceAtlas.spriteatlas
+            string atlasPath = "Assets/Sprites/CharacterFaces/CharacterFaceAtlas.spriteatlas";
+            var atlas = AssetDatabase.LoadAssetAtPath<UnityEngine.U2D.SpriteAtlas>(atlasPath);
+            bool atlasValid = atlas != null;
+
+            // 3. Verify Shader
+            var shader = Shader.Find("BattleSummoner/Character/URP_ModularFaceCompositor");
+            bool shaderValid = shader != null && shader.isSupported;
+
+            // 4. Verify Hero Face Rig in active scene
+            var hero = GameObject.Find("Player_Hero");
+            var rig = hero != null ? hero.GetComponentInChildren<BattleSummoner.Character.FacialAnimation.ModularFaceRigController>() : null;
+            bool heroRigValid = rig != null && rig.expressionDB != null && rig.eyesAndBrowsRenderer != null && rig.mouthRenderer != null;
+
+            // 5. Verify Tag Parsing & Audio Evaluation Logic
+            bool tagParsingValid = false;
+            if (rig != null)
+            {
+                string rawDialogue = "[EMOTION: Angry] I will not yield to the Spire's shadow!";
+                string stripped = rig.ParseAndStripEmotionTags(rawDialogue);
+                tagParsingValid = (rig.currentEmotion == BattleSummoner.Character.FacialAnimation.FacialEmotion.Angry) 
+                    && stripped == "I will not yield to the Spire's shadow!";
+                // Reset to Happy for hero
+                rig.SetEmotion(BattleSummoner.Character.FacialAnimation.FacialEmotion.Happy);
+            }
+
+            bool pass = dbValid && atlasValid && shaderValid && heroRigValid && tagParsingValid;
+
+            Debug.Log($"[VERIFY 13 - MODULAR 2-CHANNEL FACIAL RIG & VISEMES] Result: {(pass ? "PASS" : "FAIL")} | DB Valid: {dbValid}, Atlas Valid: {atlasValid}, URP Shader: {shaderValid}, Hero Face Rig: {heroRigValid}, Tag Parsing: {tagParsingValid}");
             return pass;
         }
     }

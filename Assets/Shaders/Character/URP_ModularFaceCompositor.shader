@@ -12,6 +12,14 @@ Shader "BattleSummoner/Character/URP_ModularFaceCompositor"
         _LowerFaceTex("Lower Face Atlas (Mouth Visemes)", 2D) = "black" {}
         _LowerFaceRect("Lower Face Head UV Rect (MinX, MinY, Width, Height)", Vector) = (0.32, 0.20, 0.36, 0.16)
         _LowerFaceST("Lower Face Atlas Scale/Offset", Vector) = (1, 1, 0, 0)
+
+        [Header(Player Eye Color Override)]
+        [Toggle] _EnableIrisTint("Enable Player Eye Color Override", Float) = 0
+        _IrisTargetColor("Player Chosen Eye Color", Color) = (0.13, 0.65, 0.35, 1)
+        _IrisHueMin("Iris Green Hue Min (Degrees)", Range(100, 160)) = 135
+        _IrisHueMax("Iris Green Hue Max (Degrees)", Range(170, 220)) = 195
+        _IrisMinSat("Iris Min Saturation", Range(0.0, 0.5)) = 0.20
+        _IrisMinVal("Iris Min Luminance/Value", Range(0.0, 0.3)) = 0.10
     }
 
     SubShader
@@ -59,7 +67,31 @@ Shader "BattleSummoner/Character/URP_ModularFaceCompositor"
                 float4 _UpperFaceST;
                 float4 _LowerFaceRect;
                 float4 _LowerFaceST;
+                half4 _IrisTargetColor;
+                float _EnableIrisTint;
+                float _IrisHueMin;
+                float _IrisHueMax;
+                float _IrisMinSat;
+                float _IrisMinVal;
             CBUFFER_END
+
+            float3 RGBtoHSV(float3 rgb)
+            {
+                float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+                float4 p = lerp(float4(rgb.bg, K.wz), float4(rgb.gb, K.xy), step(rgb.b, rgb.g));
+                float4 q = lerp(float4(p.xyw, rgb.r), float4(rgb.r, p.yzx), step(p.x, rgb.r));
+
+                float d = q.x - min(q.w, q.y);
+                float e = 1.0e-10;
+                return float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+            }
+
+            float3 HSVtoRGB(float3 hsv)
+            {
+                float4 K = float4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+                float3 p = abs(frac(hsv.xxx + K.xyz) * 6.0 - K.www);
+                return hsv.z * lerp(K.xxx, saturate(p - K.xxx), hsv.y);
+            }
 
             Varyings vert(Attributes IN)
             {
@@ -91,6 +123,23 @@ Shader "BattleSummoner/Character/URP_ModularFaceCompositor"
 
                 // Composite Channel 1: Upper Face (Eyebrows + Eyes)
                 half4 upperSample = SampleDecalRegion(_UpperFaceTex, sampler_UpperFaceTex, IN.uv, _UpperFaceRect, _UpperFaceST);
+
+                // Real-time GPU green iris tinting
+                if (_EnableIrisTint > 0.5 && upperSample.a > 0.05)
+                {
+                    float3 hsv = RGBtoHSV(upperSample.rgb);
+                    float hueDeg = hsv.x * 360.0;
+
+                    if (hueDeg >= _IrisHueMin && hueDeg <= _IrisHueMax && hsv.y >= _IrisMinSat && hsv.z >= _IrisMinVal)
+                    {
+                        float3 targetHSV = RGBtoHSV(_IrisTargetColor.rgb);
+                        float newH = targetHSV.x;
+                        float newS = saturate(hsv.y * (targetHSV.y / max(0.01, 0.75)));
+                        float newV = hsv.z * (targetHSV.z / max(0.01, 0.85));
+                        upperSample.rgb = HSVtoRGB(float3(newH, newS, newV));
+                    }
+                }
+
                 half3 compositeRGB = lerp(baseSkin.rgb, upperSample.rgb, upperSample.a);
 
                 // Composite Channel 2: Lower Face (Mouth)

@@ -49,6 +49,12 @@ namespace BattleSummoner.Character.FacialAnimation
         public float voiceGateRmsThreshold = 0.0075f;
         public float visemeHoldCadenceSeconds = 0.045f; // ~22 FPS anime mouth cadence
 
+        [Header("Player Eye Iris Color Customization")]
+        [Tooltip("Enable dynamic GPU recoloring of the green iris reference to any chosen color")]
+        public bool enableEyeColorOverride = false;
+        public Color eyeIrisColor = new Color(0.13f, 0.65f, 0.35f, 1f); // Default Reference Emerald Green
+        public Material eyeIrisMaterial;
+
         // Pre-allocated 256-sample PCM buffer for zero-GC audio evaluation
         private readonly float[] _pcmSamples = new float[256];
         private MaterialPropertyBlock _mpb;
@@ -59,16 +65,20 @@ namespace BattleSummoner.Character.FacialAnimation
 
         private static readonly int UpperFaceSTProp = Shader.PropertyToID("_UpperFaceST");
         private static readonly int LowerFaceSTProp = Shader.PropertyToID("_LowerFaceST");
+        private static readonly int IrisTargetColorProp = Shader.PropertyToID("_IrisTargetColor");
+        private static readonly int EnableIrisTintProp = Shader.PropertyToID("_EnableIrisTint");
         private static readonly Regex EmotionTagRegex = new Regex(@"\[EMOTION:\s*([a-zA-Z0-9_]+)\]", RegexOptions.IgnoreCase);
 
         private void Awake()
         {
             _mpb = new MaterialPropertyBlock();
             ApplySpatialAnchors();
+            ApplyEyeColorCustomization();
         }
 
         private void OnEnable()
         {
+            ApplyEyeColorCustomization();
             ApplyEmotionVisuals(currentEmotion);
             _blinkRoutine = StartCoroutine(StochasticBlinkCoroutine());
         }
@@ -112,6 +122,52 @@ namespace BattleSummoner.Character.FacialAnimation
         {
             currentEmotion = newEmotion;
             ApplyEmotionVisuals(currentEmotion);
+        }
+
+        [ContextMenu("Apply Eye Color Customization")]
+        public void ApplyEyeColorCustomization()
+        {
+            if (_mpb == null) _mpb = new MaterialPropertyBlock();
+
+            float enableFloat = enableEyeColorOverride ? 1f : 0f;
+
+            if (renderMode == FaceRenderMode.SpriteRendererStack2D && eyesAndBrowsRenderer != null)
+            {
+                if (enableEyeColorOverride && (eyesAndBrowsRenderer.sharedMaterial == null || !eyesAndBrowsRenderer.sharedMaterial.shader.name.Contains("EyeIrisTint")))
+                {
+                    if (eyeIrisMaterial == null)
+                    {
+                        var shader = Shader.Find("BattleSummoner/Character/URP_SpriteEyeIrisTint");
+                        if (shader != null)
+                        {
+                            eyeIrisMaterial = new Material(shader) { name = "Mat_EyeIrisTint_Runtime" };
+                        }
+                    }
+                    if (eyeIrisMaterial != null)
+                    {
+                        eyesAndBrowsRenderer.sharedMaterial = eyeIrisMaterial;
+                    }
+                }
+
+                eyesAndBrowsRenderer.GetPropertyBlock(_mpb);
+                _mpb.SetColor(IrisTargetColorProp, eyeIrisColor);
+                _mpb.SetFloat(EnableIrisTintProp, enableFloat);
+                eyesAndBrowsRenderer.SetPropertyBlock(_mpb);
+            }
+            else if (renderMode == FaceRenderMode.MeshUVAtlas3D && headMeshRenderer3D != null)
+            {
+                headMeshRenderer3D.GetPropertyBlock(_mpb, headMaterialIndex);
+                _mpb.SetColor(IrisTargetColorProp, eyeIrisColor);
+                _mpb.SetFloat(EnableIrisTintProp, enableFloat);
+                headMeshRenderer3D.SetPropertyBlock(_mpb, headMaterialIndex);
+            }
+        }
+
+        public void SetEyeColor(Color newColor)
+        {
+            eyeIrisColor = newColor;
+            enableEyeColorOverride = true;
+            ApplyEyeColorCustomization();
         }
 
         /// <summary>
