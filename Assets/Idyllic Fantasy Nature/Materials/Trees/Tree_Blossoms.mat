@@ -8,23 +8,23 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Tree_Blossoms
-  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 3230f6c5d09dd114c82b2287fcc7e15b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ALPHATEST_ON
+  - _COLOR_OVERLAY_UV
   - _SPECULAR_SETUP
   m_InvalidKeywords:
   - _BEND_WIND_OVERLAY_VERTEX_POSITION
   - _CAST_SHADOWS
   - _CAST_SHADOWS_OFF
-  - _COLOR_OVERLAY_UV
   - _OVERLAY_UV
   - _WIND_OVERLAY_UV
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: 2450
+  m_CustomRenderQueue: -1
   stringTagMap:
     RenderType: TransparentCutout
   disabledShaderPasses:
@@ -58,7 +58,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 26647296c5011a54ba490d167e36716d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -99,7 +99,7 @@ Material:
     - _AlphaClip: 1
     - _AlphaCutoff: 0.5
     - _AlphaToMask: 1
-    - _Alpha_Cutoff: 0.35
+    - _Alpha_Cutoff: 0.5
     - _BEND_WIND_OVERLAY: 0
     - _Bend: 0
     - _Bend_Range: 1
@@ -167,13 +167,13 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 0.65, b: 0.82, a: 1}
     - _BottomColor: {r: 0.86401826, g: 0.4198113, b: 1, a: 0}
-    - _Bottom_Color: {r: 1, g: 0.5990566, b: 0.7399288, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Bottom_Color: {r: 0.9, g: 0.35, b: 0.65, a: 1}
+    - _Color: {r: 1, g: 0.65, b: 0.82, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Player_Position: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _TopColor: {r: 1, g: 0.4292453, b: 0.4292453, a: 0}
-    - _Top_Color: {r: 1, g: 0.495283, b: 0.7867392, a: 1}
+    - _Top_Color: {r: 1, g: 0.5, b: 0.8, a: 1}
     - _WindDirection: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _Wind_Direction: {r: 0.1, g: 0.1, b: 0, a: 0}
   m_BuildTextureStacks: []
