@@ -224,6 +224,8 @@ MonoBehaviour:
   llmEndpoint: https://api.together.xyz/v1/chat/completions
   apiKey: YOUR_INFERENCE_API_KEY
   targetModel: mistralai/Mistral-7B-Instruct-v0.3
+  autoSpeakDialogue: 1
+  facialController: {fileID: 0}
 --- !u!114 &1331673396688886838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,6 +244,10 @@ MonoBehaviour:
   rotationSpeed: 10
   attackRange: 3
   supportCooldown: 6
+  activeBattleFormName: Basic Bond
+  attackMultiplier: 1
+  defenseMultiplier: 1
+  specialTrait: Standard Support
 --- !u!1 &6805860993321677273
 GameObject:
   m_ObjectHideFlags: 0

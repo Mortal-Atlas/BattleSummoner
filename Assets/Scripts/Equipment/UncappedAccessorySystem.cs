@@ -19,6 +19,7 @@ public class AccessoryDefinition
     public bool isPremiumStoreTier;
     public ScalingCurveType scalingType;
     public float baseModifier = 0.25f; // e.g., 0.25 for +25%, or 3.0 for 3x strike
+    public float baseStackEffect { get => baseModifier; set => baseModifier = value; }
     public int marketValueInManaCores = 150;
 }
 
@@ -169,6 +170,8 @@ public class UncappedAccessorySystem : MonoBehaviour
         return (baseSwipeDamage * (1.0f + additiveSum)) * compoundProduct;
     }
 
+    public List<AccessoryStackNode> activeBuffer => serializedBuffer;
+    public void AddAccessoryStack(AccessoryDefinition def, int amount = 1) => AcquireAccessory(def, amount);
     public IReadOnlyList<AccessoryStackNode> GetActiveBuffer() => serializedBuffer;
 
     public AccessoryStackNode GetStackNode(string accessoryId)

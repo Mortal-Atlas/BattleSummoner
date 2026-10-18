@@ -21,6 +21,14 @@ public class EquipmentSystem : MonoBehaviour
     public string armorItemId = "spire_warden_cuirass_tier1";
     public bool isTwoHandedEquipped = false;
 
+    public WeaponSlotType ActiveWeaponSlotType => isTwoHandedEquipped ? WeaponSlotType.TwoHanded : WeaponSlotType.OneHanded;
+
+    public float GetActiveProficiencyExpRate()
+    {
+        var contractSys = GetComponent<BindingContractSystem>() ?? BindingContractSystem.Instance;
+        return contractSys != null ? contractSys.GetWeaponProficiencyExpRate(ActiveWeaponSlotType) : 1.0f;
+    }
+
     [Header("Uncapped Accessory Buffer")]
     public List<AccessoryItem> equippedAccessories = new List<AccessoryItem>();
 

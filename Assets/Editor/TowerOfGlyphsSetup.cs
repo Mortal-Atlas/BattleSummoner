@@ -1880,6 +1880,7 @@ public static class TowerOfGlyphsSetup
         cam.fieldOfView = 56f;
         cam.allowMSAA = true;
         cam.allowHDR = true;
+        camObj.AddComponent<BattleSummoner.Dialogue.CampfirePanoramicCameraController>();
 
         UniversalAdditionalCameraData camData = camObj.GetComponent<UniversalAdditionalCameraData>();
         camData.renderType = CameraRenderType.Base;
@@ -1898,6 +1899,11 @@ public static class TowerOfGlyphsSetup
         margoInst.name = "NPC_Margo";
         margoInst.transform.position = new Vector3(-2.0f, 0f, 0.4f);
         margoInst.transform.rotation = Quaternion.Euler(0f, 115f, 0f);
+        if (margoInst.GetComponent<Collider>() == null)
+        {
+            var col = margoInst.AddComponent<CapsuleCollider>();
+            col.height = 1.8f; col.radius = 0.45f; col.center = new Vector3(0, 0.9f, 0);
+        }
 
         GameObject margoSpotObj = new GameObject("MargoSpotlight", typeof(Light));
         margoSpotObj.transform.SetParent(margoInst.transform, false);
@@ -1919,6 +1925,11 @@ public static class TowerOfGlyphsSetup
         barnabyInst.name = "NPC_Barnaby";
         barnabyInst.transform.position = new Vector3(0f, 0f, 2.0f);
         barnabyInst.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        if (barnabyInst.GetComponent<Collider>() == null)
+        {
+            var col = barnabyInst.AddComponent<CapsuleCollider>();
+            col.height = 1.8f; col.radius = 0.45f; col.center = new Vector3(0, 0.9f, 0);
+        }
 
         GameObject barnabySpotObj = new GameObject("BarnabySpotlight", typeof(Light));
         barnabySpotObj.transform.SetParent(barnabyInst.transform, false);
@@ -1940,6 +1951,11 @@ public static class TowerOfGlyphsSetup
         zephyrInst.name = "NPC_Zephyr";
         zephyrInst.transform.position = new Vector3(2.0f, 0f, 0.4f);
         zephyrInst.transform.rotation = Quaternion.Euler(0f, -115f, 0f);
+        if (zephyrInst.GetComponent<Collider>() == null)
+        {
+            var col = zephyrInst.AddComponent<CapsuleCollider>();
+            col.height = 1.8f; col.radius = 0.45f; col.center = new Vector3(0, 0.9f, 0);
+        }
 
         GameObject zephyrSpotObj = new GameObject("ZephyrSpotlight", typeof(Light));
         zephyrSpotObj.transform.SetParent(zephyrInst.transform, false);
@@ -2137,6 +2153,7 @@ public static class TowerOfGlyphsSetup
         // DialogueHubController & Script wiring
         GameObject hubObj = new GameObject("DialogueHubController");
         MultiCharacterConversationHub hub = hubObj.AddComponent<MultiCharacterConversationHub>();
+        hubObj.AddComponent<BattleSummoner.Dialogue.CampfireDualDialogueController>();
         SerializedObject hubSo = new SerializedObject(hub);
 
         SerializedProperty actorsProp = hubSo.FindProperty("actors");

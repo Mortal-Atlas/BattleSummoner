@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c31db01878bf13349ad63412e05a6815
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355856
+  packageName: Render Particles Always On Top
+  packageVersion: 1.0.0
+  assetPath: Assets/Vefects/Stylized Fire VFX/Demo/Scenes/Stylized Fire/Global Volume
+    Profile.asset
+  uploadId: 849416

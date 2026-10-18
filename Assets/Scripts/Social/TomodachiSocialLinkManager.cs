@@ -41,6 +41,9 @@ namespace BattleSummoner.Social
         public static event Action<SocialEntityProfile, int> OnAffinityChanged;
         public static event Action<SocialEntityProfile, TomodachiMood> OnMoodChanged;
         public static event Action<SocialEntityProfile, int> OnRankUp;
+        public static event Action<SocialEntityProfile, SocialLinkBattleForm> OnBattleFormUnlocked;
+        public static event Action<SocialEntityProfile, CombinationAttackDefinition> OnCombinationAttackUnlocked;
+        public static event Action<SocialEntityProfile, HangoutActivityType> OnHangoutCompleted;
 
         // Tamagotchi Pet Care Events
         public static event Action<SocialEntityProfile, PetTreatItem> OnPetFed;
@@ -268,6 +271,60 @@ namespace BattleSummoner.Social
                 affinityDeltaB = -10,
                 moodB = TomodachiMood.Annoyed
             });
+            margo.battleForms = new List<SocialLinkBattleForm>
+            {
+                new SocialLinkBattleForm
+                {
+                    formId = "form_margo_1",
+                    formName = "Acolyte of Aegis",
+                    unlockedAtRank = 1,
+                    formDescription = "Margo weaves a gentle light ward around you, reinforcing defensive wards.",
+                    bonusDefenseMultiplier = 1.10f,
+                    specialAidTrait = "Ward of Solas: +10% Defense"
+                },
+                new SocialLinkBattleForm
+                {
+                    formId = "form_margo_4",
+                    formName = "Vanguard Templar",
+                    unlockedAtRank = 4,
+                    formDescription = "Empowered by deep trust, Margo manifests radiant barrier pulses that deflect kinetic strikes.",
+                    bonusDefenseMultiplier = 1.25f,
+                    bonusAttackMultiplier = 1.10f,
+                    specialAidTrait = "Kinetic Deflection: 15% chance to deflect incoming strikes"
+                },
+                new SocialLinkBattleForm
+                {
+                    formId = "form_margo_7",
+                    formName = "Lumina Paladin",
+                    unlockedAtRank = 7,
+                    formDescription = "Margo channels the High Priestess arcana, generating an astral prism shield on near-lethal damage.",
+                    bonusDefenseMultiplier = 1.40f,
+                    bonusAttackMultiplier = 1.20f,
+                    specialAidTrait = "Astral Prism: Grants a 200 HP barrier when dropping below 25% Health"
+                },
+                new SocialLinkBattleForm
+                {
+                    formId = "form_margo_10",
+                    formName = "Celestial Valkyrie (Transcendent Form)",
+                    unlockedAtRank = 10,
+                    formDescription = "The ultimate bond of souls. Margo transcends mortal limits, granting party invulnerability pulses and resurrection grace.",
+                    bonusDefenseMultiplier = 1.60f,
+                    bonusAttackMultiplier = 1.35f,
+                    specialAidTrait = "Aegis Miracle: Auto-revives player once per dungeon run with full health"
+                }
+            };
+            margo.combinationAttack = new CombinationAttackDefinition
+            {
+                comboId = "combo_margo_unison",
+                comboName = "Aegis & Blade: Grand Cross Unison",
+                unlockedAtRank = 2,
+                baseDamage = 450f,
+                healAmount = 120f,
+                isGuaranteedCrit = true,
+                element = "Radiant Holy",
+                description = "Player and Margo perform a synchronized radiant cross-slash dealing 450 Holy damage to all enemies and granting 120 HP barrier healing.",
+                cinematicQuote = "Together now, under the light of Aegis!"
+            };
             roster.Add(margo);
 
             // 2. NPC: Balthazar the Shadow Broker (The Devil)
@@ -602,6 +659,363 @@ namespace BattleSummoner.Social
                 }
             };
             roster.Add(talos);
+
+            // 7. NPC: Mayor Barnaby (The Emperor)
+            var barnaby = new SocialEntityProfile
+            {
+                entityId = "npc_barnaby",
+                displayName = "Mayor Barnaby",
+                subtitle = "Civic Leader of Solas",
+                entityType = SocialEntityType.NPC,
+                arcana = TarotArcana.TheEmperor,
+                arcanaTitle = "THE EMPEROR",
+                portraitSpriteName = "Mockup_PersonaPortrait_Barnaby.png",
+                loreDescription = "Steadfast mayor and chief magistrate of Solas. Dedicated to civil infrastructure, town defense, and citizen welfare.",
+                currentAffinity = 20,
+                socialLinkRank = 2,
+                currentMood = TomodachiMood.Happy,
+                lovedGiftIds = new List<string> { "relic_whetstone", "spire_gold_sack", "cryptex" },
+                likedGiftIds = new List<string> { "potion_amber", "potion_elixir" },
+                dislikedGiftIds = new List<string> { "slimy_ooze", "counterfeit_coin" },
+                hatedGiftIds = new List<string> { "cursed_skull", "void_flesh" },
+                lovedGiftLine = "\"An extraordinary piece of statecraft! Solas is indebted to your fine generosity, Summoner!\"",
+                likedGiftLine = "\"Much obliged, traveler. This shall aid our ongoing civic restoration efforts.\"",
+                neutralGiftLine = "\"A practical offering. The township appreciates your contribution.\"",
+                dislikedGiftLine = "\"Hrmph. A bit unrefined for municipal standards, don't you think?\"",
+                hatedGiftLine = "\"Preposterous! I will not have hazardous contraband polluting our municipal chambers!\"",
+                rankUpLine = "The mantle of leadership rests easily upon aligned shoulders. The Emperor's decree safeguards your destiny!",
+                positiveBuff = new SocialLinkModifier
+                {
+                    id = "buff_barnaby",
+                    title = "Civic Prosperity",
+                    isBuff = true,
+                    description = "+20% Gold Gains & +15% Dungeon EXP Payout.",
+                    xpMultiplier = 1.15f,
+                    shopSellMultiplier = 1.20f
+                },
+                battleForms = new List<SocialLinkBattleForm>
+                {
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_barnaby_1",
+                        formName = "Town Magistrate",
+                        unlockedAtRank = 1,
+                        formDescription = "Barnaby leverages civic logistics to increase battle spoils and potion efficiency.",
+                        bonusDefenseMultiplier = 1.05f,
+                        specialAidTrait = "Civic Logistical Support: +10% Potion recovery potency"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_barnaby_4",
+                        formName = "High Chancellor",
+                        unlockedAtRank = 4,
+                        formDescription = "Municipal authority rallies the vanguard with tactical defensive formations.",
+                        bonusDefenseMultiplier = 1.20f,
+                        bonusAttackMultiplier = 1.10f,
+                        specialAidTrait = "Tactical Phalanx: Reduces burst damage taken by 15%"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_barnaby_7",
+                        formName = "Sovereign of Solas",
+                        unlockedAtRank = 7,
+                        formDescription = "The town rally behind their mayor, summoning clockwork auxiliary turrets in boss encounters.",
+                        bonusDefenseMultiplier = 1.35f,
+                        bonusAttackMultiplier = 1.25f,
+                        specialAidTrait = "Fortress Bulwark: Summons an adamantine turret upon entering boss rooms"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_barnaby_10",
+                        formName = "Imperial Regent (Transcendent Form)",
+                        unlockedAtRank = 10,
+                        formDescription = "The pinnacle of civil order. Calls in devastating town air-barrages and grants permanent +30% Gold & EXP.",
+                        bonusDefenseMultiplier = 1.50f,
+                        bonusAttackMultiplier = 1.40f,
+                        specialAidTrait = "Decree of Imperial Sovereignty: Periodic orbital artillery strikes on dungeon floors"
+                    }
+                },
+                combinationAttack = new CombinationAttackDefinition
+                {
+                    comboId = "combo_barnaby_unison",
+                    comboName = "Decree of Solas: Royal Bombardment",
+                    unlockedAtRank = 2,
+                    baseDamage = 480f,
+                    healAmount = 0f,
+                    element = "Physical Kinetic",
+                    description = "Player marks the target zone as Mayor Barnaby calls down a coordinated municipal artillery barrage, dealing 480 Kinetic damage.",
+                    cinematicQuote = "By the authority of Solas, order shall prevail!"
+                }
+            };
+            roster.Add(barnaby);
+
+            // 8. NPC: Cheryl the Herbalist (The Lovers)
+            var cheryl = new SocialEntityProfile
+            {
+                entityId = "npc_cheryl",
+                displayName = "Cheryl",
+                subtitle = "Verdant Botanist & Healer",
+                entityType = SocialEntityType.NPC,
+                arcana = TarotArcana.TheLovers,
+                arcanaTitle = "THE LOVERS",
+                portraitSpriteName = "Mockup_PersonaPortrait_Cheryl.png",
+                loreDescription = "Compassionate nature botanist tending the lush flora of Solas. Brews restorative salves and listens to the whisper of forest blossoms.",
+                currentAffinity = 35,
+                socialLinkRank = 3,
+                currentMood = TomodachiMood.Happy,
+                lovedGiftIds = new List<string> { "treat_berry", "toy_ribbon", "potion_elixir" },
+                likedGiftIds = new List<string> { "potion_amber", "ice_crystal" },
+                dislikedGiftIds = new List<string> { "fire_essence", "relic_whetstone" },
+                hatedGiftIds = new List<string> { "slimy_ooze", "counterfeit_coin" },
+                lovedGiftLine = "\"Oh my goodness! Look at the vibrant petals on this flora! You truly understand my garden's heart!\"",
+                likedGiftLine = "\"How lovely! I can distill these petals into a soothing healing draught for you!\"",
+                neutralGiftLine = "\"Thank you, friend. I will add this to our greenhouse collection.\"",
+                dislikedGiftLine = "\"Oh dear... the harsh heat from this item might wither my delicate seedlings...\"",
+                hatedGiftLine = "\"Eek! Blight and rot! Please keep that far away from my botanical terrariums!\"",
+                rankUpLine = "A blossoming bud unfurls beneath the morning dew... The Lovers bless our tender bond with eternal renewal!",
+                positiveBuff = new SocialLinkModifier
+                {
+                    id = "buff_cheryl",
+                    title = "Verdant Blossom",
+                    isBuff = true,
+                    description = "+35% Healing Effectiveness & Continuous +8 HP/sec Regeneration.",
+                    playerDefenseMultiplier = 1.10f
+                },
+                battleForms = new List<SocialLinkBattleForm>
+                {
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_cheryl_1",
+                        formName = "Village Herbalist",
+                        unlockedAtRank = 1,
+                        formDescription = "Cheryl coats your weapons with soothing botanical dew, enhancing healing received.",
+                        bonusDefenseMultiplier = 1.05f,
+                        specialAidTrait = "Dewdrop Salve: +15% Potency to all healing spells and items"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_cheryl_4",
+                        formName = "Sylphid Songstress",
+                        unlockedAtRank = 4,
+                        formDescription = "Cheryl sings verdant hymns that cleanse status ailments and accelerate mana flow.",
+                        bonusDefenseMultiplier = 1.15f,
+                        bonusAttackMultiplier = 1.10f,
+                        specialAidTrait = "Purifying Hymn: Automatically cleanses Burn, Poison, and Freeze every 12 seconds"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_cheryl_7",
+                        formName = "Faerie High Priestess",
+                        unlockedAtRank = 7,
+                        formDescription = "Surrounded by dancing faerie motes, Cheryl creates an aura of constant regeneration.",
+                        bonusDefenseMultiplier = 1.30f,
+                        bonusAttackMultiplier = 1.20f,
+                        specialAidTrait = "Genesis Flora: Continuous +15 HP/sec green ticking regeneration for party"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_cheryl_10",
+                        formName = "Verdant Archdruid (Transcendent Form)",
+                        unlockedAtRank = 10,
+                        formDescription = "Complete harmony with nature. Grants party invulnerability during lethal damage and summons restorative treant guardians.",
+                        bonusDefenseMultiplier = 1.50f,
+                        bonusAttackMultiplier = 1.30f,
+                        specialAidTrait = "Bloom of Immortality: Prevents lethal blow, instantly restoring 50% HP & MP"
+                    }
+                },
+                combinationAttack = new CombinationAttackDefinition
+                {
+                    comboId = "combo_cheryl_unison",
+                    comboName = "Verdant Sanctuary: Genesis Bloom",
+                    unlockedAtRank = 2,
+                    baseDamage = 320f,
+                    healAmount = 260f,
+                    isGuaranteedCrit = false,
+                    element = "Nature Radiant",
+                    description = "Cheryl and Player sprout an enchanted floral circle, bursting with 320 Nature damage to foes and restoring 260 HP with ticking green numbers.",
+                    cinematicQuote = "Bloom forth, gentle light! Heal our wounds and cleanse the earth!"
+                }
+            };
+            roster.Add(cheryl);
+
+            // 9. NPC: Keith the Apprentice Smith (The Chariot)
+            var keith = new SocialEntityProfile
+            {
+                entityId = "npc_keith",
+                displayName = "Keith",
+                subtitle = "Hot-Blooded Forge Striker",
+                entityType = SocialEntityType.NPC,
+                arcana = TarotArcana.TheChariot,
+                arcanaTitle = "THE CHARIOT",
+                portraitSpriteName = "Mockup_PersonaPortrait_Keith.png",
+                loreDescription = "Passionate blacksmith apprentice who yearns to forge legendary God-Tier armament. Always ready for a heated sparring match.",
+                currentAffinity = 25,
+                socialLinkRank = 2,
+                currentMood = TomodachiMood.Happy,
+                lovedGiftIds = new List<string> { "relic_whetstone", "fire_essence", "mat_ruby" },
+                likedGiftIds = new List<string> { "iron_ingot", "weapon_bow" },
+                dislikedGiftIds = new List<string> { "treat_flan", "ice_crystal" },
+                hatedGiftIds = new List<string> { "vial_stagnant_water", "rust_powder" },
+                lovedGiftLine = "\"YOOO! This whetstone has an insane tempering grain! My hammer is on fire! Let's forge something epic!\"",
+                likedGiftLine = "\"Solid raw material! I'll smelt this into high-grade alloy in no time!\"",
+                neutralGiftLine = "\"Thanks, pal. I can always use extra scrap around the forge.\"",
+                dislikedGiftLine = "\"Uhh, sweet flan? I need protein and steel, not dessert, mate!\"",
+                hatedGiftLine = "\"RUST?! Are you trying to ruin my masterwork anvils?! Keep that garbage away!\"",
+                rankUpLine = "Sparks leap from the anvil of our spirits! The Chariot surges forward, unbreakable and fiercely tempered!",
+                positiveBuff = new SocialLinkModifier
+                {
+                    id = "buff_keith",
+                    title = "Tempered Edge",
+                    isBuff = true,
+                    description = "+25% Physical Attack Damage & +15% Stagger Break Multiplier.",
+                    playerDefenseMultiplier = 1.05f
+                },
+                battleForms = new List<SocialLinkBattleForm>
+                {
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_keith_1",
+                        formName = "Apprentice Smith",
+                        unlockedAtRank = 1,
+                        formDescription = "Keith sharpens your blades, increasing critical strike chance.",
+                        bonusAttackMultiplier = 1.10f,
+                        specialAidTrait = "Honed Edge: +10% Attack Damage"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_keith_4",
+                        formName = "Flameforged Berserker",
+                        unlockedAtRank = 4,
+                        formDescription = "Fierce hammer strikes ignite the air, adding fiery splash explosions to melee strikes.",
+                        bonusAttackMultiplier = 1.25f,
+                        bonusDefenseMultiplier = 1.10f,
+                        specialAidTrait = "Molten Cleave: Melee attacks trigger fire shockwaves dealing 40 damage"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_keith_7",
+                        formName = "Volcanic Juggernaut",
+                        unlockedAtRank = 7,
+                        formDescription = "Coated in molten slag, Keith renders the player immune to knockdown and stagger.",
+                        bonusAttackMultiplier = 1.40f,
+                        bonusDefenseMultiplier = 1.25f,
+                        specialAidTrait = "Unstoppable Iron: Total immunity to enemy knockback and kinetic stagger"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_keith_10",
+                        formName = "Promethean Titan (Transcendent Form)",
+                        unlockedAtRank = 10,
+                        formDescription = "Transcendent forge avatar. Every strike triggers red CRIT! explosions and burns armor.",
+                        bonusAttackMultiplier = 1.65f,
+                        bonusDefenseMultiplier = 1.35f,
+                        specialAidTrait = "God-Forge Sunder: Critical strikes shred 50% enemy physical armor"
+                    }
+                },
+                combinationAttack = new CombinationAttackDefinition
+                {
+                    comboId = "combo_keith_unison",
+                    comboName = "Infernal Crucible: Earthbreaker Cleave",
+                    unlockedAtRank = 2,
+                    baseDamage = 550f,
+                    healAmount = 0f,
+                    isGuaranteedCrit = true,
+                    element = "Fire Physical",
+                    description = "Player and Keith perform a dual aerial slam, sundering the earth and causing 550 Fire damage with guaranteed red CRIT! popups.",
+                    cinematicQuote = "Strike the iron while it's WHITE HOT! HAMMER DOWN!"
+                }
+            };
+            roster.Add(keith);
+
+            // 10. NPC: Zephyr the Windstrider (Justice)
+            var zephyr = new SocialEntityProfile
+            {
+                entityId = "npc_zephyr",
+                displayName = "Zephyr",
+                subtitle = "Tempest Scout & Duelist",
+                entityType = SocialEntityType.NPC,
+                arcana = TarotArcana.Justice,
+                arcanaTitle = "JUSTICE",
+                portraitSpriteName = "Mockup_PersonaPortrait_Zephyr.png",
+                loreDescription = "Agile ranger patrolling the gusty Spire heights and misty groves. Master of rapid gale strikes and pinpoint wind darts.",
+                currentAffinity = 30,
+                socialLinkRank = 3,
+                currentMood = TomodachiMood.Happy,
+                lovedGiftIds = new List<string> { "weapon_bow", "celestial_feather", "potion_amber" },
+                likedGiftIds = new List<string> { "mat_ruby", "potion_elixir" },
+                dislikedGiftIds = new List<string> { "blunt_rock", "refined_oil" },
+                hatedGiftIds = new List<string> { "slimy_ooze", "cursed_skull" },
+                lovedGiftLine = "\"The balance on this bowstring is immaculate! Like the breath of the Zephyr winds themselves!\"",
+                likedGiftLine = "\"A swift tribute for a swift scout. I'll make excellent use of this on patrol.\"",
+                neutralGiftLine = "\"Appreciated. Good equipment keeps one alive in the misty heights.\"",
+                dislikedGiftLine = "\"Too clunky and heavy. Bulkiness will get you killed by swift predators.\"",
+                hatedGiftLine = "\"Vile darkness has no place beneath the open sky! Put that away!\"",
+                rankUpLine = "The scales of balance tip toward our shared truth! Justice strikes like the unerring gale!",
+                positiveBuff = new SocialLinkModifier
+                {
+                    id = "buff_zephyr",
+                    title = "Gale Stride",
+                    isBuff = true,
+                    description = "+25% Movement Speed & +20% Critical Strike Chance.",
+                    playerMoveSpeedMultiplier = 1.25f
+                },
+                battleForms = new List<SocialLinkBattleForm>
+                {
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_zephyr_1",
+                        formName = "Gale Scout",
+                        unlockedAtRank = 1,
+                        formDescription = "Zephyr grants wind slipstream, accelerating movement and dash speed.",
+                        bonusAttackMultiplier = 1.05f,
+                        specialAidTrait = "Tailwind: +15% Movement speed and sprint duration"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_zephyr_4",
+                        formName = "Tempest Assassin",
+                        unlockedAtRank = 4,
+                        formDescription = "Pinpoint wind daggers seek vital weak points, guaranteeing crits against staggered enemies.",
+                        bonusAttackMultiplier = 1.20f,
+                        bonusCritRate = 0.20f,
+                        specialAidTrait = "Gale Precision: +20% Critical Strike Rate on all attacks"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_zephyr_7",
+                        formName = "Storm Phantom",
+                        unlockedAtRank = 7,
+                        formDescription = "Zephyr weaves after-images that confuse enemies and dodge incoming projectile barrages.",
+                        bonusAttackMultiplier = 1.35f,
+                        bonusDefenseMultiplier = 1.15f,
+                        bonusCritRate = 0.30f,
+                        specialAidTrait = "Mirage Dodge: 25% chance to completely evade any attack"
+                    },
+                    new SocialLinkBattleForm
+                    {
+                        formId = "form_zephyr_10",
+                        formName = "Wind Lord (Transcendent Form)",
+                        unlockedAtRank = 10,
+                        formDescription = "Lord of the boundless sky. All hits pierce through enemy armor and generate tornado vortexes.",
+                        bonusAttackMultiplier = 1.60f,
+                        bonusCritRate = 0.45f,
+                        specialAidTrait = "Tempest Cyclone: Critical hits summon miniature vortices pulling enemies in"
+                    }
+                },
+                combinationAttack = new CombinationAttackDefinition
+                {
+                    comboId = "combo_zephyr_unison",
+                    comboName = "Eye of the Tempest: Thousand Gales",
+                    unlockedAtRank = 2,
+                    baseDamage = 520f,
+                    healAmount = 0f,
+                    isGuaranteedCrit = true,
+                    element = "Wind Pierce",
+                    description = "Player and Zephyr dart across enemies in blinding zigzag streaks, dealing 520 Pierce damage with flashing red CRIT! popups.",
+                    cinematicQuote = "Swift as the gale, sharp as lightning! NONE SHALL ESCAPE!"
+                }
+            };
+            roster.Add(zephyr);
         }
 
         public SocialEntityProfile GetEntity(string entityId)
@@ -722,6 +1136,35 @@ namespace BattleSummoner.Social
             }
 
             OnRankUp?.Invoke(entity, entity.socialLinkRank);
+
+            // Check if a new Battle Form is unlocked at this rank
+            var unlockedForm = entity.battleForms != null ? entity.battleForms.Find(f => f.unlockedAtRank == entity.socialLinkRank) : null;
+            if (unlockedForm != null)
+            {
+                OnBattleFormUnlocked?.Invoke(entity, unlockedForm);
+                if (DevClassLoadoutManager.Instance != null)
+                {
+                    DevClassLoadoutManager.Instance.ShowToast(
+                        $"<color=#00FFFF><b>★ BATTLE FORM EVOLVED! ★</b></color>\n" +
+                        $"<b>{entity.displayName}</b> unlocked <b>{unlockedForm.formName}</b>!\n" +
+                        $"<i>{unlockedForm.specialAidTrait}</i>"
+                    );
+                }
+            }
+
+            // Check if Combination / Unison Attack is unlocked
+            if (entity.combinationAttack != null && entity.combinationAttack.unlockedAtRank == entity.socialLinkRank)
+            {
+                OnCombinationAttackUnlocked?.Invoke(entity, entity.combinationAttack);
+                if (DevClassLoadoutManager.Instance != null)
+                {
+                    DevClassLoadoutManager.Instance.ShowToast(
+                        $"<color=#FFE040><b>⚔ UNISON ATTACK UNLOCKED! ⚔</b></color>\n" +
+                        $"<b>{entity.displayName} & Summoner</b>\n" +
+                        $"Duo Combo: <b>{entity.combinationAttack.comboName}</b>"
+                    );
+                }
+            }
 
             // Trigger Persona Cutscene announcement
             if (PersonaDialogueUI.Instance != null)
@@ -852,6 +1295,103 @@ namespace BattleSummoner.Social
             {
                 PersonaDialogueUI.Instance.ShowSimpleDialogue(entity.displayName, entity.arcanaTitle, port, new string[] { sparLine });
             }
+        }
+
+        /// <summary>
+        /// Hangs out and socializes with companions and townsfolk at scenic spots across Solas.
+        /// Deepens bonds, adjusts moods, and increases municipal reputation.
+        /// </summary>
+        public bool HangOutWithEntity(string entityId, HangoutActivityType activity, out string dialogueReaction)
+        {
+            var entity = GetEntity(entityId);
+            if (entity == null)
+            {
+                dialogueReaction = "Entity not found.";
+                return false;
+            }
+
+            int delta = 15;
+            entity.currentAffinity = Mathf.Clamp(entity.currentAffinity + delta, -100, 100);
+            entity.currentMood = (entity.currentMood == TomodachiMood.Ecstatic) ? TomodachiMood.Ecstatic : TomodachiMood.Happy;
+
+            // Contextual reaction dialogue depending on activity & person
+            dialogueReaction = activity switch
+            {
+                HangoutActivityType.TownFountainPromenade =>
+                    $"*Watches the sparkling water fountain with a gentle smile* \"Spending quiet moments by the crystal water in Solas clears the mind of all battle tension. Thank you for inviting me, Summoner.\"",
+
+                HangoutActivityType.WanderingWyvernTavern =>
+                    $"*Clinks mugs warmly* \"Ah, the hearty stew and laughter at the Wyvern! There's no better way to celebrate surviving the Spire than with good company.\"",
+
+                HangoutActivityType.SpireOverlookSparring =>
+                    $"*Catches breath with a proud grin* \"Your footwork and spell-weaving have sharpened tremendously! Training with you pushes my own limits!\"",
+
+                HangoutActivityType.MistwoodGroveStroll =>
+                    $"*Breathes in the fresh pine breeze along the lush grassy path* \"The world outside the Spire is so vibrant and full of life... It reminds us what we're fighting to protect.\"",
+
+                HangoutActivityType.AcademyLibraryStudy =>
+                    $"*Traces ancient glyphs in the leather tome* \"Fascinating... this forgotten ritual geometry directly enhances our unison resonance! What a delightful study session.\"",
+
+                _ => $"\"Thank you for spending time together, friend.\""
+            };
+
+            // Increase citizenry reputation
+            if (ReputationManager.Instance != null)
+            {
+                ReputationManager.Instance.AddReputation(FactionType.SolasCitizenry, 4, $"Socialized with {entity.displayName} in Solas");
+            }
+
+            if (BattleSummonerAudioMaster.Instance != null)
+            {
+                BattleSummonerAudioMaster.Instance.PlayPresetSFX("relic_chime", 0.9f);
+            }
+
+            CheckSocialLinkRankUp(entity);
+            OnAffinityChanged?.Invoke(entity, entity.currentAffinity);
+            OnMoodChanged?.Invoke(entity, entity.currentMood);
+            OnHangoutCompleted?.Invoke(entity, activity);
+
+            if (DevClassLoadoutManager.Instance != null)
+            {
+                DevClassLoadoutManager.Instance.ShowToast(
+                    $"<color=#30FF80><b>[SOCIAL HANGOUT: {activity}]</b></color>\n" +
+                    $"Bond deepened with <b>{entity.displayName}</b> (+{delta} Affinity)!\n" +
+                    $"{entity.GetMoodEmoji()}"
+                );
+            }
+
+            Sprite port = LoadSprite(entity.portraitSpriteName);
+            if (PersonaDialogueUI.Instance != null)
+            {
+                PersonaDialogueUI.Instance.ShowSimpleDialogue(entity.displayName, entity.arcanaTitle, port, new string[] { dialogueReaction });
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Fighting alongside friends and NPCs in battle grants camaraderie and relationship progression.
+        /// </summary>
+        public void RecordBattleVictoryWithCompanion(string entityId, float damageContribution = 100f)
+        {
+            var entity = GetEntity(entityId);
+            if (entity == null) return;
+
+            int delta = 10;
+            entity.currentAffinity = Mathf.Clamp(entity.currentAffinity + delta, -100, 100);
+            entity.currentMood = TomodachiMood.Happy;
+
+            // Increase Spire Warden reputation for martial cooperation
+            if (ReputationManager.Instance != null)
+            {
+                ReputationManager.Instance.AddReputation(FactionType.SpireWardenOrder, 3, $"Fought alongside {entity.displayName}");
+            }
+
+            CheckSocialLinkRankUp(entity);
+            OnAffinityChanged?.Invoke(entity, entity.currentAffinity);
+            OnMoodChanged?.Invoke(entity, entity.currentMood);
+
+            Debug.Log($"⚔️ [BATTLE CAMARADERIE] Fought side-by-side with {entity.displayName}! (+{delta} Affinity, now {entity.currentAffinity}/100)");
         }
 
         private void PlayGiftDialogueCutscene(SocialEntityProfile entity, GiftReaction reaction)

@@ -61,6 +61,23 @@ namespace BattleSummoner.Combat
         public event Action<bool> OnLockOnToggled;
         public event Action<TargetFilterMode> OnFilterChanged;
 
+        public static QuickZTargetingController EnsureInScene(Transform targetParent = null)
+        {
+            if (Instance != null) return Instance;
+
+            var existing = UnityEngine.Object.FindAnyObjectByType<QuickZTargetingController>();
+            if (existing != null)
+            {
+                Instance = existing;
+                return Instance;
+            }
+
+            var go = new GameObject("QuickZTargetingController");
+            if (targetParent != null) go.transform.SetParent(targetParent);
+            Instance = go.AddComponent<QuickZTargetingController>();
+            return Instance;
+        }
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -70,8 +87,130 @@ namespace BattleSummoner.Combat
         private void Start()
         {
             FindPlayerReference();
+            if (zTargetButton == null)
+            {
+                var masterZ = GameObject.Find("MasterZTargetWidget");
+                if (masterZ != null)
+                {
+                    zTargetButton = masterZ.GetComponent<Button>();
+                    if (zTargetButton == null)
+                    {
+                        zTargetButton = masterZ.GetComponentInChildren<Button>();
+                    }
+                }
+                else
+                {
+                    EnsureDefaultUI();
+                }
+            }
             BindUIListeners();
             UpdateUIState();
+        }
+
+        private void EnsureDefaultUI()
+        {
+            var canvas = UnityEngine.Object.FindAnyObjectByType<Canvas>();
+            if (canvas == null) return;
+
+            var panelGo = new GameObject("QuickZTargetingPanel", typeof(RectTransform), typeof(Image));
+            panelGo.transform.SetParent(canvas.transform, false);
+
+            var panelRT = panelGo.GetComponent<RectTransform>();
+            panelRT.anchorMin = new Vector2(1f, 0.42f);
+            panelRT.anchorMax = new Vector2(1f, 0.42f);
+            panelRT.pivot = new Vector2(1f, 0.5f);
+            panelRT.anchoredPosition = new Vector2(-15f, 0f);
+            panelRT.sizeDelta = new Vector2(140f, 96f);
+
+            var bgImg = panelGo.GetComponent<Image>();
+            bgImg.color = new Color(0.08f, 0.10f, 0.16f, 0.85f);
+
+            // 1. Target Info Text (Top)
+            var infoGo = new GameObject("TargetInfoText", typeof(RectTransform), typeof(TextMeshProUGUI));
+            infoGo.transform.SetParent(panelGo.transform, false);
+            var iRT = infoGo.GetComponent<RectTransform>();
+            iRT.anchorMin = new Vector2(0f, 0.65f);
+            iRT.anchorMax = new Vector2(1f, 1f);
+            iRT.offsetMin = new Vector2(4f, 0f);
+            iRT.offsetMax = new Vector2(-4f, 0f);
+
+            targetInfoText = infoGo.GetComponent<TextMeshProUGUI>();
+            targetInfoText.fontSize = 11;
+            targetInfoText.alignment = TextAlignmentOptions.Center;
+            targetInfoText.color = new Color(0.8f, 0.85f, 0.95f);
+            targetInfoText.text = "Target: [FREE]";
+
+            // 2. Main Z-Target Button (Middle)
+            var zBtnGo = new GameObject("ZTargetButton", typeof(RectTransform), typeof(Image), typeof(Button));
+            zBtnGo.transform.SetParent(panelGo.transform, false);
+            var zRT = zBtnGo.GetComponent<RectTransform>();
+            zRT.anchorMin = new Vector2(0.05f, 0.28f);
+            zRT.anchorMax = new Vector2(0.95f, 0.65f);
+            zRT.offsetMin = Vector2.zero;
+            zRT.offsetMax = Vector2.zero;
+
+            zTargetButton = zBtnGo.GetComponent<Button>();
+            zTargetButtonBg = zBtnGo.GetComponent<Image>();
+            zTargetButtonBg.color = new Color(0.14f, 0.16f, 0.22f, 0.90f);
+
+            var zTxtGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            zTxtGo.transform.SetParent(zBtnGo.transform, false);
+            var ztRT = zTxtGo.GetComponent<RectTransform>();
+            ztRT.anchorMin = Vector2.zero;
+            ztRT.anchorMax = Vector2.one;
+
+            zTargetButtonText = zTxtGo.GetComponent<TextMeshProUGUI>();
+            zTargetButtonText.text = "<b>[Z] LOCK-ON</b>";
+            zTargetButtonText.fontSize = 12;
+            zTargetButtonText.alignment = TextAlignmentOptions.Center;
+            zTargetButtonText.color = Color.white;
+
+            // 3. Bottom Row: Prev and Next cycle buttons
+            var prevGo = new GameObject("PrevBtn", typeof(RectTransform), typeof(Image), typeof(Button));
+            prevGo.transform.SetParent(panelGo.transform, false);
+            var pRT = prevGo.GetComponent<RectTransform>();
+            pRT.anchorMin = new Vector2(0.05f, 0.04f);
+            pRT.anchorMax = new Vector2(0.48f, 0.26f);
+            pRT.offsetMin = Vector2.zero;
+            pRT.offsetMax = Vector2.zero;
+
+            prevArrowButton = prevGo.GetComponent<Button>();
+            var pImg = prevGo.GetComponent<Image>();
+            pImg.color = new Color(0.2f, 0.24f, 0.32f, 0.9f);
+
+            var pTxtGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            pTxtGo.transform.SetParent(prevGo.transform, false);
+            var ptRT = pTxtGo.GetComponent<RectTransform>();
+            ptRT.anchorMin = Vector2.zero;
+            ptRT.anchorMax = Vector2.one;
+            var pt = pTxtGo.GetComponent<TextMeshProUGUI>();
+            pt.text = "◀";
+            pt.fontSize = 12;
+            pt.alignment = TextAlignmentOptions.Center;
+            pt.color = Color.white;
+
+            var nextGo = new GameObject("NextBtn", typeof(RectTransform), typeof(Image), typeof(Button));
+            nextGo.transform.SetParent(panelGo.transform, false);
+            var nRT = nextGo.GetComponent<RectTransform>();
+            nRT.anchorMin = new Vector2(0.52f, 0.04f);
+            nRT.anchorMax = new Vector2(0.95f, 0.26f);
+            nRT.offsetMin = Vector2.zero;
+            nRT.offsetMax = Vector2.zero;
+
+            nextArrowButton = nextGo.GetComponent<Button>();
+            var nImg = nextGo.GetComponent<Image>();
+            nImg.color = new Color(0.2f, 0.24f, 0.32f, 0.9f);
+
+            var nTxtGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            nTxtGo.transform.SetParent(nextGo.transform, false);
+            var ntRT = nTxtGo.GetComponent<RectTransform>();
+            ntRT.anchorMin = Vector2.zero;
+            ntRT.anchorMax = Vector2.one;
+            var nt = nTxtGo.GetComponent<TextMeshProUGUI>();
+            nt.text = "▶";
+            nt.fontSize = 12;
+            nt.alignment = TextAlignmentOptions.Center;
+            nt.color = Color.white;
         }
 
         public void BindReferences(

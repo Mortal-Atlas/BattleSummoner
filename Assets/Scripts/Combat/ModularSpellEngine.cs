@@ -14,7 +14,9 @@ public enum SpellGeometry
 {
     Sphere,
     RazorDisc,
+    PlanarDisc = RazorDisc,
     JetThrust,
+    DualFunnelThrust = JetThrust,
     Singularity,
     RadialBurst
 }

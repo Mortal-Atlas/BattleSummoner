@@ -22,7 +22,9 @@ namespace BattleSummoner.Combat
         Miss,              // Evaded / missed entirely (0 damage)
         Glancing,          // Glancing blow (50% damage, no status application)
         Normal,            // Standard direct hit (100% damage)
-        Critical           // Critical strike (175% - 250% damage, bold impact)
+        Critical,          // Critical strike (175% - 250% damage, bold impact)
+        Blocked,           // Passive shield block (-65% damage mitigation)
+        Parried            // Deflected with perfect two-finger parry (100% negation)
     }
 
     public enum StatusEffectType
@@ -65,6 +67,8 @@ namespace BattleSummoner.Combat
         public StatusEffectType appliedStatus = StatusEffectType.None;
         public float statusDuration = 4.0f;
         public float statusPotency = 12f;
+        public float armorPenetration = 0f;
+        public float postureDamage = 0f;
 
         public DamagePayload() { }
 

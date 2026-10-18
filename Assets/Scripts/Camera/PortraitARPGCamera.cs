@@ -10,6 +10,7 @@ using UnityEngine;
 /// </summary>
 [ExecuteAlways]
 [RequireComponent(typeof(Camera))]
+[RequireComponent(typeof(StreamingController))]
 public class PortraitARPGCamera : MonoBehaviour
 {
     public static PortraitARPGCamera Instance { get; private set; }
@@ -26,23 +27,25 @@ public class PortraitARPGCamera : MonoBehaviour
     [Header("Phase 2 Target Tracking Spec")]
     [SerializeField] private Vector3 offset = new Vector3(0f, 4.5f, -6.5f);
     [SerializeField] private float smoothSpeed = 8f;
-    [SerializeField] private float verticalLookAhead = 1.5f;
+    [SerializeField] private float verticalLookAhead = 0.4f;
 
     [Header("Decoupled Orbital Camera Parameters")]
     [Tooltip("Horizontal orbit angle in degrees. Independent of player rotation.")]
     public float yawAngle = 0f;
-    [Tooltip("Vertical tilt angle in degrees (42 = elevated isometric view).")]
-    public float pitchAngle = 42f;
-    [Tooltip("Pulled-back distance from player (12m provides wide tactical vision).")]
-    public float cameraDistance = 12.0f;
+    [Tooltip("Vertical tilt angle in degrees (20 = intimate heroic third-person view).")]
+    public float pitchAngle = 20f;
+    [Tooltip("Pulled-back distance from player (2.2m provides an intimate heroic ARPG view).")]
+    public float cameraDistance = 2.2f;
     [Tooltip("Height above player feet to focus on.")]
-    public float targetFocusHeight = 1.6f;
+    public float targetFocusHeight = 1.25f;
     [Tooltip("Lateral camera offset (0 = center).")]
     public float lateralOffset = 0f;
 
     [Header("Limits & Damping")]
-    [SerializeField] private float minPitch = 15f;
-    [SerializeField] private float maxPitch = 68f;
+    [SerializeField] private float minDistance = 1.0f;
+    [SerializeField] private float maxDistance = 8.0f;
+    [SerializeField] private float minPitch = 10f;
+    [SerializeField] private float maxPitch = 60f;
     [SerializeField] private float positionDamping = 12f;
     [SerializeField] private float rotationDamping = 14f;
     [SerializeField] private float lookSensitivityX = 0.22f;
@@ -81,6 +84,9 @@ public class PortraitARPGCamera : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         cam = GetComponent<Camera>();
+        var streaming = GetComponent<StreamingController>();
+        if (streaming == null) streaming = gameObject.AddComponent<StreamingController>();
+        streaming.streamingMipmapBias = 0f;
         currentEffectiveDistance = cameraDistance;
         currentEffectiveLateral = lateralOffset;
         currentEffectivePitch = pitchAngle;
@@ -105,6 +111,21 @@ public class PortraitARPGCamera : MonoBehaviour
         currentEffectiveLateral = lateralOffset;
         currentEffectivePitch = pitchAngle;
         AdjustFieldOfViewForAspect();
+        SnapToTarget();
+    }
+
+    /// <summary>
+    /// Instantly aligns camera position and rotation to the target focus point without interpolation delay.
+    /// </summary>
+    public void SnapToTarget()
+    {
+        if (playerTarget == null) return;
+        Vector3 focusPoint = playerTarget.position + Vector3.up * (targetFocusHeight + (isAimingDownSights ? 0.15f : verticalLookAhead * 0.5f));
+        Quaternion camRotation = Quaternion.Euler(currentEffectivePitch, yawAngle, 0f);
+        Vector3 dynamicOffset = camRotation * new Vector3(currentEffectiveLateral, 0f, -currentEffectiveDistance);
+        transform.position = focusPoint + dynamicOffset;
+        transform.rotation = camRotation;
+        currentVelocity = Vector3.zero;
     }
 
     private void Update()
@@ -129,6 +150,13 @@ public class PortraitARPGCamera : MonoBehaviour
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");
             RotateCamera(mouseX * 14f, mouseY * 12f);
+        }
+
+        // Mouse ScrollWheel zoom in/out
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            cameraDistance = Mathf.Clamp(cameraDistance - scroll * 4f, minDistance, maxDistance);
         }
 
         // Desktop keyboard shortcuts: Q/E or Left/Right Arrow to orbit
@@ -230,7 +258,8 @@ public class PortraitARPGCamera : MonoBehaviour
         }
 
         float trackingSpeed = positionDamping > 0f ? positionDamping : smoothSpeed;
-        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, Time.deltaTime * trackingSpeed);
+        float smoothTime = Mathf.Max(0.01f, 1f / trackingSpeed);
+        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref currentVelocity, smoothTime);
         transform.rotation = Quaternion.Slerp(transform.rotation, camRotation, Time.deltaTime * rotationDamping);
     }
 }

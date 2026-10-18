@@ -58,6 +58,35 @@ public class PlayerMovementController : MonoBehaviour
     private void Start()
     {
         BindJumpButton();
+        SnapToGroundFloor();
+    }
+
+    /// <summary>
+    /// Snaps character safely onto the nearest floor collider below to eliminate falling through geometry.
+    /// </summary>
+    public void SnapToGroundFloor()
+    {
+        Vector3 rayOrigin = new Vector3(transform.position.x, transform.position.y + 50f, transform.position.z);
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 120f, ~0, QueryTriggerInteraction.Ignore))
+        {
+            if (controller != null) controller.enabled = false;
+            transform.position = hit.point + Vector3.up * 0.05f;
+            if (controller != null) controller.enabled = true;
+            verticalVelocity = Vector3.zero;
+        }
+    }
+
+    /// <summary>
+    /// Safety recovery if character ever clips through floor into the void.
+    /// </summary>
+    public void RecoverFromVoidFall()
+    {
+        Debug.LogWarning("[PlayerMovementController] Player fell below overworld bounds! Teleporting to Citadel Plaza safe ground...");
+        if (controller != null) controller.enabled = false;
+        transform.position = new Vector3(0f, 18.05f, -10f);
+        if (controller != null) controller.enabled = true;
+        verticalVelocity = Vector3.zero;
+        SnapToGroundFloor();
     }
 
     public void BindJumpButton()
@@ -104,6 +133,13 @@ public class PlayerMovementController : MonoBehaviour
         if (jumpBufferTimer > 0f)
         {
             jumpBufferTimer -= Time.deltaTime;
+        }
+
+        // Void fall protection
+        if (transform.position.y < -15f)
+        {
+            RecoverFromVoidFall();
+            return;
         }
 
         if (isDashing)
@@ -231,6 +267,11 @@ public class PlayerMovementController : MonoBehaviour
     public void Jump()
     {
         QueueJump();
+    }
+
+    public void Dash()
+    {
+        TriggerDash(Vector2.zero);
     }
 
     public void QueueJump()

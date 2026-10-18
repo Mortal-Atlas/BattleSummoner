@@ -33,6 +33,7 @@ public class BattleViewportRebalancer : MonoBehaviour
         AutoResolveIfNull();
         ExecuteLayoutSnap();
         ApplyPersonaAesthetic();
+        EnforceCanvasSeparation();
     }
 
     private void Start()
@@ -40,6 +41,7 @@ public class BattleViewportRebalancer : MonoBehaviour
         AutoResolveIfNull();
         ExecuteLayoutSnap();
         ApplyPersonaAesthetic();
+        EnforceCanvasSeparation();
     }
 
     public void BindReferences(
@@ -210,6 +212,63 @@ public class BattleViewportRebalancer : MonoBehaviour
                 portrait.preserveAspect = true;
                 portrait.rectTransform.localEulerAngles = new Vector3(0f, 0f, -5.5f); 
             }
+        }
+    }
+
+    [Header("Binding Contract Visual Overlays")]
+    [SerializeField] private Image playerContractChainOverlay;
+
+    /// <summary>
+    /// Renders a crimson chain overlay on the player's angled -5.5f portrait cut-in
+    /// to signal active binding contracts and extended revive durations to teammates.
+    /// </summary>
+    public void SetContractChainOverlay(bool active, Color? chainColor = null)
+    {
+        if (playerContractChainOverlay != null)
+        {
+            playerContractChainOverlay.gameObject.SetActive(active);
+            if (active)
+            {
+                playerContractChainOverlay.color = chainColor ?? new Color(0.9f, 0.15f, 0.15f, 0.85f);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Enforces static vs dynamic Canvas split to eliminate full-screen UI mesh rebuilds during fast swipes and rune draws.
+    /// </summary>
+    [ContextMenu("Enforce Canvas Separation (Static vs Dynamic)")]
+    public void EnforceCanvasSeparation()
+    {
+        var rootCanvas = GetComponentInParent<Canvas>();
+        if (rootCanvas == null) return;
+
+        Transform canvasRoot = rootCanvas.transform;
+
+        // 1. Static Canvas: Holds angled Persona portraits, static borders, Settings icon, Messenger Bag, and Whetstone icon
+        var staticGo = canvasRoot.Find("HUD_Static_Canvas");
+        if (staticGo == null)
+        {
+            var go = new GameObject("HUD_Static_Canvas", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster));
+            go.transform.SetParent(canvasRoot, false);
+            var rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.sizeDelta = Vector2.zero;
+            staticGo = go.transform;
+        }
+
+        // 2. Dynamic Canvas: Holds rapidly changing elements (LineRenderer rune paths, active HP/MP fill bars, floating damage numbers)
+        var dynamicGo = canvasRoot.Find("HUD_Dynamic_Canvas");
+        if (dynamicGo == null)
+        {
+            var go = new GameObject("HUD_Dynamic_Canvas", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster));
+            go.transform.SetParent(canvasRoot, false);
+            var rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.sizeDelta = Vector2.zero;
+            dynamicGo = go.transform;
         }
     }
 }

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c57dac684df6a6c408bbd6eb82a2f6c4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 404334
+  packageName: Rainbow Lens Flare VFX - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Asset VFX URP/Demo/Scenes/Asset VFX URP Postpro/Global
+    Volume Profile.asset
+  uploadId: 988708

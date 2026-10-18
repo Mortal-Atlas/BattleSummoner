@@ -103,6 +103,43 @@ namespace BattleSummoner.Social
         public TomodachiMood moodB = TomodachiMood.Annoyed;
     }
 
+    public enum HangoutActivityType
+    {
+        TownFountainPromenade, // Relaxing by the crystal water fountain in Solas Hub
+        WanderingWyvernTavern, // Sharing food and drinks at the tavern
+        SpireOverlookSparring, // Sparring and training together near the Spire gateway
+        MistwoodGroveStroll,   // Walking through the lush grassy meadow
+        AcademyLibraryStudy    // Researching ancient glyphs and astral spells
+    }
+
+    [System.Serializable]
+    public class SocialLinkBattleForm
+    {
+        public string formId;
+        public string formName;
+        public int unlockedAtRank = 1;
+        public string iconSpriteName;
+        [TextArea(2, 3)] public string formDescription;
+        public float bonusAttackMultiplier = 1.0f;
+        public float bonusDefenseMultiplier = 1.0f;
+        public float bonusCritRate = 0f;
+        public string specialAidTrait; // e.g. "Sacred Aegis Bubble: Grants barrier upon near-fatal damage"
+    }
+
+    [System.Serializable]
+    public class CombinationAttackDefinition
+    {
+        public string comboId;
+        public string comboName;
+        public int unlockedAtRank = 2;
+        public float baseDamage = 350f;
+        public float healAmount = 0f;
+        public bool isGuaranteedCrit = false;
+        public string element = "Holy";
+        [TextArea(2, 3)] public string description;
+        public string cinematicQuote;
+    }
+
     [System.Serializable]
     public class SocialEntityProfile
     {
@@ -147,6 +184,31 @@ namespace BattleSummoner.Social
 
         [Header("Tamagotchi Pet Familiar Care")]
         public FamiliarCareState careState = new FamiliarCareState();
+
+        [Header("Social Link Combat Aid & Forms")]
+        public List<SocialLinkBattleForm> battleForms = new List<SocialLinkBattleForm>();
+        public CombinationAttackDefinition combinationAttack;
+
+        public SocialLinkBattleForm GetActiveBattleForm()
+        {
+            SocialLinkBattleForm highest = null;
+            for (int i = 0; i < battleForms.Count; i++)
+            {
+                if (socialLinkRank >= battleForms[i].unlockedAtRank)
+                {
+                    if (highest == null || battleForms[i].unlockedAtRank > highest.unlockedAtRank)
+                    {
+                        highest = battleForms[i];
+                    }
+                }
+            }
+            return highest;
+        }
+
+        public bool IsCombinationAttackUnlocked()
+        {
+            return combinationAttack != null && socialLinkRank >= combinationAttack.unlockedAtRank;
+        }
 
         public RelationshipTier GetRelationshipTier()
         {

@@ -1,13 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Networking;
 
 /// <summary>
 /// ElevenLabsTTSBridge streams dialogue text into ElevenLabs flash API (eleven_flash_v2_5)
 /// with chunked HTTP streaming for zero-latency NPC voiceover in portrait mobile ARPG.
-/// Coordinates with BattleSummonerAudioMaster to duck SFX channels by -28% during speech.
+/// Coordinates with BattleSummonerAudioMaster to duck SFX channels by -28% during speech
+/// and synchronizes procedural SFX cues and character mouth rigs with exact playback timing.
 /// </summary>
 public class ElevenLabsTTSBridge : MonoBehaviour
 {
@@ -17,18 +19,22 @@ public class ElevenLabsTTSBridge : MonoBehaviour
     [Tooltip("Leave empty in project files. Key is securely resolved at runtime from ELEVENLABS_API_KEY environment variable or external user profile secret.")]
     [SerializeField] private string apiKey = "";
     [SerializeField] private string modelId = "eleven_flash_v2_5";
-    [SerializeField] private string defaultVoiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel / Margo style
+    [SerializeField] private string defaultVoiceId = "6fZce9LFNG3iEITDfqZZ"; // Charlotte (VoxCraft AI Default)
 
     [Header("Character Voice Mappings")]
     [SerializeField] private string margoVoiceId = "qFjcP4hHD9WIdODvuJOJ";    // Jenna (Warm, Soft, Sultry / Goth Companion)
-    [SerializeField] private string barnabyVoiceId = "VR6AewLTigWG4xSOukaG";  // Booming deep anvil tone
-    [SerializeField] private string zephyrVoiceId = "pNInz6obpgDQGcFmaJgB";   // Swift agile whisper
+    [SerializeField] private string barnabyVoiceId = "VR6AewLTigWG4xSOukaG";  // Arnold (Booming deep anvil tone)
+    [SerializeField] private string zephyrVoiceId = "TxGEqnHWrfWFTfGW9XjX";   // Josh (Swift agile scout)
+    [SerializeField] private string alexVoiceId = "ErXwobaYiN019PkySvjV";     // Antoni (Resolute young adventurer)
+    [SerializeField] private string elenaVoiceId = "21m00Tcm4TlvDq8ikWAM";    // Rachel (Calm, thoughtful female companion)
+    [SerializeField] private string playerVoiceId = "AZnzlk1XvdvUeBnXmlld";   // Domi (Protagonist delver)
 
     [Header("Audio Output")]
     [SerializeField] private AudioSource speechAudioSource;
 
     public event Action OnVoiceoverPlaybackStarted;
     public event Action OnVoiceoverPlaybackCompleted;
+    public event Action<float> OnVoiceoverPlaybackProgress;
 
     private static string runtimeKeyOverride = null;
     private Coroutine activeStreamRoutine;
@@ -115,6 +121,13 @@ public class ElevenLabsTTSBridge : MonoBehaviour
     {
         switch (npcId?.ToLowerInvariant())
         {
+            case "alex":
+            case "npc_alex": return alexVoiceId;
+            case "elena":
+            case "npc_elena": return elenaVoiceId;
+            case "player":
+            case "delver":
+            case "you": return playerVoiceId;
             case "npc_margo": return margoVoiceId;
             case "npc_barnaby": return barnabyVoiceId;
             case "npc_zephyr": return zephyrVoiceId;
@@ -123,40 +136,166 @@ public class ElevenLabsTTSBridge : MonoBehaviour
     }
 
     /// <summary>
-    /// Streams voiceover for NPC dialogue text.
-    /// Strips SFX tags before sending to TTS engine.
+    /// Streams voiceover for NPC dialogue text with guaranteed frame-perfect SFX cue timing.
+    /// Audio clip is first downloaded or procedurally synthesized; SFX cues, vocal ducking (-28%),
+    /// mouth vowel animations, and typewriter progress are ONLY ignited at exact playback start (T0).
     /// </summary>
-    public void SpeakDialogue(string dialogueText, string npcId = "npc_margo")
+    public Coroutine SpeakDialogueSynchronized(
+        string rawDialogueWithSfx, 
+        string npcId = "npc_margo", 
+        BattleSummoner.Customization.FacialExpressionController facialRig = null, 
+        Action onPlaybackStarted = null, 
+        Action onPlaybackCompleted = null,
+        Action<float> onProgress = null)
     {
         if (activeStreamRoutine != null)
         {
             StopCoroutine(activeStreamRoutine);
         }
 
-        string voiceId = GetVoiceIdForNPC(npcId);
-
-        // Strip [SFX: ...] tags for clean text to speech synthesis
-        string cleanText = BattleSummonerAudioMaster.Instance != null 
-            ? BattleSummonerAudioMaster.Instance.ProcessAndScheduleSFXTags(dialogueText)
-            : dialogueText;
-
-        Debug.Log($"[ElevenLabsTTSBridge] Voicing dialogue for {npcId} (Voice: {voiceId}): \"{cleanText}\"");
-
-        string effectiveKey = GetEffectiveApiKey();
-        if (string.IsNullOrEmpty(effectiveKey))
+        // Cancel previous pending SFX cues to prevent bleed across utterances
+        if (BattleSummonerAudioMaster.Instance != null)
         {
-            Debug.LogWarning("[ElevenLabsTTSBridge] No ElevenLabs API key found in ELEVENLABS_API_KEY environment variable. Using procedural voice synthesis fallback.");
-            activeStreamRoutine = StartCoroutine(ProceduralVoiceoverFallbackRoutine(cleanText, npcId));
-            return;
+            BattleSummonerAudioMaster.Instance.CancelPendingSFXCues();
         }
 
-        activeStreamRoutine = StartCoroutine(StreamTTSChunkedRoutine(cleanText, voiceId, effectiveKey));
+        activeStreamRoutine = StartCoroutine(SynchronizedVoicePlaybackRoutine(
+            rawDialogueWithSfx, 
+            npcId, 
+            facialRig, 
+            onPlaybackStarted, 
+            onPlaybackCompleted, 
+            onProgress));
+
+        return activeStreamRoutine;
     }
 
-    private IEnumerator StreamTTSChunkedRoutine(string text, string voiceId, string effectiveKey)
+    /// <summary>
+    /// Convenience overload matching standard dialogue calls.
+    /// </summary>
+    public void SpeakDialogue(string dialogueText, string npcId = "npc_margo")
     {
-        string url = $"https://api.elevenlabs.io/v1/text-to-speech/{voiceId}/stream?output_format=mp3_44100_128";
+        SpeakDialogueSynchronized(dialogueText, npcId);
+    }
 
+    public void StopSpeaking()
+    {
+        if (activeStreamRoutine != null)
+        {
+            StopCoroutine(activeStreamRoutine);
+            activeStreamRoutine = null;
+        }
+        if (speechAudioSource != null && speechAudioSource.isPlaying)
+        {
+            speechAudioSource.Stop();
+        }
+        if (BattleSummonerAudioMaster.Instance != null)
+        {
+            BattleSummonerAudioMaster.Instance.CancelPendingSFXCues();
+            BattleSummonerAudioMaster.Instance.NotifyVoiceoverEnded();
+        }
+    }
+
+    private IEnumerator SynchronizedVoicePlaybackRoutine(
+        string rawDialogueWithSfx, 
+        string npcId, 
+        BattleSummoner.Customization.FacialExpressionController facialRig, 
+        Action onPlaybackStarted, 
+        Action onPlaybackCompleted,
+        Action<float> onProgress)
+    {
+        if (string.IsNullOrWhiteSpace(rawDialogueWithSfx))
+        {
+            onPlaybackCompleted?.Invoke();
+            yield break;
+        }
+
+        // 1. Parse SFX cues from the raw text
+        var cues = BattleSummoner.Audio.SFXCueParser.ParseSfxCues(rawDialogueWithSfx);
+
+        // 2. Strip tags to obtain clean subtitle & TTS text
+        string cleanText = BattleSummoner.Audio.SFXCueParser.StripSfxTags(rawDialogueWithSfx);
+        string cleanSpokenText = StripCharacterPrefix(cleanText);
+
+        string voiceId = GetVoiceIdForNPC(npcId);
+        string effectiveKey = GetEffectiveApiKey();
+
+        AudioClip clipToPlay = null;
+
+        // 3. Obtain audio clip (via ElevenLabs HTTP or procedural fallback)
+        if (!string.IsNullOrEmpty(effectiveKey))
+        {
+            yield return StartCoroutine(FetchElevenLabsClipRoutine(cleanSpokenText, voiceId, effectiveKey, (downloadedClip) =>
+            {
+                clipToPlay = downloadedClip;
+            }));
+        }
+
+        // If online fetch failed or no key provided, synthesize procedural formant voice
+        if (clipToPlay == null)
+        {
+            clipToPlay = SynthesizeProceduralVocalClip(cleanSpokenText, npcId);
+        }
+
+        if (clipToPlay == null)
+        {
+            Debug.LogError("[ElevenLabsTTSBridge] Failed to obtain any audio clip for dialogue.");
+            onPlaybackCompleted?.Invoke();
+            yield break;
+        }
+
+        // 4. PRECISE AUDIO IGNITION POINT (T0)
+        // Everything begins at this exact instant:
+        speechAudioSource.clip = clipToPlay;
+        speechAudioSource.pitch = 1.0f;
+        speechAudioSource.Play();
+
+        // Duck SFX channel by -28%
+        NotifySpeechStarted();
+        onPlaybackStarted?.Invoke();
+
+        // Schedule all parsed cues relative to T0
+        if (BattleSummonerAudioMaster.Instance != null && cues.Count > 0)
+        {
+            BattleSummonerAudioMaster.Instance.ScheduleSFXCues(cues);
+        }
+
+        // Drive character facial vowel rig (A, I, U, E, O) matching exact clip duration
+        if (facialRig != null)
+        {
+            facialRig.SpeakDialogue(cleanSpokenText, clipToPlay.length);
+        }
+
+        // 5. Track playback progress (updates subtitle typewriter in perfect lockstep)
+        float totalDuration = clipToPlay.length;
+        float elapsed = 0f;
+
+        while (elapsed < totalDuration && speechAudioSource.isPlaying)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.Clamp01(elapsed / totalDuration);
+            onProgress?.Invoke(progress);
+            OnVoiceoverPlaybackProgress?.Invoke(progress);
+            yield return null;
+        }
+
+        onProgress?.Invoke(1.0f);
+        OnVoiceoverPlaybackProgress?.Invoke(1.0f);
+
+        // 6. Playback complete: restore full SFX channel volume and reset facial mouth
+        if (facialRig != null)
+        {
+            facialRig.StopSpeaking();
+        }
+
+        NotifySpeechEnded();
+        onPlaybackCompleted?.Invoke();
+        activeStreamRoutine = null;
+    }
+
+    private IEnumerator FetchElevenLabsClipRoutine(string text, string voiceId, string effectiveKey, Action<AudioClip> onClipReady)
+    {
+        string url = $"https://api.elevenlabs.io/v1/text-to-speech/{voiceId}?output_format=mp3_44100_128";
         string jsonBody = "{\"text\":\"" + EscapeJson(text) + "\",\"model_id\":\"" + modelId + "\",\"voice_settings\":{\"stability\":0.45,\"similarity_boost\":0.80}}";
 
         using (UnityWebRequest req = new UnityWebRequest(url, "POST"))
@@ -166,29 +305,20 @@ public class ElevenLabsTTSBridge : MonoBehaviour
             req.downloadHandler = new DownloadHandlerAudioClip(url, AudioType.MPEG);
             req.SetRequestHeader("Content-Type", "application/json");
             req.SetRequestHeader("xi-api-key", effectiveKey);
-
-            // Signal start of stream & trigger SFX ducking
-            NotifySpeechStarted();
+            req.timeout = 10;
 
             yield return req.SendWebRequest();
 
             if (req.result == UnityWebRequest.Result.Success)
             {
                 AudioClip clip = DownloadHandlerAudioClip.GetContent(req);
-                if (clip != null)
-                {
-                    speechAudioSource.clip = clip;
-                    speechAudioSource.Play();
-                    yield return new WaitForSeconds(clip.length);
-                }
+                onClipReady?.Invoke(clip);
             }
             else
             {
-                Debug.LogWarning($"[ElevenLabsTTSBridge] Online stream failed: {req.error}. Switching to local synthesis.");
-                yield return ProceduralVoiceoverFallbackRoutine(text, "fallback");
+                Debug.LogWarning($"[ElevenLabsTTSBridge] ElevenLabs request failed ({req.error}): switching to procedural voice fallback.");
+                onClipReady?.Invoke(null);
             }
-
-            NotifySpeechEnded();
         }
     }
 
@@ -196,39 +326,54 @@ public class ElevenLabsTTSBridge : MonoBehaviour
     /// Procedural vocal synthesis fallback: generates personality-coded formant phoneme bursts
     /// so voiceover playback and -28% SFX ducking function 100% offline without requiring internet.
     /// </summary>
-    private IEnumerator ProceduralVoiceoverFallbackRoutine(string cleanText, string npcId)
+    public AudioClip SynthesizeProceduralVocalClip(string cleanText, string npcId)
     {
-        NotifySpeechStarted();
-
-        int wordCount = Mathf.Clamp(cleanText.Split(' ').Length, 3, 25);
+        int wordCount = Mathf.Clamp(cleanText.Split(new char[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length, 2, 35);
         float basePitch = 1.0f;
         float formantFreq = 340f;
 
-        if (npcId == "npc_margo")
+        switch (npcId?.ToLowerInvariant())
         {
-            basePitch = 1.15f;
-            formantFreq = 420f;
-        }
-        else if (npcId == "npc_barnaby")
-        {
-            basePitch = 0.72f;
-            formantFreq = 180f;
-        }
-        else if (npcId == "npc_zephyr")
-        {
-            basePitch = 1.35f;
-            formantFreq = 540f;
+            case "alex":
+            case "npc_alex":
+                basePitch = 0.94f;
+                formantFreq = 230f;
+                break;
+            case "elena":
+            case "npc_elena":
+                basePitch = 1.25f;
+                formantFreq = 480f;
+                break;
+            case "player":
+            case "delver":
+            case "you":
+                basePitch = 1.05f;
+                formantFreq = 310f;
+                break;
+            case "npc_margo":
+                basePitch = 1.15f;
+                formantFreq = 420f;
+                break;
+            case "npc_barnaby":
+                basePitch = 0.72f;
+                formantFreq = 180f;
+                break;
+            case "npc_zephyr":
+                basePitch = 1.35f;
+                formantFreq = 540f;
+                break;
         }
 
         int sampleRate = 22050;
-        float totalDuration = wordCount * 0.16f;
+        // ~2.33 words/sec => ~0.43s per word for realistic conversational duration matching VoxCraft AI
+        float totalDuration = Mathf.Max(1.2f, wordCount * BattleSummoner.Audio.SFXCueParser.SecondsPerWord);
         int numSamples = Mathf.FloorToInt(sampleRate * totalDuration);
         float[] samples = new float[numSamples];
 
         for (int i = 0; i < numSamples; i++)
         {
             float t = (float)i / sampleRate;
-            float wordPhase = (t / 0.16f) % 1.0f;
+            float wordPhase = (t / 0.18f) % 1.0f;
             float envelope = Mathf.Sin(wordPhase * Mathf.PI);
 
             float voiceCarrier = Mathf.Sin(2f * Mathf.PI * (formantFreq * basePitch) * t);
@@ -238,14 +383,29 @@ public class ElevenLabsTTSBridge : MonoBehaviour
             samples[i] = (voiceCarrier + harmonic + breath) * envelope * 0.45f;
         }
 
-        AudioClip clip = AudioClip.Create("procedural_npc_utterance", numSamples, 1, sampleRate, false);
+        AudioClip clip = AudioClip.Create("procedural_npc_utterance_" + npcId, numSamples, 1, sampleRate, false);
         clip.SetData(samples, 0);
+        return clip;
+    }
 
-        speechAudioSource.pitch = 1.0f;
-        speechAudioSource.PlayOneShot(clip, 0.95f);
-        yield return new WaitForSeconds(totalDuration);
-
-        NotifySpeechEnded();
+    /// <summary>
+    /// Strips leading speaker dialogue attribution e.g. "Barnaby: '...' " or "[Margo]: Hello"
+    /// so neural TTS speaks purely the in-character dialogue lines without robotic meta prefixes.
+    /// </summary>
+    public static string StripCharacterPrefix(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        var match = Regex.Match(text, @"^\s*\[?[a-zA-Z0-9_\-\s]+\]?\s*:\s*(['""])?");
+        if (match.Success)
+        {
+            string stripped = text.Substring(match.Length).Trim();
+            if (stripped.EndsWith("'") || stripped.EndsWith("\""))
+            {
+                stripped = stripped.Substring(0, stripped.Length - 1).Trim();
+            }
+            return stripped;
+        }
+        return text.Trim();
     }
 
     private void NotifySpeechStarted()

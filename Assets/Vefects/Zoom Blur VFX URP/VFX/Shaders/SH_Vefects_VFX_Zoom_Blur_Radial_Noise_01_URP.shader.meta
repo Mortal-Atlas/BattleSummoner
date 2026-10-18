@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 07207305204932b478c63f6251d1b11a
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _RadialNoiseTex: {fileID: 2800000, guid: 0cecb8f6ca69d534cb0c1eeeb84d65dd, type: 3}
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

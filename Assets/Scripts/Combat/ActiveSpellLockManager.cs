@@ -313,9 +313,10 @@ namespace BattleSummoner.Combat
             }
 
             // Play state entry audio
-            if (BattleSummonerAudioMaster.Instance != null)
+            if (WizardSpellSlingerController.Instance != null)
             {
-                BattleSummonerAudioMaster.Instance.PlayPresetSFX("spell_fireball_launch", 0.9f);
+                WizardSpellSlingerController.Instance.EquipPreset(SpellSlingerPreset.Fireball);
+                WizardSpellSlingerController.Instance.ToggleSpellMode(true);
             }
 
             OnSpellStateChanged?.Invoke(currentState);
@@ -343,6 +344,11 @@ namespace BattleSummoner.Combat
             {
                 Destroy(handChargeVFXObj);
                 handChargeVFXObj = null;
+            }
+
+            if (WizardSpellSlingerController.Instance != null)
+            {
+                WizardSpellSlingerController.Instance.ToggleSpellMode(false);
             }
 
             // Return gesture canvas to Combat mode
@@ -402,6 +408,12 @@ namespace BattleSummoner.Combat
         {
             if (currentState != ActiveSpellLockState.Locked_Fireball) return;
 
+            if (WizardSpellSlingerController.Instance != null)
+            {
+                WizardSpellSlingerController.Instance.OnPointerDown(screenPos);
+                return;
+            }
+
             isHoldingFireball = true;
             holdStartTime = Time.time;
             holdTouchStartPos = screenPos;
@@ -419,7 +431,15 @@ namespace BattleSummoner.Combat
 
         public void OnFireballDrag(Vector2 screenPos)
         {
-            if (currentState != ActiveSpellLockState.Locked_Fireball || !isHoldingFireball) return;
+            if (currentState != ActiveSpellLockState.Locked_Fireball) return;
+
+            if (WizardSpellSlingerController.Instance != null)
+            {
+                WizardSpellSlingerController.Instance.OnDrag(screenPos);
+                return;
+            }
+
+            if (!isHoldingFireball) return;
 
             currentTouchPos = screenPos;
             if (chargeIndicatorRect != null)
@@ -432,7 +452,15 @@ namespace BattleSummoner.Combat
 
         public void OnFireballPointerUp(Vector2 releasePos)
         {
-            if (currentState != ActiveSpellLockState.Locked_Fireball || !isHoldingFireball) return;
+            if (currentState != ActiveSpellLockState.Locked_Fireball) return;
+
+            if (WizardSpellSlingerController.Instance != null)
+            {
+                WizardSpellSlingerController.Instance.OnPointerUp(releasePos);
+                return;
+            }
+
+            if (!isHoldingFireball) return;
 
             isHoldingFireball = false;
             HideChargeIndicator();

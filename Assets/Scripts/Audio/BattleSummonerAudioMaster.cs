@@ -54,6 +54,10 @@ public class BattleSummonerAudioMaster : MonoBehaviour
 
     public AudioClip GetProceduralClip(string key)
     {
+        if (proceduralClipCache.Count == 0)
+        {
+            GenerateProceduralAudioBuffers();
+        }
         if (proceduralClipCache.TryGetValue(key.ToLower(), out var clip))
         {
             return clip;
@@ -76,6 +80,20 @@ public class BattleSummonerAudioMaster : MonoBehaviour
         else if (Instance != this)
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        StartCoroutine(RoutineTriggerLoginBriefing());
+    }
+
+    private IEnumerator RoutineTriggerLoginBriefing()
+    {
+        yield return new WaitForSeconds(1.5f);
+        if (CampfireRumorPropagationService.Instance != null)
+        {
+            CampfireRumorPropagationService.Instance.TriggerLoginWorldCatchUpBriefing();
         }
     }
 
@@ -120,6 +138,11 @@ public class BattleSummonerAudioMaster : MonoBehaviour
         proceduralClipCache["apex_celestial_roar"] = SynthesizeApexCelestialRoar();
         proceduralClipCache["sword_whoosh"] = SynthesizeSwordWhoosh();
         proceduralClipCache["sword_impact"] = SynthesizeSwordImpact();
+        proceduralClipCache["blade_hit"] = SynthesizeSwordImpact();
+        proceduralClipCache["shield_block"] = SynthesizeShieldBlock();
+        proceduralClipCache["parry_clink"] = SynthesizeParryClink();
+        proceduralClipCache["parry_stance"] = SynthesizeParryStance();
+        proceduralClipCache["dual_blade_whoosh"] = SynthesizeDualBladeWhoosh();
         proceduralClipCache["spell_fireball_launch"] = SynthesizeSpellLaunch();
         proceduralClipCache["bard_chord_strum"] = SynthesizeBardChord();
         proceduralClipCache["loadout_switch"] = SynthesizeLoadoutSwitch();
@@ -135,6 +158,21 @@ public class BattleSummonerAudioMaster : MonoBehaviour
         proceduralClipCache["ror_tier_up"] = SynthesizeRoRTierUp();
         proceduralClipCache["boon_card_reveal"] = SynthesizeBoonCardReveal();
         proceduralClipCache["boon_card_select"] = SynthesizeBoonCardSelect();
+        proceduralClipCache["loot_pickup"] = SynthesizeLootPickupChime();
+        proceduralClipCache["blade_carve"] = SynthesizeBladeCarve();
+        proceduralClipCache["carve_fanfare"] = SynthesizeCarveFanfare();
+
+        // VoxCraft AI & ElevenLabs Procedural Sound Effects Catalog
+        proceduralClipCache["thunder"] = SynthesizeThunder();
+        proceduralClipCache["whoosh"] = SynthesizeWhoosh();
+        proceduralClipCache["riser"] = SynthesizeRiser();
+        proceduralClipCache["rain"] = SynthesizeRain();
+        proceduralClipCache["heartbeat"] = SynthesizeHeartbeat();
+        proceduralClipCache["chime"] = SynthesizeRelicChime();
+        proceduralClipCache["laser"] = SynthesizeLaser();
+        proceduralClipCache["drone"] = SynthesizeDrone();
+        proceduralClipCache["camera_click"] = SynthesizeCameraClick();
+        proceduralClipCache["typing"] = SynthesizeTyping();
 
         PreloadKalimbaTines();
     }
@@ -228,6 +266,69 @@ public class BattleSummonerAudioMaster : MonoBehaviour
             samples[i] = Mathf.Clamp((c5 + e5 + g5 + c6) * 0.7f, -1f, 1f);
         }
         AudioClip clip = AudioClip.Create("pet_present_fanfare", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeLootPickupChime()
+    {
+        float duration = 0.45f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float tone1 = Mathf.Sin(2f * Mathf.PI * 1046.50f * t) * Mathf.Exp(-9.0f * t);
+            float tone2 = t > 0.08f ? Mathf.Sin(2f * Mathf.PI * 1567.98f * (t - 0.08f)) * Mathf.Exp(-8.0f * (t - 0.08f)) : 0f;
+            float shimmer = Mathf.Sin(2f * Mathf.PI * 3135.96f * t) * Mathf.Exp(-14.0f * t) * 0.25f;
+            samples[i] = Mathf.Clamp((tone1 * 0.6f + tone2 * 0.8f + shimmer) * 0.75f, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("loot_pickup", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeBladeCarve()
+    {
+        float duration = 0.65f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(88);
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float scrapeNoise = ((float)rnd.NextDouble() * 2f - 1f) * Mathf.Sin(Mathf.PI * (t / duration));
+            float bladeResonance = Mathf.Sin(2f * Mathf.PI * Mathf.Lerp(1400f, 650f, t / duration) * t) * 0.45f;
+            float crunch = Mathf.Sin(2f * Mathf.PI * 180f * t) * Mathf.Exp(-3.5f * t) * 0.5f;
+            samples[i] = Mathf.Clamp((scrapeNoise * 0.55f + bladeResonance + crunch) * 0.8f, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("blade_carve", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeCarveFanfare()
+    {
+        float duration = 1.1f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        float[] notes = { 587.33f, 739.99f, 880.00f, 1174.66f };
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float mix = 0f;
+            for (int n = 0; n < notes.Length; n++)
+            {
+                float noteStart = n * 0.12f;
+                if (t >= noteStart)
+                {
+                    float dt = t - noteStart;
+                    mix += Mathf.Sin(2f * Mathf.PI * notes[n] * dt) * Mathf.Exp(-3.5f * dt) * (n == notes.Length - 1 ? 0.7f : 0.4f);
+                }
+            }
+            samples[i] = Mathf.Clamp(mix * 0.75f, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("carve_fanfare", numSamples, 1, sampleRate, false);
         clip.SetData(samples, 0);
         return clip;
     }
@@ -572,6 +673,94 @@ public class BattleSummonerAudioMaster : MonoBehaviour
         return clip;
     }
 
+    private AudioClip SynthesizeShieldBlock()
+    {
+        float duration = 0.38f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(88);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float heavyThud = Mathf.Sin(2f * Mathf.PI * 135f * t) * Mathf.Exp(-14f * t);
+            float ironClang = Mathf.Sin(2f * Mathf.PI * 680f * t) * Mathf.Exp(-18f * t);
+            float rimRing = Mathf.Sin(2f * Mathf.PI * 1150f * t) * Mathf.Exp(-24f * t);
+            float noise = ((float)rnd.NextDouble() * 2f - 1f) * Mathf.Exp(-40f * t) * 0.4f;
+            samples[i] = Mathf.Clamp(heavyThud * 0.55f + ironClang * 0.45f + rimRing * 0.25f + noise, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("shield_block", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeParryClink()
+    {
+        float duration = 0.45f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float clashCore = Mathf.Sin(2f * Mathf.PI * 2450f * t) * Mathf.Exp(-16f * t);
+            float harmonic = Mathf.Sin(2f * Mathf.PI * 3680f * t) * Mathf.Exp(-22f * t);
+            float bellRing = Mathf.Sin(2f * Mathf.PI * 1225f * t) * Mathf.Exp(-8f * t);
+            float chimeSpark = Mathf.Sin(2f * Mathf.PI * 4900f * t) * Mathf.Exp(-30f * t);
+            samples[i] = Mathf.Clamp(clashCore * 0.45f + harmonic * 0.35f + bellRing * 0.40f + chimeSpark * 0.20f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("parry_clink", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeParryStance()
+    {
+        float duration = 0.20f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float sweep = Mathf.Lerp(800f, 1400f, t / duration);
+            float bladeScrape = Mathf.Sin(2f * Mathf.PI * sweep * t) * Mathf.Sin(Mathf.PI * (t / duration));
+            samples[i] = Mathf.Clamp(bladeScrape * 0.45f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("parry_stance", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeDualBladeWhoosh()
+    {
+        float duration = 0.28f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(99);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            // Blade 1
+            float f1 = Mathf.Lerp(780f, 200f, t / duration);
+            float s1 = Mathf.Sin(2f * Mathf.PI * f1 * t) * Mathf.Sin(Mathf.PI * (t / duration));
+            // Blade 2 (delayed by 0.035s with higher pitch)
+            float t2 = Mathf.Max(0f, t - 0.035f);
+            float f2 = Mathf.Lerp(920f, 240f, t2 / duration);
+            float s2 = Mathf.Sin(2f * Mathf.PI * f2 * t2) * Mathf.Sin(Mathf.PI * Mathf.Clamp01(t2 / (duration - 0.035f)));
+            float noise = ((float)rnd.NextDouble() * 2f - 1f) * 0.3f * Mathf.Sin(Mathf.PI * (t / duration));
+            samples[i] = Mathf.Clamp((s1 * 0.45f + s2 * 0.45f + noise) * 0.9f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("dual_blade_whoosh", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
     private AudioClip SynthesizeSpellLaunch()
     {
         float duration = 0.35f;
@@ -752,7 +941,84 @@ public class BattleSummonerAudioMaster : MonoBehaviour
     }
     #endregion
 
-    #region SFX Parsing & Scheduled Execution
+    #region SFX Parsing & Scheduled Execution (VoxCraft AI Compatible)
+    private readonly List<Coroutine> activeCueCoroutines = new List<Coroutine>();
+
+    /// <summary>
+    /// Cancels any scheduled SFX cues currently pending playback.
+    /// Useful when an NPC is interrupted by the player or dialogue changes.
+    /// </summary>
+    public void CancelPendingSFXCues()
+    {
+        for (int i = 0; i < activeCueCoroutines.Count; i++)
+        {
+            if (activeCueCoroutines[i] != null)
+            {
+                StopCoroutine(activeCueCoroutines[i]);
+            }
+        }
+        activeCueCoroutines.Clear();
+    }
+
+    /// <summary>
+    /// Schedules a list of parsed SFXCue items to play at their exact relative timestamps.
+    /// Perfectly synchronized with voiceover start time.
+    /// </summary>
+    public void ScheduleSFXCues(List<BattleSummoner.Audio.SFXCue> cues)
+    {
+        if (cues == null || cues.Count == 0) return;
+        foreach (var cue in cues)
+        {
+            Coroutine c = StartCoroutine(PlayScheduledCueRoutine(cue));
+            activeCueCoroutines.Add(c);
+        }
+    }
+
+    private IEnumerator PlayScheduledCueRoutine(BattleSummoner.Audio.SFXCue cue)
+    {
+        if (cue.timestamp > 0.001f)
+        {
+            yield return new WaitForSeconds(cue.timestamp);
+        }
+
+        PlayCue(cue);
+    }
+
+    /// <summary>
+    /// Plays an individual SFX cue with its volume, duration, and pitch.
+    /// </summary>
+    public void PlayCue(BattleSummoner.Audio.SFXCue cue)
+    {
+        if (cue == null) return;
+        string preset = cue.preset.ToLowerInvariant();
+
+        if (proceduralClipCache.TryGetValue(preset, out AudioClip clip))
+        {
+            float targetVol = cue.volume * sfxSource.volume;
+
+            if (Mathf.Abs(cue.pitch - 1.0f) > 0.04f)
+            {
+                // Play pitch-modulated one shot using transient source
+                var tempGo = new GameObject("Temp_SFX_" + preset);
+                var tempSrc = tempGo.AddComponent<AudioSource>();
+                tempSrc.clip = clip;
+                tempSrc.volume = targetVol;
+                tempSrc.pitch = cue.pitch;
+                tempSrc.spatialBlend = 0f;
+                tempSrc.Play();
+                Destroy(tempGo, (clip.length / Mathf.Max(0.1f, cue.pitch)) + 0.15f);
+            }
+            else
+            {
+                sfxSource.PlayOneShot(clip, targetVol);
+            }
+        }
+        else
+        {
+            PlayPresetSFX(preset, cue.volume);
+        }
+    }
+
     /// <summary>
     /// Parses text containing [SFX: preset | at: Xs | vol: Y%] and schedules all sound cues.
     /// Also returns cleaned text with SFX tags stripped for clean UI display.
@@ -761,30 +1027,10 @@ public class BattleSummonerAudioMaster : MonoBehaviour
     {
         if (string.IsNullOrEmpty(rawText)) return rawText;
 
-        MatchCollection matches = sfxTagRegex.Matches(rawText);
-        foreach (Match match in matches)
-        {
-            string preset = match.Groups[1].Value.ToLowerInvariant();
-            if (float.TryParse(match.Groups[2].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float delaySeconds) &&
-                float.TryParse(match.Groups[3].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float volPercent))
-            {
-                float volumeNormalized = Mathf.Clamp01(volPercent / 100f);
-                StartCoroutine(PlayScheduledPresetRoutine(preset, delaySeconds, volumeNormalized));
-            }
-        }
+        var cues = BattleSummoner.Audio.SFXCueParser.ParseSfxCues(rawText);
+        ScheduleSFXCues(cues);
 
-        // Return stripped text for dialogue boxes / text overlays
-        return sfxTagRegex.Replace(rawText, "").Trim();
-    }
-
-    private IEnumerator PlayScheduledPresetRoutine(string presetName, float delaySeconds, float volume)
-    {
-        if (delaySeconds > 0.001f)
-        {
-            yield return new WaitForSeconds(delaySeconds);
-        }
-
-        PlayPresetSFX(presetName, volume);
+        return BattleSummoner.Audio.SFXCueParser.StripSfxTags(rawText);
     }
 
     public void PlayPresetSFX(string presetName, float volume = 1.0f)
@@ -803,6 +1049,206 @@ public class BattleSummonerAudioMaster : MonoBehaviour
                 sfxSource.PlayOneShot(fallbackClip, volume * sfxSource.volume);
             }
         }
+    }
+
+    public void PlayLootPickupChime() => PlayPresetSFX("loot_pickup", 0.9f);
+    public void PlayMonsterHunterCarveSfx() => PlayPresetSFX("blade_carve", 1.0f);
+    public void PlayCarveFanfare() => PlayPresetSFX("carve_fanfare", 1.0f);
+    #endregion
+
+    #region VoxCraft AI Procedural SFX Generators
+    private AudioClip SynthesizeThunder()
+    {
+        float duration = 3.2f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        float b0 = 0f, b1 = 0f;
+        System.Random rnd = new System.Random(441);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float white = (float)rnd.NextDouble() * 2f - 1f;
+            b0 = 0.985f * b0 + white * 0.06f;
+            b1 = 0.96f * b1 + b0 * 0.1f;
+
+            float burst1 = Mathf.Exp(-Mathf.Pow(t - 0.2f, 2f) * 8f) * 1.2f;
+            float burst2 = Mathf.Exp(-Mathf.Pow(t - 1.2f, 2f) * 5f) * 0.8f;
+            float tail = Mathf.Exp(-t * 0.6f) * 0.5f;
+
+            float sub = Mathf.Sin(2f * Mathf.PI * 42f * t) * 0.35f * Mathf.Exp(-t * 0.8f);
+            samples[i] = Mathf.Clamp((b1 * (burst1 + burst2 + tail) + sub) * 0.85f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("thunder", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeWhoosh()
+    {
+        float duration = 1.2f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(552);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / numSamples;
+            float env = Mathf.Sin(Mathf.PI * t);
+            float white = (float)rnd.NextDouble() * 2f - 1f;
+            float mod = Mathf.Sin(2f * Mathf.PI * (800f * (0.3f + 0.7f * t)) * ((float)i / sampleRate));
+            samples[i] = Mathf.Clamp(white * env * (0.6f + 0.4f * mod) * 0.75f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("whoosh", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeRiser()
+    {
+        float duration = 2.4f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(663);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / numSamples;
+            float curFreq = 160f * Mathf.Pow(8f, t);
+            float saw = 2f * ((curFreq * ((float)i / sampleRate)) % 1f) - 1f;
+            float noise = ((float)rnd.NextDouble() * 2f - 1f) * 0.2f * t;
+            float env = Mathf.Pow(t, 1.8f);
+            samples[i] = Mathf.Clamp((saw * 0.65f + noise) * env * 0.75f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("riser", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeRain()
+    {
+        float duration = 3.0f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        float b0 = 0f, b1 = 0f;
+        System.Random rnd = new System.Random(774);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float white = (float)rnd.NextDouble() * 2f - 1f;
+            b0 = 0.95f * b0 + white * 0.05f;
+            b1 = 0.90f * b1 + b0 * 0.1f;
+
+            float drop = rnd.NextDouble() < 0.0015 ? ((float)rnd.NextDouble() * 2f - 1f) * 0.6f : 0f;
+            samples[i] = Mathf.Clamp((b1 * 0.4f + drop) * 0.65f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("rain", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeHeartbeat()
+    {
+        float duration = 1.8f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            // Lub-dub: two pulses at t=0.1s and t=0.45s
+            float p1 = Mathf.Exp(-Mathf.Pow(t - 0.1f, 2f) * 120f) * Mathf.Sin(2f * Mathf.PI * 45f * t);
+            float p2 = Mathf.Exp(-Mathf.Pow(t - 0.45f, 2f) * 140f) * Mathf.Sin(2f * Mathf.PI * 55f * t) * 0.85f;
+            samples[i] = Mathf.Clamp((p1 + p2) * 0.95f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("heartbeat", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeLaser()
+    {
+        float duration = 0.45f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float freq = Mathf.Lerp(2200f, 220f, t / duration);
+            float sine = Mathf.Sin(2f * Mathf.PI * freq * t);
+            float env = Mathf.Exp(-t * 6.5f);
+            samples[i] = Mathf.Clamp(sine * env * 0.85f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("laser", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeDrone()
+    {
+        float duration = 3.5f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float osc1 = Mathf.Sin(2f * Mathf.PI * 55f * t);
+            float osc2 = Mathf.Sin(2f * Mathf.PI * 55.8f * t) * 0.8f;
+            float env = Mathf.Sin(Mathf.PI * (t / duration));
+            samples[i] = Mathf.Clamp((osc1 + osc2) * 0.4f * env, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("drone", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeCameraClick()
+    {
+        float duration = 0.2f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(885);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float click1 = Mathf.Exp(-Mathf.Pow(t - 0.02f, 2f) * 6000f) * ((float)rnd.NextDouble() * 2f - 1f);
+            float click2 = Mathf.Exp(-Mathf.Pow(t - 0.08f, 2f) * 5000f) * ((float)rnd.NextDouble() * 2f - 1f) * 0.7f;
+            samples[i] = Mathf.Clamp((click1 + click2) * 0.85f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("camera_click", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeTyping()
+    {
+        float duration = 0.08f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(996);
+
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float noise = ((float)rnd.NextDouble() * 2f - 1f) * Mathf.Exp(-t * 90f);
+            float click = Mathf.Sin(2f * Mathf.PI * 1800f * t) * Mathf.Exp(-t * 70f);
+            samples[i] = Mathf.Clamp((noise * 0.7f + click * 0.5f) * 0.75f, -1f, 1f);
+        }
+
+        AudioClip clip = AudioClip.Create("typing", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
     }
     #endregion
 

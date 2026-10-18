@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using BattleSummoner.Hobbies;
 
 public class WeaponTemper : MonoBehaviour
 {
@@ -12,6 +13,11 @@ public class WeaponTemper : MonoBehaviour
     [SerializeField] private float whetstoneHoneRestore = 25f;
     [SerializeField] private float heatBuildup = 0f;
     [SerializeField] private float maxHeatThreshold = 100f;
+
+    [Header("Forged Sword Stats")]
+    public float baseDamage = 45f;
+    public int maxDurability = 150;
+    public int maxSockets = 3;
 
     public event Action<float> OnTemperChanged;
     public event Action OnEdgeDullWarning;
@@ -49,9 +55,21 @@ public class WeaponTemper : MonoBehaviour
 
     public void ApplySlashWear(float velocity)
     {
+        float wear = (velocity / 1000f) * sharpnessDegradationPerSlash;
+        DegradeTemper(wear);
+    }
+
+    public void DegradeTemper(float wear)
+    {
         if (livingGear == null) return;
 
-        float wear = (velocity / 1000f) * sharpnessDegradationPerSlash;
+        // Singular Grip Contract: -25% temper degradation on OneHanded
+        var contractSys = BindingContractSystem.Instance;
+        if (contractSys != null && contractSys.signedContracts.Exists(c => c.favoredWeaponType == WeaponSlotType.OneHanded))
+        {
+            wear *= 0.75f;
+        }
+
         livingGear.currentTemper = Mathf.Max(0f, livingGear.currentTemper - wear);
         heatBuildup = Mathf.Min(maxHeatThreshold, heatBuildup + wear * 1.5f);
 
@@ -97,12 +115,29 @@ public class WeaponTemper : MonoBehaviour
     }
 
     /// <summary>
+    /// Called when the player finishes hammering the sword at a campfire or hub anvil.
+    /// Calls BlacksmithForgeController.QuenchAndFinishSword() to overwrite the sword's baseDamage, maxDurability, and maxSockets.
+    /// </summary>
+    public ForgedSwordStats FinishHammeringAtForge(bool atCampfire = false)
+    {
+        var forgedStats = BlacksmithForgeController.QuenchAndFinishSword(this, livingGear, atCampfire);
+        if (forgedStats != null)
+        {
+            baseDamage = forgedStats.baseDamage;
+            maxDurability = forgedStats.maxDurability;
+            maxSockets = forgedStats.maxSockets;
+        }
+        return forgedStats;
+    }
+
+    /// <summary>
     /// Pipes raw swipe velocity damage through the UncappedAccessorySystem stack aggregation matrix.
-    /// Incorporates blade temper and hardness HRC.
+    /// Incorporates blade temper, base damage, and hardness HRC.
     /// </summary>
     public float CalculateTotalStrikeDamage(float rawSwipeDamage)
     {
-        float temperedBase = rawSwipeDamage * (hardnessHRC / 50f);
+        float effectiveBase = (baseDamage > 0f) ? (rawSwipeDamage + baseDamage) : rawSwipeDamage;
+        float temperedBase = effectiveBase * (hardnessHRC / 50f);
         if (livingGear != null && livingGear.maxTemper > 0f)
         {
             temperedBase *= Mathf.Clamp01(livingGear.currentTemper / livingGear.maxTemper);

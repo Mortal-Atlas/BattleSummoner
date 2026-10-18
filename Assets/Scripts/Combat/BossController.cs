@@ -27,6 +27,8 @@ public class BossController : MonoBehaviour, IEnemyStagger, IDamageReceiver
     private Color normalColor = Color.white;
     private StatusEffectReceiver statusReceiver;
 
+    private GiantBossAnimationController giantAnimController;
+
     private void Awake()
     {
         currentHealth = maxHealth;
@@ -34,6 +36,12 @@ public class BossController : MonoBehaviour, IEnemyStagger, IDamageReceiver
         if (statusReceiver == null)
         {
             statusReceiver = gameObject.AddComponent<StatusEffectReceiver>();
+        }
+
+        giantAnimController = GetComponent<GiantBossAnimationController>();
+        if (giantAnimController == null)
+        {
+            giantAnimController = gameObject.AddComponent<GiantBossAnimationController>();
         }
 
         bossRenderer = GetComponentInChildren<Renderer>();
@@ -104,10 +112,23 @@ public class BossController : MonoBehaviour, IEnemyStagger, IDamageReceiver
         Debug.Log($"[BOSS ACTION] {bossName} unleashes colossal kinetic ground slam!");
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage) => TakeDamage(damage, false, false);
+
+    public void TakeDamage(float damage, bool isCrit, bool suppressPopup = false)
     {
         currentHealth = Mathf.Max(0f, currentHealth - damage);
         OnBossHealthChanged?.Invoke(currentHealth, maxHealth);
+
+        // Floating combat text: White for normal damage, Red CRIT! for critical
+        if (!suppressPopup && CombatFeedbackManager.Instance != null)
+        {
+            CombatFeedbackManager.Instance.SpawnEnemyDamage(transform.position + Vector3.up * 2.2f, damage, isCrit);
+        }
+
+        if (CombinationAttackManager.Instance != null)
+        {
+            CombinationAttackManager.Instance.RecordPlayerCombatHit(damage, isCrit);
+        }
 
         if (currentHealth <= 0f)
         {
@@ -115,7 +136,7 @@ public class BossController : MonoBehaviour, IEnemyStagger, IDamageReceiver
         }
     }
 
-    public void TakeDirectDamage(float damage) => TakeDamage(damage);
+    public void TakeDirectDamage(float damage) => TakeDamage(damage, false, false);
 
     public void Stagger(float duration, Vector3 origin)
     {
@@ -126,8 +147,12 @@ public class BossController : MonoBehaviour, IEnemyStagger, IDamageReceiver
 
     private void Die()
     {
-        Debug.Log($"[VICTORY] {bossName} shattered into ancient glyph fragments!");
+        Debug.Log($"[VICTORY] {bossName} fell in combat! Spawning carveable carcass remains.");
         OnBossDefeated?.Invoke();
-        Destroy(gameObject, 0.5f);
+
+        // Spawn Monster Hunter interactive carving carcass & shiny loot
+        ApexBossCarcass.SpawnCarcass(transform.position, transform.rotation, bossName);
+
+        Destroy(gameObject, 0.2f);
     }
 }

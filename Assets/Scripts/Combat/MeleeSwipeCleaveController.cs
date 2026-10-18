@@ -105,9 +105,7 @@ namespace BattleSummoner.Combat
                     }
                     else if (col.TryGetComponent<SpireEnemy>(out var enemy))
                     {
-                        var res = new DamageResult { finalDamage = baseSlashDamage, outcome = HitOutcome.Normal, damageType = DamageType.PhysicalSlash };
                         enemy.TakeDamage(baseSlashDamage);
-                        if (CombatFeedbackManager.Instance != null) CombatFeedbackManager.Instance.SpawnDamagePopup(contactPoint, res);
                         struckCount++;
                     }
                     else if (col.TryGetComponent<BossController>(out var boss))

@@ -45,6 +45,7 @@ namespace BattleSummoner.Combat
             float baseDamage = 60f;
 
             // Spawn radial icy shockwave
+            BattleSummoner.VFX.ElementalSpellParticlePack.PlaySpellEffect(BattleSummoner.VFX.SpellEffectType.FrostNova, origin);
             SpawnSpellVFX("FrostNovaVFX", origin, radius, new Color(0.2f, 0.85f, 1.0f, 0.7f));
 
             if (BattleSummonerAudioMaster.Instance != null)
@@ -123,6 +124,8 @@ namespace BattleSummoner.Combat
             float radius = 4.5f;
             float baseDamage = 80f;
 
+            BattleSummoner.VFX.StylizedFireEffectsPack.SpawnFlamePillar(origin, 1.2f);
+            BattleSummoner.VFX.StylizedFireEffectsPack.SpawnBurningGroundPatch(origin, radius, 4.0f);
             SpawnSpellVFX("PyreBlastVFX", origin, radius, new Color(1.0f, 0.40f, 0.1f, 0.8f));
 
             if (BattleSummonerAudioMaster.Instance != null)
@@ -162,6 +165,7 @@ namespace BattleSummoner.Combat
             float radius = 4.0f;
             float baseDamage = 50f;
 
+            BattleSummoner.VFX.ElementalSpellParticlePack.PlaySpellEffect(BattleSummoner.VFX.SpellEffectType.AcidSplashPuddle, origin);
             SpawnSpellVFX("AcidFlaskVFX", origin, radius, new Color(0.6f, 1.0f, 0.1f, 0.75f));
 
             if (BattleSummonerAudioMaster.Instance != null)
@@ -204,6 +208,7 @@ namespace BattleSummoner.Combat
             Transform target = FindTargetInFront(origin, forward, spellRange);
             Vector3 hitPos = target != null ? target.position : origin + forward * spellRange;
 
+            BattleSummoner.VFX.ElementalSpellParticlePack.PlaySpellEffect(BattleSummoner.VFX.SpellEffectType.ToxicPoisonCloud, hitPos);
             SpawnSpellVFX("VenomDartVFX", hitPos, 1.5f, new Color(0.2f, 0.95f, 0.3f, 0.85f));
 
             if (target != null && target.TryGetComponent<IDamageReceiver>(out var receiver))
@@ -230,6 +235,7 @@ namespace BattleSummoner.Combat
             Vector3 origin = transform.position + transform.forward * 2.0f;
             float radius = 4.5f;
 
+            BattleSummoner.VFX.ElementalSpellParticlePack.PlaySpellEffect(BattleSummoner.VFX.SpellEffectType.CurseHexSkull, origin);
             SpawnSpellVFX("SlumberHexVFX", origin, radius, new Color(0.75f, 0.45f, 1.0f, 0.70f));
 
             if (BattleSummonerAudioMaster.Instance != null)
@@ -302,29 +308,7 @@ namespace BattleSummoner.Combat
 
         private void SpawnLightningBeamVFX(Vector3 from, Vector3 to)
         {
-            var lineObj = new GameObject("LightningBoltVFX");
-            var lr = lineObj.AddComponent<LineRenderer>();
-            lr.positionCount = 6;
-            lr.startWidth = 0.14f;
-            lr.endWidth = 0.04f;
-
-            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
-            mat.color = new Color(1.0f, 0.95f, 0.35f, 1f);
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_EmissionColor", new Color(1.0f, 0.90f, 0.2f) * 5f);
-            lr.sharedMaterial = mat;
-
-            for (int i = 0; i < 6; i++)
-            {
-                float t = i / 5f;
-                Vector3 p = Vector3.Lerp(from, to, t);
-                if (i > 0 && i < 5)
-                {
-                    p += new Vector3(UnityEngine.Random.Range(-0.3f, 0.3f), UnityEngine.Random.Range(-0.3f, 0.3f), UnityEngine.Random.Range(-0.3f, 0.3f));
-                }
-                lr.SetPosition(i, p);
-            }
-            Destroy(lineObj, 0.25f);
+            BattleSummoner.VFX.LightningSpellManager.CastBolt(from, to, new Color(0.25f, 0.88f, 1.0f, 1f), 0.32f);
         }
         #endregion
     }

@@ -24,6 +24,7 @@ namespace BattleSummoner.Quests
         [SerializeField] private TextMeshProUGUI guildTitleTMP;
         [SerializeField] private TextMeshProUGUI goldDisplayTMP;
         [SerializeField] private TextMeshProUGUI activeCountTMP;
+        [SerializeField] private TextMeshProUGUI bTeamStatusTMP;
 
         [Header("Filter Tabs")]
         [SerializeField] private Transform filterTabContainer;
@@ -76,11 +77,30 @@ namespace BattleSummoner.Quests
             }
         }
 
+        private float cardRefreshCooldown = 0f;
         private void Update()
         {
-            if (isOpen && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E)))
+            if (isOpen)
             {
-                CloseBoard();
+                if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E))
+                {
+                    CloseBoard();
+                    return;
+                }
+
+                cardRefreshCooldown -= Time.deltaTime;
+                if (cardRefreshCooldown <= 0f)
+                {
+                    cardRefreshCooldown = 0.5f;
+                    if (QuestManager.Instance != null)
+                    {
+                        UpdateHeaderStats(QuestManager.Instance.PlayerGold);
+                        if (QuestManager.Instance.IsBTeamOnExpedition)
+                        {
+                            UpdateActiveBTeamCardTimers();
+                        }
+                    }
+                }
             }
         }
 
@@ -130,17 +150,70 @@ namespace BattleSummoner.Quests
             {
                 boardRootPanel.SetActive(false);
             }
+            if (taskBoardCanvas != null)
+            {
+                taskBoardCanvas.gameObject.SetActive(false);
+            }
         }
 
         private void UpdateHeaderStats(int gold)
         {
             if (goldDisplayTMP != null)
             {
-                goldDisplayTMP.text = $"💰 <b>{gold}</b> G";
+                goldDisplayTMP.text = $"<color=#FFD700>GOLD:</color> <b>{gold}</b> G";
             }
             if (activeCountTMP != null && QuestManager.Instance != null)
             {
                 activeCountTMP.text = $"ACTIVE JOBS: <b>{QuestManager.Instance.GetActiveQuestCount()}</b>";
+            }
+            if (bTeamStatusTMP != null && QuestManager.Instance != null)
+            {
+                Quest activeB = QuestManager.Instance.ActiveBTeamQuest;
+                if (activeB != null)
+                {
+                    int remainSec = Mathf.Max(0, Mathf.CeilToInt(activeB.bTeamExpeditionTimer));
+                    int min = remainSec / 60;
+                    int sec = remainSec % 60;
+                    bTeamStatusTMP.text = $"★ <b>B-TEAM EXPEDITION:</b> <color=#FFB732>DEPLOYED ({min:D2}:{sec:D2})</color> - <i>{activeB.bTeamSquadRole}</i>";
+                }
+                else
+                {
+                    // Check if any completed B-team loot is waiting
+                    Quest completedB = QuestManager.Instance.AllQuests != null ? 
+                        System.Array.Find(QuestManager.Instance.GetQuests().ToArray(), q => q.IsBTeamCompleted) : null;
+                    if (completedB != null)
+                    {
+                        bTeamStatusTMP.text = $"★ <b>B-TEAM EXPEDITION:</b> <color=#FFD700>HAUL COMPLETE! Claim {completedB.bTeamOresMined} Ores Below!</color>";
+                    }
+                    else
+                    {
+                        bTeamStatusTMP.text = "★ <b>B-TEAM RESERVE SQUAD (UNITS 10-18):</b> <color=#50E080>READY AT GUILD (Available for Sub-Contracting)</color>";
+                    }
+                }
+            }
+        }
+
+        private void UpdateActiveBTeamCardTimers()
+        {
+            if (jobCardsContainer == null || QuestManager.Instance == null) return;
+            Quest activeB = QuestManager.Instance.ActiveBTeamQuest;
+            if (activeB == null) return;
+
+            Transform cardTr = jobCardsContainer.Find($"JobCard_{activeB.questId}");
+            if (cardTr != null)
+            {
+                Transform btnTr = cardTr.Find("BottomRow/BTeamActiveButton");
+                if (btnTr != null)
+                {
+                    TextMeshProUGUI txt = btnTr.GetComponentInChildren<TextMeshProUGUI>();
+                    if (txt != null)
+                    {
+                        int remainSec = Mathf.Max(0, Mathf.CeilToInt(activeB.bTeamExpeditionTimer));
+                        int min = remainSec / 60;
+                        int sec = remainSec % 60;
+                        txt.text = $"<b>B-TEAM EXPEDITION ({min:D2}:{sec:D2})</b>";
+                    }
+                }
             }
         }
 
@@ -266,10 +339,10 @@ namespace BattleSummoner.Quests
             objRow.GetComponent<RectTransform>().sizeDelta = new Vector2(880f, 26f);
             TextMeshProUGUI objTxt = objRow.GetComponent<TextMeshProUGUI>();
             string progressHighlight = q.state == QuestState.Active ? $"<color=#50E080><b>[{q.GetProgressString()}]</b></color> " : "";
-            objTxt.text = $"🎯 <color=#FFD700>Objective:</color> {progressHighlight}{q.objectiveText}";
+            objTxt.text = $"<color=#FFD700>OBJECTIVE:</color> {progressHighlight}{q.objectiveText}";
             objTxt.fontSize = 14;
 
-            // BOTTOM ROW: Rewards on left, Action Button on right
+            // BOTTOM ROW: Rewards on left, Action Button(s) on right
             GameObject bottomRow = new GameObject("BottomRow", typeof(RectTransform), typeof(HorizontalLayoutGroup));
             bottomRow.transform.SetParent(cardObj.transform, false);
             RectTransform brRt = bottomRow.GetComponent<RectTransform>();
@@ -277,79 +350,127 @@ namespace BattleSummoner.Quests
             HorizontalLayoutGroup brH = bottomRow.GetComponent<HorizontalLayoutGroup>();
             brH.childControlWidth = false;
             brH.childControlHeight = true;
-            brH.spacing = 15f;
+            brH.spacing = 10f;
 
             // Rewards string
+            bool canSubContract = q.CanSubContract && q.state == QuestState.Available;
+            float rewWidth = canSubContract ? 470f : 580f;
+
             GameObject rewObj = new GameObject("RewardsText", typeof(RectTransform), typeof(TextMeshProUGUI));
             rewObj.transform.SetParent(bottomRow.transform, false);
-            rewObj.GetComponent<RectTransform>().sizeDelta = new Vector2(620f, 44f);
+            rewObj.GetComponent<RectTransform>().sizeDelta = new Vector2(rewWidth, 44f);
             TextMeshProUGUI rewTxt = rewObj.GetComponent<TextMeshProUGUI>();
-            string itemStr = !string.IsNullOrEmpty(q.itemRewardName) ? $"  🎁 <color=#70D0FF>{q.itemRewardName}</color>" : "";
-            rewTxt.text = $"💰 <color=#FFD700><b>{q.goldReward}G</b></color>   ⭐ <color=#C080FF><b>{q.expReward} EXP</b></color>{itemStr}";
+            string itemStr = !string.IsNullOrEmpty(q.itemRewardName) ? $"  •  <color=#70D0FF>{q.itemRewardName}</color>" : "";
+            rewTxt.text = $"<color=#FFD700><b>+{q.goldReward} Gold</b></color>   <color=#C080FF><b>+{q.expReward} EXP</b></color>{itemStr}";
             rewTxt.fontSize = 15;
             rewTxt.alignment = TextAlignmentOptions.MidlineLeft;
 
-            // Action Button
-            GameObject actionBtnObj = new GameObject("ActionButton", typeof(RectTransform), typeof(Image), typeof(Button));
-            actionBtnObj.transform.SetParent(bottomRow.transform, false);
-            RectTransform btnRt = actionBtnObj.GetComponent<RectTransform>();
-            btnRt.sizeDelta = new Vector2(230f, 44f);
-            Image btnImg = actionBtnObj.GetComponent<Image>();
-            Button btn = actionBtnObj.GetComponent<Button>();
-
-            GameObject btnTxtObj = new GameObject("BtnText", typeof(RectTransform), typeof(TextMeshProUGUI));
-            btnTxtObj.transform.SetParent(actionBtnObj.transform, false);
-            RectTransform btnTxtRt = btnTxtObj.GetComponent<RectTransform>();
-            btnTxtRt.anchorMin = Vector2.zero;
-            btnTxtRt.anchorMax = Vector2.one;
-            btnTxtRt.sizeDelta = Vector2.zero;
-            btnTxtRt.anchoredPosition = Vector2.zero;
-            TextMeshProUGUI btnTxt = btnTxtObj.GetComponent<TextMeshProUGUI>();
-            btnTxt.alignment = TextAlignmentOptions.Center;
-            btnTxt.fontSize = 15;
-
-            // Configure button state
-            switch (q.state)
+            if (q.state == QuestState.Available)
             {
-                case QuestState.Available:
-                    btnImg.color = new Color(0.18f, 0.58f, 0.32f); // Forest Green
-                    btnTxt.text = "<b>ACCEPT JOB</b>";
-                    btnTxt.color = Color.white;
-                    btn.onClick.AddListener(() =>
-                    {
-                        QuestManager.Instance.AcceptQuest(q.questId);
-                    });
-                    break;
+                // ACCEPT JOB Button (Player / A-Team Dive)
+                float acceptWidth = canSubContract ? 170f : 250f;
+                GameObject acceptBtnObj = CreateButton(bottomRow.transform, "AcceptButton", new Vector2(acceptWidth, 44f), 
+                    new Color(0.18f, 0.58f, 0.32f), "<b>ACCEPT JOB</b>", () =>
+                {
+                    QuestManager.Instance.AcceptQuest(q.questId);
+                });
 
-                case QuestState.Active:
-                    btnImg.color = new Color(0.20f, 0.45f, 0.75f); // Cobalt Blue
-                    btnTxt.text = $"<b>IN PROGRESS ({q.currentCount}/{q.targetCount})</b>";
-                    btnTxt.color = Color.white;
-                    // Clicking active button allows quick progress test or abandon
-                    btn.onClick.AddListener(() =>
+                // DISPATCH B-TEAM Button (Palico-style Sub-Contracting)
+                if (canSubContract)
+                {
+                    GameObject dispatchBtnObj = CreateButton(bottomRow.transform, "DispatchBTeamButton", new Vector2(210f, 44f), 
+                        new Color(0.88f, 0.54f, 0.12f), "<b>DISPATCH B-TEAM ❯</b>", () =>
                     {
-                        // Simulate objective progress for ease of testing!
-                        QuestManager.Instance.ProgressQuest(q.questId, 1);
+                        QuestManager.Instance.DispatchBTeam(q.questId);
                     });
-                    break;
-
-                case QuestState.Completed:
-                    btnImg.color = new Color(0.85f, 0.65f, 0.15f); // Radiant Gold
-                    btnTxt.text = "<b>CLAIM REWARD! ★</b>";
-                    btnTxt.color = new Color(0.10f, 0.10f, 0.10f);
-                    btn.onClick.AddListener(() =>
-                    {
-                        QuestManager.Instance.ClaimQuestReward(q.questId);
-                    });
-                    break;
-
-                case QuestState.Claimed:
-                    btnImg.color = new Color(0.20f, 0.22f, 0.26f); // Slate Muted
-                    btnTxt.text = "<b>COMPLETED ✓</b>";
-                    btnTxt.color = new Color(0.6f, 0.65f, 0.7f);
-                    btn.interactable = false;
-                    break;
+                }
             }
+            else if (q.isBTeamDispatched)
+            {
+                if (q.isRewardForfeited)
+                {
+                    // War-Horn sounded: B-Team merged into 18-person blitz, side-contract loot forfeited!
+                    GameObject blitzBtnObj = CreateButton(bottomRow.transform, "BlitzForfeitedButton", new Vector2(280f, 44f), 
+                        new Color(0.38f, 0.18f, 0.22f), "<b>FORFEITED (WAR-HORN BLITZ)</b>", null);
+                    blitzBtnObj.GetComponent<Button>().interactable = false;
+                }
+                else if (q.state == QuestState.Completed)
+                {
+                    // B-Team finished expedition successfully: claim loot + ores!
+                    string oresStr = q.bTeamOresMined > 0 ? $" (+{q.bTeamOresMined} Ores)" : "";
+                    GameObject claimBtnObj = CreateButton(bottomRow.transform, "ClaimBTeamButton", new Vector2(280f, 44f), 
+                        new Color(0.92f, 0.70f, 0.15f), $"<b>CLAIM B-TEAM LOOT! ★{oresStr}</b>", () =>
+                    {
+                        QuestManager.Instance.ClaimBTeamLoot(q.questId);
+                    });
+                    claimBtnObj.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.10f, 0.10f, 0.10f);
+                }
+                else
+                {
+                    // Active B-team expedition in progress
+                    int remainSec = Mathf.Max(0, Mathf.CeilToInt(q.bTeamExpeditionTimer));
+                    int min = remainSec / 60;
+                    int sec = remainSec % 60;
+                    GameObject activeBTeamBtn = CreateButton(bottomRow.transform, "BTeamActiveButton", new Vector2(280f, 44f), 
+                        new Color(0.20f, 0.45f, 0.75f), $"<b>B-TEAM EXPEDITION ({min:D2}:{sec:D2})</b>", () =>
+                    {
+                        // Fast-track 15 seconds on tap for ease of playtesting!
+                        q.bTeamExpeditionTimer = Mathf.Max(0f, q.bTeamExpeditionTimer - 15f);
+                        RefreshAllJobCards();
+                    });
+                }
+            }
+            else if (q.state == QuestState.Active)
+            {
+                // Active player job
+                GameObject activeBtnObj = CreateButton(bottomRow.transform, "ActiveButton", new Vector2(250f, 44f), 
+                    new Color(0.20f, 0.45f, 0.75f), $"<b>IN PROGRESS ({q.currentCount}/{q.targetCount})</b>", () =>
+                {
+                    QuestManager.Instance.ProgressQuest(q.questId, 1);
+                });
+            }
+            else if (q.state == QuestState.Completed)
+            {
+                // Completed player job
+                GameObject claimBtnObj = CreateButton(bottomRow.transform, "ClaimButton", new Vector2(250f, 44f), 
+                    new Color(0.85f, 0.65f, 0.15f), "<b>CLAIM REWARD! ★</b>", () =>
+                {
+                    QuestManager.Instance.ClaimQuestReward(q.questId);
+                });
+                claimBtnObj.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.10f, 0.10f, 0.10f);
+            }
+            else if (q.state == QuestState.Claimed)
+            {
+                GameObject claimedBtnObj = CreateButton(bottomRow.transform, "ClaimedButton", new Vector2(250f, 44f), 
+                    new Color(0.20f, 0.22f, 0.26f), "<b>COMPLETED ✓</b>", null);
+                claimedBtnObj.GetComponent<Button>().interactable = false;
+                claimedBtnObj.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.6f, 0.65f, 0.7f);
+            }
+        }
+
+        private GameObject CreateButton(Transform parent, string name, Vector2 size, Color bgColor, string label, UnityEngine.Events.UnityAction onClick)
+        {
+            GameObject btnObj = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            btnObj.transform.SetParent(parent, false);
+            btnObj.GetComponent<RectTransform>().sizeDelta = size;
+            btnObj.GetComponent<Image>().color = bgColor;
+            Button btn = btnObj.GetComponent<Button>();
+            if (onClick != null) btn.onClick.AddListener(onClick);
+
+            GameObject txtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            txtObj.transform.SetParent(btnObj.transform, false);
+            RectTransform tr = txtObj.GetComponent<RectTransform>();
+            tr.anchorMin = Vector2.zero;
+            tr.anchorMax = Vector2.one;
+            tr.sizeDelta = Vector2.zero;
+            tr.anchoredPosition = Vector2.zero;
+
+            TextMeshProUGUI tmp = txtObj.GetComponent<TextMeshProUGUI>();
+            tmp.text = label;
+            tmp.fontSize = 14;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = Color.white;
+            return btnObj;
         }
 
         #region Procedural UI Hierarchy Builder
@@ -429,8 +550,8 @@ namespace BattleSummoner.Quests
             GameObject statsObj = new GameObject("StatsRow", typeof(RectTransform), typeof(TextMeshProUGUI));
             statsObj.transform.SetParent(headerObj.transform, false);
             RectTransform sRt = statsObj.GetComponent<RectTransform>();
-            sRt.anchorMin = new Vector2(0.05f, 0.05f);
-            sRt.anchorMax = new Vector2(0.75f, 0.40f);
+            sRt.anchorMin = new Vector2(0.05f, 0.28f);
+            sRt.anchorMax = new Vector2(0.75f, 0.55f);
             sRt.sizeDelta = Vector2.zero;
             sRt.anchoredPosition = Vector2.zero;
             goldDisplayTMP = statsObj.GetComponent<TextMeshProUGUI>();
@@ -438,6 +559,20 @@ namespace BattleSummoner.Quests
             goldDisplayTMP.fontSize = 17;
             goldDisplayTMP.color = new Color(1f, 0.9f, 0.6f);
             goldDisplayTMP.alignment = TextAlignmentOptions.MidlineLeft;
+
+            // B-Team Status row
+            GameObject bTeamObj = new GameObject("BTeamStatusRow", typeof(RectTransform), typeof(TextMeshProUGUI));
+            bTeamObj.transform.SetParent(headerObj.transform, false);
+            RectTransform bRt = bTeamObj.GetComponent<RectTransform>();
+            bRt.anchorMin = new Vector2(0.05f, 0.04f);
+            bRt.anchorMax = new Vector2(0.85f, 0.28f);
+            bRt.sizeDelta = Vector2.zero;
+            bRt.anchoredPosition = Vector2.zero;
+            bTeamStatusTMP = bTeamObj.GetComponent<TextMeshProUGUI>();
+            bTeamStatusTMP.text = "📯 <b>B-TEAM RESERVE SQUAD (UNITS 10-18):</b> <color=#50E080>READY AT GUILD (Available for Sub-Contracting)</color>";
+            bTeamStatusTMP.fontSize = 13;
+            bTeamStatusTMP.color = Color.white;
+            bTeamStatusTMP.alignment = TextAlignmentOptions.MidlineLeft;
 
             // Close Button (Top-Right of Header)
             GameObject closeBtnObj = new GameObject("CloseButton", typeof(RectTransform), typeof(Image), typeof(Button));

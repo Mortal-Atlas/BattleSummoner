@@ -11,7 +11,8 @@ namespace BattleSummoner.Customization
         Identity,
         BodyMorphology,
         FaceVisage,
-        HairStyling
+        HairStyling,
+        AnatomyReferences
     }
 
     /// <summary>
@@ -20,6 +21,7 @@ namespace BattleSummoner.Customization
     /// - Body & Morphology: Body Type presets + Sliders for Neck Length, Arm Length, Torso, Hips, Legs, Feet, Height, Muscle
     /// - Face & Visage: Face Shape, Skin Tone Palette, Eye Shape, Eye Color + Heterochromia, Nose Shape + Scale, Mouth Shape
     /// - Hair & Styling: 8 Hair Styles, Hair Color Palette, Highlight Color, Outfit Primary & Secondary Colors
+    /// - Anatomy & References: Male/Female Anatomy Breakdown + Model Turnaround Sheets 1-5
     /// - 3D Turntable: 360-degree rotation drag, Dynamic Camera Framing (Full Body vs. Portrait/Face Close-up)
     /// - Action Deck: Randomize, Reset, Save & Apply
     /// </summary>
@@ -48,12 +50,18 @@ namespace BattleSummoner.Customization
         [SerializeField] private Button bodyTabBtn;
         [SerializeField] private Button faceTabBtn;
         [SerializeField] private Button hairTabBtn;
+        [SerializeField] private Button referencesTabBtn;
 
         [Header("Tab Content Panels")]
         [SerializeField] private GameObject identityPanel;
         [SerializeField] private GameObject bodyPanel;
         [SerializeField] private GameObject facePanel;
         [SerializeField] private GameObject hairPanel;
+        [SerializeField] private GameObject referencesPanel;
+
+        [Header("Anatomy & Reference Gallery")]
+        [SerializeField] private ModelReferenceGalleryViewer referenceGalleryViewer;
+        [SerializeField] private Button viewAnatomyGuideBtn;
 
         [Header("Identity Controls")]
         [SerializeField] private TMP_InputField nameInputField;
@@ -324,6 +332,7 @@ namespace BattleSummoner.Customization
             if (bodyPanel != null) bodyPanel.SetActive(tab == CustomizationTab.BodyMorphology);
             if (facePanel != null) facePanel.SetActive(tab == CustomizationTab.FaceVisage);
             if (hairPanel != null) hairPanel.SetActive(tab == CustomizationTab.HairStyling);
+            if (referencesPanel != null) referencesPanel.SetActive(tab == CustomizationTab.AnatomyReferences);
 
             // Auto-frame camera based on category
             if (tab == CustomizationTab.FaceVisage || tab == CustomizationTab.HairStyling)
@@ -338,6 +347,15 @@ namespace BattleSummoner.Customization
             HighlightTabHeader(tab);
         }
 
+        public void OpenAnatomyGuide()
+        {
+            SwitchTab(CustomizationTab.AnatomyReferences);
+            if (referenceGalleryViewer != null)
+            {
+                referenceGalleryViewer.ShowSheet(0); // 0 is Male & Female Anatomy Breakdown
+            }
+        }
+
         private void HighlightTabHeader(CustomizationTab tab)
         {
             Color activeCol = new Color(1.0f, 0.85f, 0.30f, 1f);
@@ -347,6 +365,7 @@ namespace BattleSummoner.Customization
             SetButtonColor(bodyTabBtn, tab == CustomizationTab.BodyMorphology ? activeCol : inactiveCol);
             SetButtonColor(faceTabBtn, tab == CustomizationTab.FaceVisage ? activeCol : inactiveCol);
             SetButtonColor(hairTabBtn, tab == CustomizationTab.HairStyling ? activeCol : inactiveCol);
+            SetButtonColor(referencesTabBtn, tab == CustomizationTab.AnatomyReferences ? activeCol : inactiveCol);
         }
 
         private void SetButtonColor(Button btn, Color c)
@@ -416,6 +435,8 @@ namespace BattleSummoner.Customization
             if (bodyTabBtn != null) bodyTabBtn.onClick.AddListener(() => SwitchTab(CustomizationTab.BodyMorphology));
             if (faceTabBtn != null) faceTabBtn.onClick.AddListener(() => SwitchTab(CustomizationTab.FaceVisage));
             if (hairTabBtn != null) hairTabBtn.onClick.AddListener(() => SwitchTab(CustomizationTab.HairStyling));
+            if (referencesTabBtn != null) referencesTabBtn.onClick.AddListener(() => SwitchTab(CustomizationTab.AnatomyReferences));
+            if (viewAnatomyGuideBtn != null) viewAnatomyGuideBtn.onClick.AddListener(OpenAnatomyGuide);
 
             // Turntable controls
             if (cameraFramingToggleBtn != null) cameraFramingToggleBtn.onClick.AddListener(ToggleCameraFraming);

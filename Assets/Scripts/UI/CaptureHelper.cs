@@ -16,8 +16,8 @@ public class CaptureHelper : MonoBehaviour
         tex.Apply();
 
         byte[] bytes = tex.EncodeToPNG();
-        string artifactDir = @"C:\Users\jedij\.gemini\antigravity-ide\brain\bd703b22-4582-4bd5-8097-d9fe73a35c5e";
-        string artifactPath = Path.Combine(artifactDir, "mockup_full_hud_verified.png");
+        string artifactDir = @"C:\Users\jedij\.gemini\antigravity-ide\brain\14e40379-d8d1-4d3f-9df4-afaf664c7503";
+        string artifactPath = Path.Combine(artifactDir, "hud_layout_verified.png");
         File.WriteAllBytes(artifactPath, bytes);
 
         Destroy(tex);

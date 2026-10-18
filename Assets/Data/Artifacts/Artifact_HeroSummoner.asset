@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3be0c8ae03b43164ca4e718d692d5e05, type: 3}
+  m_Name: Artifact_HeroSummoner
+  m_EditorClassIdentifier: Assembly-CSharp::DimensionalArtifact
+  baseClassName_8D: Hero_MeshySummoner
+  visualPrefab_8D: {fileID: 919132149155446097, guid: 37f63a98d782fbe46a28e8d491b7984a, type: 3}
+  uiIcon_8D: {fileID: 0}
+  semanticDescription_9D: An immovable scholar of the Spire, wielding spite and heavy
+    kinetic inertia through runic alchemy.
+  logicComplexity_0D: 70
+  spatialGrid_1D_3D: {x: 1, y: 1, z: 1}
+  inertialMass_4D: 35
+  densityMatrix_5D: 35
+  thermalEnthalpy_6D: 170
+  phaseState_6D: 3
+  temporalDecay_7D: 1
+  carrierFrequency_10D: 120
+  quantumStability_11D: 0.65

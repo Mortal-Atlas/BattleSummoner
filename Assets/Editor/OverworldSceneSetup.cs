@@ -313,8 +313,8 @@ public static class OverworldSceneSetup
 
         PortraitARPGCamera arpgCam = camObj.GetComponent<PortraitARPGCamera>();
         arpgCam.playerTarget = player.transform;
-        arpgCam.pitchAngle = 42f;
-        arpgCam.cameraDistance = 12.5f;
+        arpgCam.pitchAngle = 24f;
+        arpgCam.cameraDistance = 3.2f;
 
         Vector3 focusPoint = player.transform.position + Vector3.up * (arpgCam.targetFocusHeight + 0.75f);
         Quaternion camRot = Quaternion.Euler(arpgCam.pitchAngle, arpgCam.yawAngle, 0f);
@@ -443,8 +443,8 @@ public static class OverworldSceneSetup
 
         PortraitARPGCamera arpgCam = camObj.GetComponent<PortraitARPGCamera>();
         arpgCam.playerTarget = player.transform;
-        arpgCam.pitchAngle = 38f;
-        arpgCam.cameraDistance = 10f;
+        arpgCam.pitchAngle = 24f;
+        arpgCam.cameraDistance = 3.2f;
 
         Vector3 focusPoint = player.transform.position + Vector3.up * (arpgCam.targetFocusHeight + 0.75f);
         Quaternion camRot = Quaternion.Euler(arpgCam.pitchAngle, arpgCam.yawAngle, 0f);
@@ -553,8 +553,8 @@ public static class OverworldSceneSetup
 
         PortraitARPGCamera arpgCam = camObj.GetComponent<PortraitARPGCamera>();
         arpgCam.playerTarget = player.transform;
-        arpgCam.pitchAngle = 38f;
-        arpgCam.cameraDistance = 10f;
+        arpgCam.pitchAngle = 24f;
+        arpgCam.cameraDistance = 3.2f;
 
         Vector3 focusPoint = player.transform.position + Vector3.up * (arpgCam.targetFocusHeight + 0.75f);
         Quaternion camRot = Quaternion.Euler(arpgCam.pitchAngle, arpgCam.yawAngle, 0f);
@@ -739,8 +739,8 @@ public static class OverworldSceneSetup
 
         PortraitARPGCamera arpgCam = camObj.GetComponent<PortraitARPGCamera>();
         arpgCam.playerTarget = player.transform;
-        arpgCam.pitchAngle = 38f;
-        arpgCam.cameraDistance = 11.5f;
+        arpgCam.pitchAngle = 24f;
+        arpgCam.cameraDistance = 3.2f;
 
         Vector3 focusPoint = player.transform.position + Vector3.up * (arpgCam.targetFocusHeight + 0.75f);
         Quaternion camRot = Quaternion.Euler(arpgCam.pitchAngle, arpgCam.yawAngle, 0f);

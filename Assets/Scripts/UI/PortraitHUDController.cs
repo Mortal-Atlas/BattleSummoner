@@ -59,8 +59,33 @@ public class PortraitHUDController : MonoBehaviour
         BindButtons();
     }
 
+    [Header("Battle Side Profile HUD (Persona Style)")]
+    [SerializeField] private BattleSummoner.UI.BattleSideProfileHUDController battleSideProfileHUD;
+
     private void Start()
     {
+        if (battleSideProfileHUD == null)
+        {
+            battleSideProfileHUD = BattleSummoner.UI.BattleSideProfileHUDController.EnsureInScene(this.transform);
+        }
+
+        // Only instantiate standalone QuickItemCarousel and ZTargeting if MockupMasterHUD is NOT active
+        if (transform.Find("MockupMasterHUD") == null)
+        {
+            QuickItemCarouselController.EnsureInScene(this.transform);
+            BattleSummoner.Combat.QuickZTargetingController.EnsureInScene(this.transform);
+        }
+        else
+        {
+            var oldCarousel = transform.Find("QuickItemCarousel");
+            if (oldCarousel != null && oldCarousel.parent == this.transform) oldCarousel.gameObject.SetActive(false);
+            var oldZTarget = transform.Find("QuickZTargetingController");
+            if (oldZTarget != null && oldZTarget.parent == this.transform) oldZTarget.gameObject.SetActive(false);
+        }
+
+        var playerObj = GameObject.Find("Player_Hero");
+        BattleSummoner.Combat.WizardSpellSlingerController.EnsureInScene(playerObj != null ? playerObj.transform : this.transform);
+
         UpdateFloorText();
         UpdateAllGauges();
         UpdateVaultDisplay();
@@ -185,15 +210,15 @@ public class PortraitHUDController : MonoBehaviour
             });
         }
 
-        if (whetstoneItemButton == null)
-        {
-            var obj = GameObject.Find("WhetstoneButton");
-            if (obj != null) whetstoneItemButton = obj.GetComponent<Button>();
-        }
+        // Whetstone is accessed via QuickItemCarouselController; deactivate standalone button
         if (whetstoneItemButton != null)
         {
-            whetstoneItemButton.onClick.RemoveAllListeners();
-            whetstoneItemButton.onClick.AddListener(OnWhetstoneClicked);
+            whetstoneItemButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            var obj = GameObject.Find("WhetstoneButton");
+            if (obj != null) obj.SetActive(false);
         }
 
         if (quickPotionButtons == null || quickPotionButtons.Length == 0)

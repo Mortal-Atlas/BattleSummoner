@@ -138,6 +138,12 @@ public class CaveMiningNode : MonoBehaviour
             SystemBroadcastManager.Instance?.TriggerAchievement("ach_gem_prismatic_unearth", "Delver");
         }
 
+        // Record world rumor discovery for offline campfire propagation
+        if (CampfireRumorPropagationService.Instance != null)
+        {
+            CampfireRumorPropagationService.Instance.RecordDiscovery("Player_Hero", 34, transform.position, $"{mineralType} Crystal Vein");
+        }
+
         if (crackedGeodeInspectionPrefab != null)
         {
             Instantiate(crackedGeodeInspectionPrefab, transform.position, transform.rotation);

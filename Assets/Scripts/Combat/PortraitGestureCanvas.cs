@@ -16,7 +16,12 @@ public enum InteractionMode
     MiningChisel = 4,
     InstrumentKalimba = 5,
     InstrumentPlay = 5,
-    SummoningCircle = 6
+    SummoningCircle = 6,
+    GuardianSignature = 7,
+    CookingMamaSlicing = 8,
+    PracticeRoomRecording = 9,
+    TavernArmWrestling = 10,
+    SecretKnockDoor = 11
 }
 
 public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
@@ -49,8 +54,31 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
     public event Action<Vector2> OnChiselTap;
     public event Action<Vector2> OnInspectDrag;
 
-    // Global Event Dispatchers
+    // Global Event Dispatchers with strict single-swipe debounce
     public static event Action<Vector2, float> OnBladeSlash;
+    public static event Action<Vector2, Vector2, float> OnScreenBladeSlash; // (startScreenPos, endScreenPos, velocity)
+    private static float lastGlobalBladeSlashTime = -10f;
+    private const float MIN_SLASH_COOLDOWN = 0.20f;
+
+    public static void TriggerBladeSlash(Vector2 direction, float velocity)
+    {
+        if (Time.time - lastGlobalBladeSlashTime < MIN_SLASH_COOLDOWN) return;
+        lastGlobalBladeSlashTime = Time.time;
+
+        OnBladeSlash?.Invoke(direction, velocity);
+        Vector2 center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        OnScreenBladeSlash?.Invoke(center - direction * 120f, center + direction * 120f, velocity);
+    }
+
+    public static void TriggerBladeSlash(Vector2 startScreenPos, Vector2 endScreenPos, float velocity)
+    {
+        if (Time.time - lastGlobalBladeSlashTime < MIN_SLASH_COOLDOWN) return;
+        lastGlobalBladeSlashTime = Time.time;
+
+        Vector2 dir = (endScreenPos - startScreenPos).normalized;
+        OnBladeSlash?.Invoke(dir, velocity);
+        OnScreenBladeSlash?.Invoke(startScreenPos, endScreenPos, velocity);
+    }
     public static event Action<Vector2, float> OnCircleRuneDrawn;
     public static event Action<float, Vector2, float> OnSummoningCircleDrawn; // (accuracyScore, centroid, avgRadius)
     public static event Action<float> OnSpellPinchCompression;
@@ -94,6 +122,22 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
             return;
         }
 
+        if (BattleSummoner.Combat.WizardSpellSlingerController.Instance != null && 
+            BattleSummoner.Combat.WizardSpellSlingerController.Instance.IsSpellModeActive &&
+            (BattleSummoner.Combat.WizardSpellSlingerController.Instance.ActivePreset == BattleSummoner.Combat.SpellSlingerPreset.LightningRay ||
+             BattleSummoner.Combat.WizardSpellSlingerController.Instance.ActivePreset == BattleSummoner.Combat.SpellSlingerPreset.WaterTorrent ||
+             BattleSummoner.Combat.WizardSpellSlingerController.Instance.IsHoldingSpell))
+        {
+            BattleSummoner.Combat.WizardSpellSlingerController.Instance.OnPointerDown(eventData.position);
+            return;
+        }
+
+        // Forward to SpellDrawingInkCanvas for real-time paper ink markings
+        if (SpellDrawingInkCanvas.Instance != null)
+        {
+            SpellDrawingInkCanvas.Instance.OnPointerDown(eventData);
+        }
+
         if (currentMode == InteractionMode.MiningChisel)
         {
             OnChiselTap?.Invoke(eventData.position);
@@ -115,10 +159,32 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
                 RuneShapeCastingEngine.Instance.AddPoint(eventData.position);
             }
         }
+        else if (currentMode == InteractionMode.GuardianSignature)
+        {
+            if (BattleSummoner.Core.GuardianSignatureBinder.Instance != null)
+            {
+                BattleSummoner.Core.GuardianSignatureBinder.Instance.BeginSignatureStroke();
+                BattleSummoner.Core.GuardianSignatureBinder.Instance.RecordSignaturePoint(eventData.position);
+            }
+        }
+        else if (currentMode == InteractionMode.TavernArmWrestling)
+        {
+            BattleSummoner.Social.TavernSocialAndWorldEventsManager.Instance?.RegisterArmWrestleAlternateTap();
+        }
+        else if (currentMode == InteractionMode.SecretKnockDoor)
+        {
+            BattleSummoner.Social.TavernSocialAndWorldEventsManager.Instance?.ValidateSecretDoorKnockTap();
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (currentMode == InteractionMode.GuardianSignature)
+        {
+            BattleSummoner.Core.GuardianSignatureBinder.Instance?.RecordSignaturePoint(eventData.position);
+            return;
+        }
+
         if (currentMode == InteractionMode.RelicInspect || currentMode == InteractionMode.RelicInspection)
         {
             OnInspectDrag?.Invoke(eventData.delta);
@@ -131,6 +197,18 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         {
             ActiveSpellLockManager.Instance.OnFireballDrag(eventData.position);
             return;
+        }
+
+        if (BattleSummoner.Combat.WizardSpellSlingerController.Instance != null && BattleSummoner.Combat.WizardSpellSlingerController.Instance.IsSpellModeActive && BattleSummoner.Combat.WizardSpellSlingerController.Instance.IsHoldingSpell)
+        {
+            BattleSummoner.Combat.WizardSpellSlingerController.Instance.OnDrag(eventData.position);
+            return;
+        }
+
+        // Forward to SpellDrawingInkCanvas for real-time paper ink markings
+        if (SpellDrawingInkCanvas.Instance != null && SpellDrawingInkCanvas.Instance.IsCurrentlyDrawing)
+        {
+            SpellDrawingInkCanvas.Instance.OnDrag(eventData);
         }
 
         if (ActiveSpellLockManager.Instance != null && ActiveSpellLockManager.Instance.CurrentState == ActiveSpellLockState.Locked_Healing)
@@ -222,6 +300,19 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
             return;
         }
 
+        if (BattleSummoner.Combat.WizardSpellSlingerController.Instance != null && BattleSummoner.Combat.WizardSpellSlingerController.Instance.IsSpellModeActive && BattleSummoner.Combat.WizardSpellSlingerController.Instance.IsHoldingSpell)
+        {
+            BattleSummoner.Combat.WizardSpellSlingerController.Instance.OnPointerUp(eventData.position);
+            touchTrail.Clear();
+            return;
+        }
+
+        // Forward to SpellDrawingInkCanvas for final shape recognition
+        if (SpellDrawingInkCanvas.Instance != null && SpellDrawingInkCanvas.Instance.IsCurrentlyDrawing)
+        {
+            SpellDrawingInkCanvas.Instance.OnPointerUp(eventData);
+        }
+
         if (ActiveSpellLockManager.Instance != null && ActiveSpellLockManager.Instance.CurrentState == ActiveSpellLockState.Locked_Healing)
         {
             if (RuneGestureRecognizer.CheckClosedCircuit(touchTrail, 8, out var closedCircuit, out float acc, out float rad))
@@ -244,7 +335,58 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
             return;
         }
 
-        if (currentMode == InteractionMode.MiningChisel || currentMode == InteractionMode.InstrumentKalimba || currentMode == InteractionMode.InstrumentPlay) return;
+        if (currentMode == InteractionMode.GuardianSignature)
+        {
+            BattleSummoner.Core.GuardianSignatureBinder.Instance?.EndSignatureStroke();
+            touchTrail.Clear();
+            return;
+        }
+
+        if (currentMode == InteractionMode.CookingMamaSlicing)
+        {
+            Vector2 deltaSlice = eventData.position - startTouchPosition;
+            float dur = Mathf.Max(0.001f, Time.time - startTouchTime);
+            if (deltaSlice.magnitude >= minSlashDistance && (deltaSlice.magnitude / dur) >= minSlashVelocity)
+            {
+                FruitNinjaBladeCutter.Instance?.HandleScreenBladeSlash(startTouchPosition, eventData.position, deltaSlice.magnitude / dur);
+            }
+            touchTrail.Clear();
+            return;
+        }
+
+        if (currentMode == InteractionMode.TavernArmWrestling)
+        {
+            Vector2 deltaWrestle = eventData.position - startTouchPosition;
+            if (deltaWrestle.magnitude >= 75f)
+            {
+                BattleSummoner.Social.TavernSocialAndWorldEventsManager.Instance?.CounterArmWrestleSurge();
+            }
+            touchTrail.Clear();
+            return;
+        }
+
+        if (currentMode == InteractionMode.PracticeRoomRecording)
+        {
+            Vector2 deltaPractice = eventData.position - startTouchPosition;
+            float durPractice = Mathf.Max(0.001f, Time.time - startTouchTime);
+            float velPractice = deltaPractice.magnitude / durPractice;
+            if (deltaPractice.magnitude >= minSlashDistance && velPractice >= minSlashVelocity)
+            {
+                var recorder = BattleSummoner.Combat.CustomSpecialMoveRecorder.Instance;
+                if (recorder != null)
+                {
+                    var move = new BattleSummoner.Combat.RecordedMoveNode
+                    {
+                        actionType = BattleSummoner.Combat.RecordedActionType.MeleeDirectionalSlash,
+                        swipeDirectionOrCastVector = deltaPractice.normalized,
+                        basePowerMultiplier = 1.0f
+                    };
+                    recorder.RecordStepInPracticeRoom(true, move);
+                }
+            }
+        }
+
+        if (currentMode == InteractionMode.MiningChisel || currentMode == InteractionMode.InstrumentKalimba || currentMode == InteractionMode.InstrumentPlay || currentMode == InteractionMode.SecretKnockDoor) return;
 
         if (currentMode == InteractionMode.SummoningCircle)
         {
@@ -290,7 +432,11 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
 
             if (distance >= minSlashDistance && velocity >= minSlashVelocity)
             {
-                OnBladeSlash?.Invoke(deltaGeneral.normalized, velocity);
+                if (Time.time - lastGlobalBladeSlashTime >= MIN_SLASH_COOLDOWN)
+                {
+                    lastGlobalBladeSlashTime = Time.time;
+                    OnBladeSlash?.Invoke(deltaGeneral.normalized, velocity);
+                }
             }
         }
         else if (currentMode == InteractionMode.Spellcraft || currentMode == InteractionMode.RuneCast)

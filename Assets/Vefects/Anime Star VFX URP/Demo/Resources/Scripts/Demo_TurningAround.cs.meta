@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b0e18da572a05b9418de0d7a87736940
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 375124
+  packageName: Money VFX - URP
+  packageVersion: 1.0
+  assetPath: Assets/Vefects/Money VFX/Demo/Scripts/Demo_TurningAround.cs
+  uploadId: 907754

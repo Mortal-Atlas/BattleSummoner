@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7735b926f63ef674887a32be54ef5989
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 389446
+  packageName: Laser VFX - URP
+  packageVersion: 1.0.11
+  assetPath: Assets/Vefects/Asset VFX URP/Demo/Resources/Materials/M_Sky.mat
+  uploadId: 968356

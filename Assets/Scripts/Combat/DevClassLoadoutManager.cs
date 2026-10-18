@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using BattleSummoner.Combat;
 
 public enum PlayerClassType
 {
@@ -106,6 +107,10 @@ public class DevClassLoadoutManager : MonoBehaviour
         weaponArt.OnDirectionalSlashExecuted += HandleWeaponArtSlash;
         weaponArt.OnComboRecognized += HandleWeaponArtCombo;
         weaponArt.ResolveWeaponReferences();
+
+        // Attach & configure PlayerCombatStanceController
+        var stanceCtrl = GetComponent<PlayerCombatStanceController>();
+        if (stanceCtrl == null) stanceCtrl = gameObject.AddComponent<PlayerCombatStanceController>();
     }
 
     private void OnEnable()
@@ -334,6 +339,13 @@ public class DevClassLoadoutManager : MonoBehaviour
                 effectiveDmg *= BattleSummoner.DungeonDimension.DungeonRunBuffSystem.Instance.GetDamageMultiplier();
             }
 
+            // Check Riposte Critical Boost (3.0x from Two-Finger Parry)
+            float riposte = 1f;
+            if (PlayerCombatStanceController.Instance != null && PlayerCombatStanceController.Instance.ConsumeRiposteBoost(out riposte))
+            {
+                effectiveDmg *= riposte;
+            }
+
             if (col.TryGetComponent<SpireEnemy>(out var enemy))
             {
                 enemy.TakeDamage(effectiveDmg);
@@ -368,6 +380,18 @@ public class DevClassLoadoutManager : MonoBehaviour
 
         // 5. Spawn Visual Slash Arc VFX with directional tilt and propagation
         WarriorSwordSlashVFX.SpawnSlashWave(rayOrigin + slashWorldDir * 0.8f, slashWorldDir, swipeAngleDeg, velocity);
+
+        // If Dual Blades: spawn second simultaneous sword slash wave with distinct golden amber tint!
+        if (PlayerCombatStanceController.Instance != null && PlayerCombatStanceController.Instance.IsDualWielding)
+        {
+            WarriorSwordSlashVFX.SpawnSlashWave(
+                rayOrigin + slashWorldDir * 0.8f + camRight * 0.35f,
+                slashWorldDir,
+                swipeAngleDeg + 25f,
+                velocity * 0.95f,
+                new Color(1f, 0.75f, 0.20f)
+            );
+        }
 
         // 6. Wear on edge
         if (weaponTemper != null)
@@ -586,24 +610,60 @@ public class DevClassLoadoutManager : MonoBehaviour
         }
 
         Vector3 spawnPos = transform.position + Vector3.up * 1.35f + direction * 0.85f;
-        GameObject arrowObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        arrowObj.name = "RangerArrowProjectile";
+        GameObject arrowObj = new GameObject("RangerArrowProjectile");
         arrowObj.transform.position = spawnPos;
-        arrowObj.transform.localScale = new Vector3(0.04f, 0.45f, 0.04f);
-        arrowObj.transform.rotation = Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Euler(90f, 0f, 0f);
+        arrowObj.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
 
-        var col = arrowObj.GetComponent<Collider>();
-        if (col != null) Destroy(col);
+        // Visual Shaft (Cylinder laying flat on Z)
+        GameObject shaftObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        shaftObj.name = "ArrowShaft";
+        shaftObj.transform.SetParent(arrowObj.transform, false);
+        shaftObj.transform.localPosition = Vector3.zero;
+        shaftObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // Lay cylinder axis along Z
+        shaftObj.transform.localScale = new Vector3(0.025f, 0.42f, 0.025f);
+        var shaftCol = shaftObj.GetComponent<Collider>();
+        if (shaftCol != null) Destroy(shaftCol);
 
-        var rend = arrowObj.GetComponent<Renderer>();
-        if (rend != null)
-        {
-            Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
-            mat.color = isADS ? new Color(0.2f, 0.95f, 1.0f) : new Color(0.85f, 0.75f, 0.45f);
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_EmissionColor", isADS ? new Color(0.1f, 0.8f, 1.0f) * 3f : new Color(0.9f, 0.7f, 0.2f) * 1.5f);
-            rend.sharedMaterial = mat;
-        }
+        // Arrowhead (Pyramid/Cube tip at the front)
+        GameObject headObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        headObj.name = "ArrowHead";
+        headObj.transform.SetParent(arrowObj.transform, false);
+        headObj.transform.localPosition = new Vector3(0f, 0f, 0.44f);
+        headObj.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+        headObj.transform.localScale = new Vector3(0.045f, 0.045f, 0.09f);
+        var headCol = headObj.GetComponent<Collider>();
+        if (headCol != null) Destroy(headCol);
+
+        // Fletching (Feathers at the tail)
+        GameObject fletchObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        fletchObj.name = "ArrowFletching";
+        fletchObj.transform.SetParent(arrowObj.transform, false);
+        fletchObj.transform.localPosition = new Vector3(0f, 0f, -0.38f);
+        fletchObj.transform.localRotation = Quaternion.identity;
+        fletchObj.transform.localScale = new Vector3(0.015f, 0.07f, 0.12f);
+        var fletchCol = fletchObj.GetComponent<Collider>();
+        if (fletchCol != null) Destroy(fletchCol);
+
+        // Materials & Glow
+        Material arrowMat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+        arrowMat.color = isADS ? new Color(0.2f, 0.95f, 1.0f) : new Color(0.85f, 0.75f, 0.45f);
+        arrowMat.EnableKeyword("_EMISSION");
+        arrowMat.SetColor("_EmissionColor", isADS ? new Color(0.1f, 0.8f, 1.0f) * 3f : new Color(0.9f, 0.7f, 0.2f) * 1.5f);
+        shaftObj.GetComponent<Renderer>().sharedMaterial = arrowMat;
+        fletchObj.GetComponent<Renderer>().sharedMaterial = arrowMat;
+
+        Material tipMat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+        tipMat.color = isADS ? new Color(0.9f, 0.95f, 1.0f) : new Color(0.6f, 0.65f, 0.7f);
+        tipMat.EnableKeyword("_EMISSION");
+        tipMat.SetColor("_EmissionColor", isADS ? new Color(0.5f, 0.9f, 1.0f) * 2.5f : new Color(0.4f, 0.4f, 0.4f));
+        headObj.GetComponent<Renderer>().sharedMaterial = tipMat;
+
+        // Elegant flight trail
+        TrailRenderer trail = arrowObj.AddComponent<TrailRenderer>();
+        trail.time = 0.28f;
+        trail.startWidth = 0.05f;
+        trail.endWidth = 0.0f;
+        trail.material = arrowMat;
 
         float effectiveSpeed = isADS ? arrowAdsSpeed : arrowSpeed;
         float effectiveDamage = arrowDamage;

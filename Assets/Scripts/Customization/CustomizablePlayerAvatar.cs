@@ -65,6 +65,10 @@ namespace BattleSummoner.Customization
         // Procedural Idle Breathing
         private float breathTimer = 0f;
         private Vector3 initialChestScale = Vector3.one;
+        private Vector3 initialHeadPos = Vector3.zero;
+        private Quaternion initialHeadRot = Quaternion.identity;
+        private Quaternion initialNeckRot = Quaternion.identity;
+        private bool cachedBreathingTransforms = false;
 
         private void Awake()
         {
@@ -82,20 +86,56 @@ namespace BattleSummoner.Customization
             }
             EnsureRigConstructed();
             ApplyCustomization(activeData);
+            CacheBreathingTransforms();
+        }
+
+        public void CacheBreathingTransforms()
+        {
+            if (chestBone != null) initialChestScale = chestBone.localScale;
+            if (headBone != null)
+            {
+                initialHeadPos = headBone.localPosition;
+                initialHeadRot = headBone.localRotation;
+            }
+            if (neckBone != null) initialNeckRot = neckBone.localRotation;
+            cachedBreathingTransforms = true;
         }
 
         private void Update()
         {
-            // Subtle living breathing animation
+            // Organic living anime breathing:
+            // Expands and contracts torso, bobs and nods head, flexes neck
             if (chestBone != null)
             {
-                breathTimer += Time.deltaTime * 2.2f;
-                float breathPulse = Mathf.Sin(breathTimer) * 0.025f;
+                if (!cachedBreathingTransforms) CacheBreathingTransforms();
+
+                breathTimer += Time.deltaTime * 1.95f; // ~18.6 breaths per min
+                float rawSin = Mathf.Sin(breathTimer);
+                float inhale = Mathf.SmoothStep(0f, 1f, (rawSin + 1f) * 0.5f);
+                float delta = (inhale - 0.5f) * 2f; // -1 to 1
+
+                // 1. Torso Expanding (X lateral, Z forward) & Contracting
                 chestBone.localScale = new Vector3(
-                    initialChestScale.x * (1f + breathPulse * 0.5f),
-                    initialChestScale.y * (1f + breathPulse),
-                    initialChestScale.z * (1f + breathPulse * 0.7f)
+                    initialChestScale.x * (1f + delta * 0.038f),
+                    initialChestScale.y * (1f + delta * 0.015f),
+                    initialChestScale.z * (1f + delta * 0.052f)
                 );
+
+                // 2. Head Nodding (gentle pitch tilt) & Bobbing (vertical translation)
+                if (headBone != null)
+                {
+                    float nodAngle = -delta * 1.85f; // forward nod on exhale, gentle lift on inhale
+                    headBone.localRotation = initialHeadRot * Quaternion.Euler(nodAngle, 0f, 0f);
+                    float bobDist = delta * 0.0065f;
+                    headBone.localPosition = initialHeadPos + new Vector3(0f, bobDist, 0f);
+                }
+
+                // 3. Neck Flexion
+                if (neckBone != null)
+                {
+                    float neckAngle = -delta * 0.95f;
+                    neckBone.localRotation = initialNeckRot * Quaternion.Euler(neckAngle, 0f, 0f);
+                }
             }
         }
 

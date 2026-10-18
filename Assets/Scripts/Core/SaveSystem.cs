@@ -50,6 +50,9 @@ namespace BattleSummoner.Core
 
         // Bardic Melodies & Grimoires
         public List<string> discoveredMelodies = new List<string>();
+
+        // Permanent Binding Contracts
+        public List<string> signedContractIds = new List<string>();
     }
 
     /// <summary>
@@ -297,6 +300,16 @@ namespace BattleSummoner.Core
             // 6. Quarantine Status Flags
             activeSaveData.quarantineStatus = TribunalAppealController.QuarantineStatus;
             activeSaveData.quarantineViolationReason = TribunalAppealController.ViolationReason;
+
+            // 7. Permanent Binding Contracts
+            if (BindingContractSystem.Instance != null)
+            {
+                activeSaveData.signedContractIds.Clear();
+                foreach (var c in BindingContractSystem.Instance.signedContracts)
+                {
+                    activeSaveData.signedContractIds.Add(c.contractId);
+                }
+            }
         }
 
         /// <summary>
@@ -362,6 +375,12 @@ namespace BattleSummoner.Core
             // 6. Quarantine Status Flags
             TribunalAppealController.QuarantineStatus = data.quarantineStatus;
             TribunalAppealController.ViolationReason = data.quarantineViolationReason;
+
+            // 7. Permanent Binding Contracts
+            if (BindingContractSystem.Instance != null && data.signedContractIds != null)
+            {
+                BindingContractSystem.Instance.LoadContractsFromSave(data.signedContractIds);
+            }
         }
     }
 }

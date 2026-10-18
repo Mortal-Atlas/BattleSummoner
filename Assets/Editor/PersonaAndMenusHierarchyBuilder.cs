@@ -54,7 +54,10 @@ public static class PersonaAndMenusHierarchyBuilder
         // 7. Build Character Customization Screen Overlay
         BuildCharacterCustomizationUI(canvasGo.transform);
 
-        // 8. Connect HUD buttons on MockupMasterHUD
+        // 8. Build Multi-Person Dialogue & Text Chat Overlay
+        BuildMultiPersonDialogueChatUI(canvasGo.transform);
+
+        // 9. Connect HUD buttons on MockupMasterHUD
         ConnectHUDButtons(canvasGo, hudRoot);
 
         EditorSceneManager.MarkSceneDirty(activeScene);
@@ -1116,12 +1119,13 @@ public static class PersonaAndMenusHierarchyBuilder
         autoSpinToggle.graphic = autoCheckImg;
         autoSpinToggle.isOn = false;
 
-        // 3. Tab Navigation Bar
+        // 3. Tab Navigation Bar (5 Tabs)
         GameObject tabDeck = CreateUIObject("TabDeck", frame.transform, new Vector2(0.04f, 0.56f), new Vector2(0.96f, 0.62f));
-        GameObject tabId = CreateButton("TabIdentity", tabDeck.transform, new Vector2(0.00f, 0f), new Vector2(0.23f, 1f), "IDENTITY");
-        GameObject tabBody = CreateButton("TabBody", tabDeck.transform, new Vector2(0.25f, 0f), new Vector2(0.48f, 1f), "BODY");
-        GameObject tabFace = CreateButton("TabFace", tabDeck.transform, new Vector2(0.50f, 0f), new Vector2(0.73f, 1f), "VISAGE");
-        GameObject tabHair = CreateButton("TabHair", tabDeck.transform, new Vector2(0.75f, 0f), new Vector2(1.00f, 1f), "HAIR");
+        GameObject tabId = CreateButton("TabIdentity", tabDeck.transform, new Vector2(0.00f, 0f), new Vector2(0.18f, 1f), "IDENTITY");
+        GameObject tabBody = CreateButton("TabBody", tabDeck.transform, new Vector2(0.20f, 0f), new Vector2(0.38f, 1f), "BODY");
+        GameObject tabFace = CreateButton("TabFace", tabDeck.transform, new Vector2(0.40f, 0f), new Vector2(0.58f, 1f), "VISAGE");
+        GameObject tabHair = CreateButton("TabHair", tabDeck.transform, new Vector2(0.60f, 0f), new Vector2(0.78f, 1f), "HAIR");
+        GameObject tabRefs = CreateButton("TabReferences", tabDeck.transform, new Vector2(0.80f, 0f), new Vector2(1.00f, 1f), "REFS");
 
         // 4. Tab Panels Container
         GameObject panelContainer = CreateUIObject("TabPanelsContainer", frame.transform, new Vector2(0.04f, 0.10f), new Vector2(0.96f, 0.55f));
@@ -1194,10 +1198,15 @@ public static class PersonaAndMenusHierarchyBuilder
         GameObject bodyPanel = CreateUIObject("BodyPanel", panelContainer.transform, Vector2.zero, Vector2.one);
 
         // Body Type presets row
-        GameObject btLabelObj = CreateUIObject("BodyTypeLabel", bodyPanel.transform, new Vector2(0.02f, 0.90f), new Vector2(0.98f, 1f));
+        GameObject btLabelObj = CreateUIObject("BodyTypeLabel", bodyPanel.transform, new Vector2(0.02f, 0.90f), new Vector2(0.55f, 1f));
         TextMeshProUGUI btLbl = btLabelObj.AddComponent<TextMeshProUGUI>();
         btLbl.text = "<color=#FFD700>BODY ARCHETYPE:</color>";
         btLbl.fontSize = 11;
+
+        GameObject anatomyGuideBtnObj = CreateButton("ViewAnatomyGuideBtn", bodyPanel.transform, new Vector2(0.56f, 0.90f), new Vector2(0.98f, 0.99f), "[ANATOMY BLUEPRINTS]");
+        anatomyGuideBtnObj.GetComponentInChildren<TextMeshProUGUI>().fontSize = 9;
+        anatomyGuideBtnObj.GetComponentInChildren<TextMeshProUGUI>().color = new Color(1f, 0.85f, 0.3f);
+        var viewAnatomyBtn = anatomyGuideBtnObj.GetComponent<Button>();
 
         string[] btNames = new string[] { "Athletic", "Feminine", "Masculine", "Slender", "Heavy", "Stocky" };
         var btBtns = new Button[btNames.Length];
@@ -1379,9 +1388,91 @@ public static class PersonaAndMenusHierarchyBuilder
                 BattleSummoner.Customization.CharacterCustomizationUI.Instance.SelectOutfitSecondary(idx);
         });
 
+        // ---- TAB 5: ANATOMY & MODEL REFERENCE GALLERY PANEL ----
+        GameObject referencesPanel = CreateUIObject("ReferencesPanel", panelContainer.transform, Vector2.zero, Vector2.one);
+
+        // Header: Title + Category + Zoom + Page
+        GameObject refHeader = CreateUIObject("RefHeader", referencesPanel.transform, new Vector2(0.02f, 0.91f), new Vector2(0.98f, 0.99f));
+        GameObject refTitleObj = CreateUIObject("RefTitleTMP", refHeader.transform, new Vector2(0f, 0f), new Vector2(0.52f, 1f));
+        TextMeshProUGUI refTitleTMP = refTitleObj.AddComponent<TextMeshProUGUI>();
+        refTitleTMP.text = "<color=#FFD700>Male & Female Anatomy Breakdown</color>";
+        refTitleTMP.fontSize = 11;
+        refTitleTMP.fontStyle = FontStyles.Bold;
+        refTitleTMP.alignment = TextAlignmentOptions.MidlineLeft;
+
+        GameObject refCatObj = CreateUIObject("RefCategoryTMP", refHeader.transform, new Vector2(0.53f, 0f), new Vector2(0.74f, 1f));
+        TextMeshProUGUI refCatTMP = refCatObj.AddComponent<TextMeshProUGUI>();
+        refCatTMP.text = "<color=#8BE9FD>[ANATOMY RATIOS]</color>";
+        refCatTMP.fontSize = 9;
+        refCatTMP.alignment = TextAlignmentOptions.Center;
+
+        GameObject refPageObj = CreateUIObject("RefPageTMP", refHeader.transform, new Vector2(0.75f, 0f), new Vector2(0.86f, 1f));
+        TextMeshProUGUI refPageTMP = refPageObj.AddComponent<TextMeshProUGUI>();
+        refPageTMP.text = "1 / 6";
+        refPageTMP.fontSize = 10;
+        refPageTMP.alignment = TextAlignmentOptions.Center;
+
+        GameObject refZoomBtn = CreateButton("ZoomBtn", refHeader.transform, new Vector2(0.87f, 0f), new Vector2(1f, 1f), "ZOOM");
+        refZoomBtn.GetComponentInChildren<TextMeshProUGUI>().fontSize = 9;
+        var zoomLabelTMP = refZoomBtn.GetComponentInChildren<TextMeshProUGUI>();
+
+        // Center Viewport & Image
+        GameObject refViewport = CreateUIObject("RefViewport", referencesPanel.transform, new Vector2(0.02f, 0.28f), new Vector2(0.98f, 0.90f));
+        Image vpBg = refViewport.AddComponent<Image>();
+        vpBg.color = new Color(0.04f, 0.05f, 0.08f, 0.95f);
+
+        GameObject refImgObj = CreateUIObject("DisplayImage", refViewport.transform, new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.98f));
+        Image refImg = refImgObj.AddComponent<Image>();
+        refImg.preserveAspect = true;
+        refImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/References/Ref_Body_Anatomy_Breakdown.jpg");
+
+        // Quick Selector Row: 6 buttons
+        GameObject quickBar = CreateUIObject("QuickSelectorBar", referencesPanel.transform, new Vector2(0.02f, 0.17f), new Vector2(0.98f, 0.26f));
+        string[] quickNames = new string[] { "ANATOMY", "REF 1", "REF 2", "REF 3", "REF 4", "REF 5" };
+        Button[] quickBtns = new Button[quickNames.Length];
+        for (int i = 0; i < quickNames.Length; i++)
+        {
+            float x0 = i * (1f / quickNames.Length) + 0.005f;
+            float x1 = (i + 1) * (1f / quickNames.Length) - 0.005f;
+            GameObject qb = CreateButton("QuickBtn_" + i, quickBar.transform, new Vector2(x0, 0f), new Vector2(x1, 1f), quickNames[i]);
+            qb.GetComponentInChildren<TextMeshProUGUI>().fontSize = 9;
+            quickBtns[i] = qb.GetComponent<Button>();
+        }
+
+        // Bottom Navigation Bar: Prev, Description, Next
+        GameObject navBar = CreateUIObject("NavBar", referencesPanel.transform, new Vector2(0.02f, 0.01f), new Vector2(0.98f, 0.15f));
+        GameObject prevBtnObj = CreateButton("PrevBtn", navBar.transform, new Vector2(0f, 0f), new Vector2(0.16f, 1f), "< PREV");
+        prevBtnObj.GetComponentInChildren<TextMeshProUGUI>().fontSize = 10;
+
+        GameObject descObj = CreateUIObject("DescTMP", navBar.transform, new Vector2(0.18f, 0f), new Vector2(0.82f, 1f));
+        TextMeshProUGUI descTMP = descObj.AddComponent<TextMeshProUGUI>();
+        descTMP.text = "Comprehensive proportion blueprints for Head & Neck, Full Trunk (Torso & Pelvis), Arms & Hands, and Thighs, Legs & Feet.";
+        descTMP.fontSize = 9;
+        descTMP.alignment = TextAlignmentOptions.Center;
+        descTMP.color = new Color(0.85f, 0.85f, 0.90f, 0.9f);
+
+        GameObject nextBtnObj = CreateButton("NextBtn", navBar.transform, new Vector2(0.84f, 0f), new Vector2(1f, 1f), "NEXT >");
+        nextBtnObj.GetComponentInChildren<TextMeshProUGUI>().fontSize = 10;
+
+        // Attach & Bind ModelReferenceGalleryViewer
+        var galleryViewer = referencesPanel.AddComponent<BattleSummoner.Customization.ModelReferenceGalleryViewer>();
+        galleryViewer.BindReferences(
+            refImg,
+            refTitleTMP,
+            refCatTMP,
+            descTMP,
+            refPageTMP,
+            prevBtnObj.GetComponent<Button>(),
+            nextBtnObj.GetComponent<Button>(),
+            refZoomBtn.GetComponent<Button>(),
+            zoomLabelTMP,
+            quickBtns
+        );
+
         bodyPanel.SetActive(false);
         facePanel.SetActive(false);
         hairPanel.SetActive(false);
+        referencesPanel.SetActive(false);
 
         // 5. Action Footer Deck
         GameObject footer = CreateUIObject("ActionFooterDeck", frame.transform, new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.085f));
@@ -1408,11 +1499,15 @@ public static class PersonaAndMenusHierarchyBuilder
         SetField(customUI, "bodyTabBtn", tabBody.GetComponent<Button>());
         SetField(customUI, "faceTabBtn", tabFace.GetComponent<Button>());
         SetField(customUI, "hairTabBtn", tabHair.GetComponent<Button>());
+        SetField(customUI, "referencesTabBtn", tabRefs.GetComponent<Button>());
 
         SetField(customUI, "identityPanel", identityPanel);
         SetField(customUI, "bodyPanel", bodyPanel);
         SetField(customUI, "facePanel", facePanel);
         SetField(customUI, "hairPanel", hairPanel);
+        SetField(customUI, "referencesPanel", referencesPanel);
+        SetField(customUI, "referenceGalleryViewer", galleryViewer);
+        SetField(customUI, "viewAnatomyGuideBtn", viewAnatomyBtn);
 
         SetField(customUI, "nameInputField", nameInput);
         SetField(customUI, "pronounPreviewText", proPrevTMP);
@@ -1520,7 +1615,235 @@ public static class PersonaAndMenusHierarchyBuilder
     }
     #endregion
 
-    #region 8. Connect HUD Buttons
+    #region 8. Multi-Person Dialogue & Text Chat UI
+    [MenuItem("Tools/BattleSummoner/Build Multi-Person Dialogue Chat Overlay")]
+    public static void BuildMultiPersonDialogueChatMenu()
+    {
+        var activeScene = EditorSceneManager.GetActiveScene();
+        var canvasGo = GameObject.Find("PortraitHUDCanvas");
+        if (canvasGo == null)
+        {
+            Debug.LogError("PortraitHUDCanvas not found in scene!");
+            return;
+        }
+        BuildMultiPersonDialogueChatUI(canvasGo.transform);
+        EditorSceneManager.MarkSceneDirty(activeScene);
+        EditorSceneManager.SaveScene(activeScene);
+        Debug.Log("🎉 [MULTI-PERSON DIALOGUE] Successfully built Multi-Person Dialogue Chat Overlay!");
+    }
+
+    private static void BuildMultiPersonDialogueChatUI(Transform parent)
+    {
+        Transform existing = parent.Find("MultiPersonDialogueChatOverlay");
+        if (existing != null) UnityEngine.Object.DestroyImmediate(existing.gameObject);
+
+        GameObject overlay = CreateUIObject("MultiPersonDialogueChatOverlay", parent, Vector2.zero, Vector2.one);
+        Image bgImg = overlay.AddComponent<Image>();
+        bgImg.color = new Color(0.06f, 0.08f, 0.10f, 0.94f);
+
+        // 1. Back to Visual Novel Button (Top)
+        GameObject backBtnObj = CreateButton("BackToVNBtn", overlay.transform, new Vector2(0.25f, 0.945f), new Vector2(0.75f, 0.985f), "<b>Back to Visual Novel</b>");
+        Image backBtnImg = backBtnObj.GetComponent<Image>();
+        backBtnImg.color = new Color(0.12f, 0.14f, 0.18f, 0.85f);
+        TextMeshProUGUI backBtnTMP = backBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (backBtnTMP != null)
+        {
+            backBtnTMP.color = new Color(0.85f, 0.80f, 0.70f);
+            backBtnTMP.fontSize = 15;
+        }
+
+        // 2. Character Busts
+        // Left: Alex
+        GameObject alexBustObj = CreateUIObject("AlexBust", overlay.transform, new Vector2(0.00f, 0.28f), new Vector2(0.58f, 0.94f));
+        Image alexBustImg = alexBustObj.AddComponent<Image>();
+        alexBustImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Dialogue/Crop_Alex_Bust.png");
+        alexBustImg.preserveAspect = true;
+
+        // Right: Elena
+        GameObject elenaBustObj = CreateUIObject("ElenaBust", overlay.transform, new Vector2(0.42f, 0.28f), new Vector2(1.00f, 0.94f));
+        Image elenaBustImg = elenaBustObj.AddComponent<Image>();
+        elenaBustImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Dialogue/Crop_Elena_Bust.png");
+        elenaBustImg.preserveAspect = true;
+
+        // 3. Dialogue Scroll Area
+        GameObject scrollObj = CreateUIObject("DialogueScrollView", overlay.transform, new Vector2(0.03f, 0.15f), new Vector2(0.97f, 0.54f));
+        ScrollRect scrollRect = scrollObj.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        GameObject viewportObj = CreateUIObject("Viewport", scrollObj.transform, Vector2.zero, Vector2.one);
+        Image vpImg = viewportObj.AddComponent<Image>();
+        vpImg.color = new Color(1f, 1f, 1f, 0.01f);
+        viewportObj.AddComponent<RectMask2D>();
+        scrollRect.viewport = viewportObj.GetComponent<RectTransform>();
+
+        GameObject contentObj = CreateUIObject("Content", viewportObj.transform, new Vector2(0f, 1f), new Vector2(1f, 1f));
+        RectTransform crt = contentObj.GetComponent<RectTransform>();
+        crt.pivot = new Vector2(0.5f, 1f);
+        VerticalLayoutGroup vlg = contentObj.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 10f;
+        vlg.padding = new RectOffset(6, 6, 6, 6);
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        ContentSizeFitter csf = contentObj.AddComponent<ContentSizeFitter>();
+        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        scrollRect.content = crt;
+
+        // 4. Dialogue Controls Row (SKIP, AUTO, LOG, PAUSE)
+        GameObject ctrlRowObj = CreateUIObject("DialogueControlsRow", overlay.transform, new Vector2(0.48f, 0.105f), new Vector2(0.97f, 0.145f));
+        HorizontalLayoutGroup hlg = ctrlRowObj.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 6f;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = true;
+
+        GameObject skipBtnObj = CreateButton("SkipBtn", ctrlRowObj.transform, Vector2.zero, Vector2.one, "SKIP");
+        skipBtnObj.GetComponent<Image>().color = new Color(0.16f, 0.15f, 0.18f, 0.85f);
+        var skipTmp = skipBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (skipTmp != null) { skipTmp.fontSize = 12; skipTmp.color = new Color(0.8f, 0.78f, 0.75f); }
+
+        GameObject autoBtnObj = CreateButton("AutoBtn", ctrlRowObj.transform, Vector2.zero, Vector2.one, "AUTO");
+        autoBtnObj.GetComponent<Image>().color = new Color(0.16f, 0.15f, 0.18f, 0.85f);
+        var autoTmp = autoBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (autoTmp != null) { autoTmp.fontSize = 12; autoTmp.color = new Color(0.8f, 0.78f, 0.75f); }
+
+        GameObject logBtnObj = CreateButton("LogBtn", ctrlRowObj.transform, Vector2.zero, Vector2.one, "LOG");
+        logBtnObj.GetComponent<Image>().color = new Color(0.16f, 0.15f, 0.18f, 0.85f);
+        var logTmp = logBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (logTmp != null) { logTmp.fontSize = 12; logTmp.color = new Color(0.8f, 0.78f, 0.75f); }
+
+        GameObject pauseBtnObj = CreateButton("PauseBtn", ctrlRowObj.transform, Vector2.zero, Vector2.one, "PAUSE");
+        pauseBtnObj.GetComponent<Image>().color = new Color(0.16f, 0.15f, 0.18f, 0.85f);
+        var pauseTmp = pauseBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (pauseTmp != null) { pauseTmp.fontSize = 12; pauseTmp.color = new Color(0.8f, 0.78f, 0.75f); }
+
+        // 5. Bottom Text Chat Bar
+        GameObject chatBarObj = CreateUIObject("BottomChatBar", overlay.transform, new Vector2(0.03f, 0.02f), new Vector2(0.97f, 0.095f));
+        Image chatBarImg = chatBarObj.AddComponent<Image>();
+        chatBarImg.color = new Color(0.11f, 0.10f, 0.13f, 0.96f);
+
+        // Plus action button
+        GameObject plusBtnObj = CreateButton("PlusBtn", chatBarObj.transform, new Vector2(0.015f, 0.12f), new Vector2(0.12f, 0.88f), "<b>+</b>");
+        plusBtnObj.GetComponent<Image>().color = new Color(0.20f, 0.18f, 0.22f, 0.95f);
+        var plusTmp = plusBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (plusTmp != null) { plusTmp.fontSize = 22; plusTmp.color = new Color(0.92f, 0.78f, 0.45f); }
+
+        // Input Field
+        GameObject inputObj = CreateUIObject("InputField", chatBarObj.transform, new Vector2(0.14f, 0.12f), new Vector2(0.74f, 0.88f));
+        Image inputBg = inputObj.AddComponent<Image>();
+        inputBg.color = new Color(0.16f, 0.15f, 0.18f, 0.95f);
+        TMP_InputField inputField = inputObj.AddComponent<TMP_InputField>();
+
+        GameObject placeholderObj = CreateUIObject("Placeholder", inputObj.transform, new Vector2(0.05f, 0f), new Vector2(0.95f, 1f));
+        TextMeshProUGUI placeTMP = placeholderObj.AddComponent<TextMeshProUGUI>();
+        placeTMP.text = "type a message...";
+        placeTMP.fontSize = 14;
+        placeTMP.fontStyle = FontStyles.Italic;
+        placeTMP.alignment = TextAlignmentOptions.MidlineLeft;
+        placeTMP.color = new Color(0.6f, 0.58f, 0.55f);
+        inputField.placeholder = placeTMP;
+
+        GameObject textObj = CreateUIObject("Text", inputObj.transform, new Vector2(0.05f, 0f), new Vector2(0.95f, 1f));
+        TextMeshProUGUI inputTMP = textObj.AddComponent<TextMeshProUGUI>();
+        inputTMP.fontSize = 14;
+        inputTMP.alignment = TextAlignmentOptions.MidlineLeft;
+        inputTMP.color = new Color(0.95f, 0.92f, 0.88f);
+        inputField.textComponent = inputTMP;
+
+        // Send Button
+        GameObject sendBtnObj = CreateButton("SendBtn", chatBarObj.transform, new Vector2(0.76f, 0.12f), new Vector2(0.985f, 0.88f), "<b>SEND ❯❯</b>");
+        sendBtnObj.GetComponent<Image>().color = new Color(0.22f, 0.18f, 0.12f, 0.95f);
+        var sendTmp = sendBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+        if (sendTmp != null) { sendTmp.fontSize = 13; sendTmp.color = new Color(0.95f, 0.82f, 0.45f); }
+
+        // 6. Quick Chips Panel
+        GameObject quickChipsObj = CreateUIObject("QuickChipsPanel", overlay.transform, new Vector2(0.05f, 0.10f), new Vector2(0.95f, 0.23f));
+        Image qcImg = quickChipsObj.AddComponent<Image>();
+        qcImg.color = new Color(0.08f, 0.08f, 0.12f, 0.96f);
+        VerticalLayoutGroup qcVlg = quickChipsObj.AddComponent<VerticalLayoutGroup>();
+        qcVlg.spacing = 4f;
+        qcVlg.padding = new RectOffset(6, 6, 6, 6);
+        qcVlg.childControlWidth = true;
+        qcVlg.childControlHeight = true;
+        qcVlg.childForceExpandWidth = true;
+        qcVlg.childForceExpandHeight = true;
+
+        GameObject chip1 = CreateButton("Chip1", quickChipsObj.transform, Vector2.zero, Vector2.one, "💬 The guards look restless. What do you notice?");
+        GameObject chip2 = CreateButton("Chip2", quickChipsObj.transform, Vector2.zero, Vector2.one, "⚔️ Should we prepare for the Spire floor boss?");
+        GameObject chip3 = CreateButton("Chip3", quickChipsObj.transform, Vector2.zero, Vector2.one, "🛡️ Elena, let's keep our distance for now.");
+        quickChipsObj.SetActive(false);
+
+        // 7. Transcript Modal
+        GameObject modalObj = CreateUIObject("TranscriptModal", overlay.transform, Vector2.zero, Vector2.one);
+        Image modalBg = modalObj.AddComponent<Image>();
+        modalBg.color = new Color(0f, 0f, 0f, 0.92f);
+
+        GameObject modalTitle = CreateUIObject("ModalTitleTMP", modalObj.transform, new Vector2(0.08f, 0.90f), new Vector2(0.85f, 0.96f));
+        TextMeshProUGUI mtTMP = modalTitle.AddComponent<TextMeshProUGUI>();
+        mtTMP.text = "<color=#FFD700><b>DIALOGUE TRANSCRIPT LOG</b></color>";
+        mtTMP.fontSize = 18;
+
+        GameObject closeLogBtn = CreateButton("CloseLogBtn", modalObj.transform, new Vector2(0.88f, 0.90f), new Vector2(0.96f, 0.96f), "X");
+
+        GameObject logScroll = CreateUIObject("LogScroll", modalObj.transform, new Vector2(0.06f, 0.06f), new Vector2(0.94f, 0.88f));
+        logScroll.AddComponent<ScrollRect>();
+        GameObject logTextObj = CreateUIObject("LogTextTMP", logScroll.transform, Vector2.zero, Vector2.one);
+        TextMeshProUGUI logTMP = logTextObj.AddComponent<TextMeshProUGUI>();
+        logTMP.fontSize = 13;
+        logTMP.color = Color.white;
+        logTMP.enableWordWrapping = true;
+        modalObj.SetActive(false);
+
+        // 8. Attach MultiPersonDialogueChatHub & Bind fields
+        var hub = overlay.AddComponent<BattleSummoner.UI.MultiPersonDialogueChatHub>();
+        SetField(hub, "overlayRoot", overlay);
+        SetField(hub, "backToVNButton", backBtnObj.GetComponent<Button>());
+        SetField(hub, "bustAlexImage", alexBustImg);
+        SetField(hub, "bustElenaImage", elenaBustImg);
+        SetField(hub, "alexBustSprite", alexBustImg.sprite);
+        SetField(hub, "elenaBustSprite", elenaBustImg.sprite);
+
+        Sprite alexBadge = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Dialogue/Crop_Alex_Badge.png");
+        Sprite elenaBadge = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Dialogue/Crop_Elena_Badge.png");
+        Sprite playerBadge = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Portraits/Portrait_Protagonist.png");
+        SetField(hub, "alexBadgeSprite", alexBadge);
+        SetField(hub, "elenaBadgeSprite", elenaBadge);
+        SetField(hub, "playerBadgeSprite", playerBadge);
+
+        SetField(hub, "messageContainer", contentObj.transform);
+        SetField(hub, "dialogueScrollRect", scrollRect);
+
+        SetField(hub, "skipButton", skipBtnObj.GetComponent<Button>());
+        SetField(hub, "autoButton", autoBtnObj.GetComponent<Button>());
+        SetField(hub, "autoButtonText", autoTmp);
+        SetField(hub, "logButton", logBtnObj.GetComponent<Button>());
+        SetField(hub, "pauseButton", pauseBtnObj.GetComponent<Button>());
+        SetField(hub, "pauseButtonText", pauseTmp);
+
+        SetField(hub, "plusActionButton", plusBtnObj.GetComponent<Button>());
+        SetField(hub, "messageInputField", inputField);
+        SetField(hub, "sendButton", sendBtnObj.GetComponent<Button>());
+
+        SetField(hub, "quickChipsPanel", quickChipsObj);
+        SetField(hub, "quickPromptBtn1", chip1.GetComponent<Button>());
+        SetField(hub, "quickPromptBtn2", chip2.GetComponent<Button>());
+        SetField(hub, "quickPromptBtn3", chip3.GetComponent<Button>());
+
+        SetField(hub, "transcriptModal", modalObj);
+        SetField(hub, "transcriptBodyText", logTMP);
+        SetField(hub, "closeTranscriptButton", closeLogBtn.GetComponent<Button>());
+
+        hub.InitializeReferenceConversation();
+        overlay.SetActive(false);
+    }
+    #endregion
+
+    #region 9. Connect HUD Buttons
     private static void ConnectHUDButtons(GameObject canvasGo, Transform hudRoot)
     {
         if (hudRoot == null) return;
@@ -1644,6 +1967,42 @@ public static class PersonaAndMenusHierarchyBuilder
                     if (BattleSummoner.Customization.CharacterCustomizationUI.Instance != null)
                     {
                         BattleSummoner.Customization.CharacterCustomizationUI.Instance.ToggleCustomizationScreen();
+                    }
+                });
+            }
+        }
+
+        // Dialogue Chat Hub Button on HUD (next to Customization) -> opens MultiPersonDialogueChatHub
+        Transform chatBtnTransform = hudRoot.Find("DialogueChatButton");
+        if (chatBtnTransform == null)
+        {
+            GameObject chatObj = CreateUIObject("DialogueChatButton", hudRoot, new Vector2(0.47f, 0.795f), new Vector2(0.58f, 0.845f));
+            Image cImg = chatObj.AddComponent<Image>();
+            cImg.sprite = GetSprite("Mockup_PersonaDialogueBox.png");
+            cImg.preserveAspect = true;
+            chatObj.AddComponent<Button>();
+
+            GameObject lblObj = CreateUIObject("Label", chatObj.transform, new Vector2(0f, -0.45f), new Vector2(1f, 0f));
+            TextMeshProUGUI lTmp = lblObj.AddComponent<TextMeshProUGUI>();
+            lTmp.text = "Chat / VN";
+            lTmp.fontSize = 9;
+            lTmp.alignment = TextAlignmentOptions.Center;
+            lTmp.color = new Color(1.0f, 0.85f, 0.35f);
+
+            chatBtnTransform = chatObj.transform;
+        }
+
+        if (chatBtnTransform != null)
+        {
+            Button cBtn = chatBtnTransform.GetComponent<Button>();
+            if (cBtn != null)
+            {
+                cBtn.onClick.RemoveAllListeners();
+                cBtn.onClick.AddListener(() =>
+                {
+                    if (BattleSummoner.UI.MultiPersonDialogueChatHub.Instance != null)
+                    {
+                        BattleSummoner.UI.MultiPersonDialogueChatHub.Instance.SetVisible(true);
                     }
                 });
             }

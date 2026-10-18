@@ -111,10 +111,11 @@ public static class MockupLayoutSetup
             new Color(0.9f, 0.75f, 0.2f),  // 6. Radiant Paladin
             new Color(0.95f, 0.3f, 0.3f),  // 7. Crimson Lancer
             new Color(0.5f, 0.6f, 0.95f),  // 8. Astral Summoner
-            new Color(0.95f, 0.55f, 0.75f) // 9. Rose Cleric
+            new Color(0.95f, 0.55f, 0.75f), // 9. Rose Cleric
+            new Color(0.95f, 0.80f, 0.25f)  // 10. Solar Valkyrie
         };
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 10; i++)
         {
             int idx = i;
             CreateTexture($"Mockup_Squad_{idx + 1}.png", 128, 128, (c, x, y, w, h) => DrawSquadMember(c, x, y, w, h, squadTints[idx], idx));
@@ -148,10 +149,15 @@ public static class MockupLayoutSetup
     #region Procedural Drawing Methods
     private static void DrawSettingsGear(Color[] c, int ox, int oy, int w, int h)
     {
-        float cx = w * 0.5f; float cy = h * 0.5f; float rOuter = w * 0.44f; float rHole = w * 0.16f;
-        Color brassDark = new Color(0.24f, 0.18f, 0.08f, 0.95f);
-        Color goldRim = new Color(0.88f, 0.72f, 0.32f, 1f);
-        Color goldHi = new Color(1.0f, 0.90f, 0.55f, 1f);
+        float cx = w * 0.5f; float cy = h * 0.5f;
+        float rOuter = w * 0.46f;
+        float rBase = w * 0.35f;
+        float rInnerRing = w * 0.26f;
+        float rHole = w * 0.14f;
+
+        Color goldRim = new Color(0.88f, 0.74f, 0.32f, 1f);
+        Color goldHi = new Color(1.0f, 0.92f, 0.60f, 1f);
+        Color holeDark = new Color(0.09f, 0.08f, 0.13f, 0.95f);
 
         for (int y = 0; y < h; y++)
         {
@@ -161,24 +167,40 @@ public static class MockupLayoutSetup
                 if (d <= rOuter)
                 {
                     float angle = Mathf.Atan2(dy, dx);
-                    float cogWave = Mathf.Sin(angle * 8f);
-                    float radiusWithCogs = rOuter - (cogWave > 0f ? 0f : 6f);
+                    float toothWave = Mathf.Cos(angle * 12f);
+                    float toothRadius = (toothWave > 0.15f) ? rOuter : rBase;
 
-                    if (d <= radiusWithCogs)
+                    if (d <= toothRadius)
                     {
-                        if (d >= rOuter - 5f) SetPixel(c, x, y, w, goldRim);
-                        else if (d <= rHole + 4f && d >= rHole) SetPixel(c, x, y, w, goldRim);
-                        else if (d < rHole) SetPixel(c, x, y, w, new Color(0.08f, 0.08f, 0.12f, 0.9f));
-                        else
+                        if (d < rHole)
                         {
-                            float spokeWave = Mathf.Cos(angle * 6f);
-                            if (d > rHole + 6f && d < rOuter - 8f && Mathf.Abs(spokeWave) < 0.75f)
+                            SetPixel(c, x, y, w, holeDark);
+                        }
+                        else if (d <= rHole + 3f)
+                        {
+                            SetPixel(c, x, y, w, goldRim);
+                        }
+                        else if (d > rInnerRing && d < rBase - 3f)
+                        {
+                            float spokeAngle = Mathf.Abs(Mathf.Sin(angle * 6f));
+                            if (spokeAngle < 0.65f)
                             {
-                                SetPixel(c, x, y, w, new Color(0.12f, 0.10f, 0.06f, 0.85f));
+                                SetPixel(c, x, y, w, holeDark);
                             }
                             else
                             {
-                                SetPixel(c, x, y, w, Color.Lerp(goldRim, goldHi, (y / (float)h)));
+                                SetPixel(c, x, y, w, Color.Lerp(goldRim, goldHi, (float)y / h));
+                            }
+                        }
+                        else
+                        {
+                            if (d >= toothRadius - 3f)
+                            {
+                                SetPixel(c, x, y, w, goldHi);
+                            }
+                            else
+                            {
+                                SetPixel(c, x, y, w, Color.Lerp(goldRim, goldHi, (float)y / h));
                             }
                         }
                     }
@@ -498,9 +520,10 @@ public static class MockupLayoutSetup
     private static void DrawMinimapRadar(Color[] c, int ox, int oy, int w, int h)
     {
         float cx = w * 0.5f; float cy = h * 0.5f; float rOuter = w * 0.47f;
-        Color goldRim = new Color(0.85f, 0.70f, 0.28f, 1f);
-        Color mapBg = new Color(0.10f, 0.12f, 0.15f, 0.92f);
-        Color corridor = new Color(0.24f, 0.26f, 0.32f, 1f);
+        Color goldRim = new Color(0.88f, 0.74f, 0.32f, 1f);
+        Color goldHi = new Color(1.0f, 0.92f, 0.55f, 1f);
+        Color mapBg = new Color(0.09f, 0.11f, 0.14f, 0.96f);
+        Color corridor = new Color(0.20f, 0.24f, 0.30f, 1f);
         Color playerBlip = new Color(1.0f, 0.88f, 0.20f, 1f);
 
         for (int y = 0; y < h; y++)
@@ -510,17 +533,20 @@ public static class MockupLayoutSetup
                 float dx = x - cx; float dy = y - cy; float d = Mathf.Sqrt(dx * dx + dy * dy);
                 if (d <= rOuter)
                 {
-                    if (d >= rOuter - 6f) SetPixel(c, x, y, w, goldRim);
+                    if (d >= rOuter - 5f)
+                    {
+                        SetPixel(c, x, y, w, Color.Lerp(goldRim, goldHi, (float)y / h));
+                    }
                     else
                     {
                         SetPixel(c, x, y, w, mapBg);
-                        if ((Mathf.Abs(dx) < 22f && Mathf.Abs(dy) < 85f) || (Mathf.Abs(dy) < 20f && Mathf.Abs(dx) < 85f))
+                        if ((Mathf.Abs(dx) < 14f && Mathf.Abs(dy) < rOuter - 10f) || (Mathf.Abs(dy) < 14f && Mathf.Abs(dx) < rOuter - 10f))
                         {
                             SetPixel(c, x, y, w, corridor);
                         }
-                        if ((Mathf.Abs(dx) < 2f && d > rOuter - 14f) || (Mathf.Abs(dy) < 2f && d > rOuter - 14f))
+                        if ((Mathf.Abs(dx) < 3f && d > rOuter - 16f) || (Mathf.Abs(dy) < 3f && d > rOuter - 16f))
                         {
-                            SetPixel(c, x, y, w, goldRim);
+                            SetPixel(c, x, y, w, goldHi);
                         }
                         if (d <= 7f) SetPixel(c, x, y, w, playerBlip);
                     }

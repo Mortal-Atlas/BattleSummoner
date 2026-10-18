@@ -181,7 +181,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 75
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -270,13 +270,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6572d4ed216026f4d86d730b03d86dcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PortraitARPGCamera
-  playerTarget: {fileID: 0}
+  playerTransform: {fileID: 0}
   activeBossTarget: {fileID: 0}
+  offset: {x: 0, y: 4.5, z: -6.5}
+  smoothSpeed: 8
+  verticalLookAhead: 1.5
   yawAngle: 0
   pitchAngle: 42
   cameraDistance: 12
   targetFocusHeight: 1.6
   lateralOffset: 0
+  minDistance: 2
+  maxDistance: 14
   minPitch: 15
   maxPitch: 68
   positionDamping: 10
@@ -288,6 +293,11 @@ MonoBehaviour:
   referenceAspectHeight: 16
   minAllowedFov: 60
   maxAllowedFov: 105
+  isAimingDownSights: 0
+  adsCameraDistance: 2.4
+  adsLateralOffset: 0.72
+  adsPitchAngle: 14
+  adsVerticalFov: 42
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0

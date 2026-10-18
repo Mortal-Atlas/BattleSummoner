@@ -59,6 +59,26 @@ namespace BattleSummoner.Quests
         [Header("State")]
         public QuestState state = QuestState.Available;
 
+        [Header("Sub-Contracting (B-Team Deployment)")]
+        public bool isBTeamDispatched = false;
+        public float bTeamExpeditionTimer = 0f;
+        public float bTeamExpeditionDuration = 75f;
+        public bool isBlitzMerged = false;
+        public bool isRewardForfeited = false;
+        public int bTeamOresMined = 0;
+        public string bTeamSquadRole = "Ore Cart Haulers";
+
+        public bool CanSubContract => 
+            state == QuestState.Available && 
+            (difficulty <= QuestDifficulty.Rank_C || 
+             questType == QuestType.Gather || 
+             questType == QuestType.Slay || 
+             questType == QuestType.Escort || 
+             questType == QuestType.Delivery);
+
+        public bool IsBTeamActive => isBTeamDispatched && !isBlitzMerged && state == QuestState.Active;
+        public bool IsBTeamCompleted => isBTeamDispatched && !isRewardForfeited && state == QuestState.Completed;
+
         public bool IsCompleted => currentCount >= targetCount;
         public float ProgressNormalized => targetCount > 0 ? Mathf.Clamp01((float)currentCount / targetCount) : 0f;
 

@@ -44,6 +44,14 @@ namespace BattleSummoner.Quests
         public event Action OnQuestListChanged;
         public event Action<int> OnGoldChanged;
 
+        // B-Team Sub-Contracting Events
+        public event Action<Quest> OnBTeamDispatched;
+        public event Action<Quest> OnBTeamExpeditionCompleted;
+        public event Action<Quest> OnWarHornBlitzTriggered;
+
+        public Quest ActiveBTeamQuest => quests != null ? quests.Find(q => q.IsBTeamActive) : null;
+        public bool IsBTeamOnExpedition => ActiveBTeamQuest != null;
+
         private void Awake()
         {
             if (_instance == null)
@@ -61,11 +69,48 @@ namespace BattleSummoner.Quests
             }
         }
 
+        private void Update()
+        {
+            UpdateBTeamExpeditions();
+        }
+
+        private void UpdateBTeamExpeditions()
+        {
+            if (quests == null || quests.Count == 0) return;
+
+            for (int i = 0; i < quests.Count; i++)
+            {
+                Quest q = quests[i];
+                if (q != null && q.isBTeamDispatched && !q.isBlitzMerged && q.state == QuestState.Active)
+                {
+                    q.bTeamExpeditionTimer -= Time.deltaTime;
+                    if (q.bTeamExpeditionTimer <= 0f)
+                    {
+                        q.bTeamExpeditionTimer = 0f;
+                        q.currentCount = q.targetCount;
+                        q.state = QuestState.Completed;
+                        PlayQuestAudio("harp_resonance");
+                        ShowQuestToast($"<color=#50E080><b>[B-TEAM EXPEDITION COMPLETE!]</b></color>\n{q.title}\nReserve squad hauled {q.bTeamOresMined} Titan-Iron Ores! Return to Guild Board to claim.");
+                        OnBTeamExpeditionCompleted?.Invoke(q);
+                        OnQuestCompleted?.Invoke(q);
+                        OnQuestListChanged?.Invoke();
+                    }
+                }
+            }
+        }
+
         public void AddGold(int amount)
         {
             playerGold = Mathf.Max(0, playerGold + amount);
             OnGoldChanged?.Invoke(playerGold);
             Debug.Log($"💰 [QUEST ECONOMY] Gold updated: {playerGold} (+{amount})");
+        }
+
+        public void ResetQuestsToDefault()
+        {
+            quests = null;
+            EnsureDefaultQuests();
+            OnQuestListChanged?.Invoke();
         }
 
         public void EnsureDefaultQuests()
@@ -334,6 +379,140 @@ namespace BattleSummoner.Quests
             Debug.Log($"📜 [QUEST ABANDONED] '{q.title}'");
             return true;
         }
+
+        #region B-Team Sub-Contracting & War-Horn Dispatch
+        public bool DispatchBTeam(string questId)
+        {
+            Quest q = FindQuest(questId);
+            if (q == null)
+            {
+                Debug.LogWarning($"⚠️ [B-TEAM] Cannot dispatch unknown quest ID: {questId}");
+                return false;
+            }
+
+            if (!q.CanSubContract)
+            {
+                Debug.LogWarning($"⚠️ [B-TEAM] Quest '{q.title}' is not eligible for Sub-Contracting.");
+                return false;
+            }
+
+            // Check if another B-Team expedition is already active
+            Quest activeOther = quests.Find(other => other.IsBTeamActive && other.questId != questId);
+            if (activeOther != null)
+            {
+                ShowQuestToast($"<color=#FF9040><b>[B-TEAM BUSY]</b></color>\nReserve squad is already deployed on '{activeOther.title}'!");
+                return false;
+            }
+
+            q.state = QuestState.Active;
+            q.isBTeamDispatched = true;
+            q.isBlitzMerged = false;
+            q.isRewardForfeited = false;
+            q.bTeamExpeditionDuration = UnityEngine.Random.Range(50f, 75f);
+            q.bTeamExpeditionTimer = q.bTeamExpeditionDuration;
+            q.bTeamOresMined = UnityEngine.Random.Range(6, 15);
+            q.currentCount = 0;
+
+            if (q.questType == QuestType.Gather) q.bTeamSquadRole = "Vein Miners & Ore Haulers";
+            else if (q.questType == QuestType.Escort) q.bTeamSquadRole = "Vanguard Escort Caravan";
+            else if (q.questType == QuestType.Slay) q.bTeamSquadRole = "Beast Extermination Vanguard";
+            else q.bTeamSquadRole = "Supply Cargo Haulers";
+
+            PlayQuestAudio("relic_chime");
+            ShowQuestToast($"<color=#FFB732><b>📯 [B-TEAM DISPATCHED!]</b></color>\n{q.title}\nReserve AI squad deployed into dungeon hauling ore cart!");
+
+            OnBTeamDispatched?.Invoke(q);
+            OnQuestAccepted?.Invoke(q);
+            OnQuestListChanged?.Invoke();
+            Debug.Log($"📯 [B-TEAM DISPATCHED] '{q.title}' assigned to reserve AI squad! Duration: {q.bTeamExpeditionDuration:F0}s, Role: {q.bTeamSquadRole}");
+            return true;
+        }
+
+        public bool SoundWarHornBlitz()
+        {
+            Quest q = ActiveBTeamQuest;
+            if (q == null)
+            {
+                Debug.LogWarning("⚠️ [WAR-HORN] No active B-Team expedition available to merge!");
+                ShowQuestToast("<color=#FF6060><b>[WAR-HORN FAILED]</b></color>\nNo reserve squad is active nearby to merge.");
+                return false;
+            }
+
+            if (q.isBlitzMerged)
+            {
+                Debug.LogWarning("⚠️ [WAR-HORN] B-Team is already merged in Blitz mode!");
+                return false;
+            }
+
+            q.isBlitzMerged = true;
+            q.isRewardForfeited = true; // Crucial trade-off requested by user!
+
+            PlayQuestAudio("hunting_horn_fanfare");
+            ShowQuestToast($"<color=#FFD700><b>📯 [WAR-HORN RESONATED!]</b></color>\n<size=115%><b>18-PERSON ARMY BLITZ MERGED!</b></size>\n<color=#FFA080>(Side-Contract '{q.title}' Reward Forfeited!)</color>");
+
+            OnWarHornBlitzTriggered?.Invoke(q);
+            OnQuestListChanged?.Invoke();
+            Debug.Log($"📯 [WAR-HORN BLITZ] 18-Person merge active! Side-contract reward forfeited for quest '{q.title}'!");
+            return true;
+        }
+
+        public bool ClaimBTeamLoot(string questId)
+        {
+            Quest q = FindQuest(questId);
+            if (q == null) return false;
+
+            if (q.isRewardForfeited)
+            {
+                ShowQuestToast($"<color=#FF6060><b>[REWARD FORFEITED]</b></color>\nSide-contract reward was forfeited when the War-Horn was blown for the 18-person blitz.");
+                q.state = QuestState.Claimed;
+                OnQuestClaimed?.Invoke(q);
+                OnQuestListChanged?.Invoke();
+                return false;
+            }
+
+            if (q.state != QuestState.Completed)
+            {
+                Debug.LogWarning($"⚠️ [B-TEAM] Quest '{q.title}' is not ready to claim (current state: {q.state})");
+                return false;
+            }
+
+            q.state = QuestState.Claimed;
+
+            // Grant Gold + EXP
+            AddGold(q.goldReward);
+            PlayerProgression prog = UnityEngine.Object.FindAnyObjectByType<PlayerProgression>();
+            if (prog != null)
+            {
+                prog.AddExperience(q.expReward, 1);
+            }
+
+            PlayQuestAudio("harp_resonance");
+            string oresBonus = q.bTeamOresMined > 0 ? $"\n+{q.bTeamOresMined} Titan-Iron Ores Hauled!" : "";
+            ShowQuestToast($"<color=#FFD700><b>[B-TEAM EXPEDITION REWARDS CLAIMED!]</b></color>\n+{q.goldReward} Gold  +{q.expReward} EXP{oresBonus}\n{q.title}");
+
+            OnQuestClaimed?.Invoke(q);
+            OnQuestListChanged?.Invoke();
+            Debug.Log($"🎉 [B-TEAM REWARD] Claimed '{q.title}': {q.goldReward}G, {q.expReward}EXP, Ores: {q.bTeamOresMined}");
+            return true;
+        }
+
+        public bool RecallBTeam(string questId)
+        {
+            Quest q = FindQuest(questId);
+            if (q == null || !q.IsBTeamActive) return false;
+
+            q.state = QuestState.Available;
+            q.isBTeamDispatched = false;
+            q.bTeamExpeditionTimer = 0f;
+            q.currentCount = 0;
+
+            PlayQuestAudio("relic_chime");
+            ShowQuestToast($"<color=#FFB060><b>[B-TEAM RECALLED]</b></color>\nReserve squad called back from '{q.title}'.");
+
+            OnQuestListChanged?.Invoke();
+            return true;
+        }
+        #endregion
 
         public void ProgressQuest(string questId, int amount = 1)
         {

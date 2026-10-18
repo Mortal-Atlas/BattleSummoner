@@ -80,6 +80,8 @@ public class UnfilteredDialoguePipeline : MonoBehaviour
         InitializeSystemPrompt();
     }
 
+    public bool HasActiveConfiguration => !string.IsNullOrEmpty(openRouterApiKey) && openRouterApiKey != "YOUR_OPENROUTER_KEY";
+
     private void InitializeSystemPrompt()
     {
         pipelineHistory.Clear();
@@ -92,11 +94,15 @@ public class UnfilteredDialoguePipeline : MonoBehaviour
                       "{\n" +
                       "  \"dialogueText\": \"string (speech from NPC or grimoire incantation)\",\n" +
                       "  \"attemptedSpell\": { \"isSpell\": bool, \"catalyst\": \"Wind|Fire|Earth|VoidGravity|Blood\", \"geometry\": \"Sphere|RazorDisc|JetThrust|Singularity|RadialBurst\", \"behavior\": \"Piercing|Homing|StationaryVortex|ChainDetonation\", \"instability\": float, \"manaCost\": float },\n" +
-                      "  \"sfxTags\": \"string containing cues like [SFX: cinematic_boom | at: 0.2s | vol: 90%]\",\n" +
+                      "  \"sfxTags\": \"string containing cues like [SFX: cinematic_boom | at: 0.2s | vol: 80%]\",\n" +
                       "  \"quarantineViolation\": bool,\n" +
                       "  \"violationReason\": \"string\"\n" +
                       "}\n" +
-                      "RULE 3: If instability > 1.0 (e.g. attempting gravitational singularities on lower floors), set instability to the calculated value and let the game engine trigger catastrophic backfire."
+                      "RULE 3: SOUND EFFECTS FORMATTING (VOXCRAFT AI COMPATIBILITY):\n" +
+                      "Embed sound effect cues directly into dialogueText or sfxTags at calculated timestamps (assuming ~2.3 spoken words per second / ~0.43s per word).\n" +
+                      "Format: [SFX: preset | at: Xs | vol: Y% | len: Zs | pitch: P]\n" +
+                      "Valid presets: cinematic_boom, thunder, whoosh, riser, glitch, rain, heartbeat, chime, laser, drone, camera_click, typing, anvil_shatter, singularity_whir, relic_chime, needle_trap, hunting_horn_fanfare, bard_chord_strum.\n" +
+                      "RULE 4: If instability > 1.0 (e.g. attempting gravitational singularities on lower floors), set instability to the calculated value and let the game engine trigger catastrophic backfire."
         });
     }
 
@@ -181,16 +187,27 @@ public class UnfilteredDialoguePipeline : MonoBehaviour
 
     private void ExecuteStructuredGameState(UnfilteredLLMStructuredResponse res, string activeNpcId)
     {
-        // 1. Process procedural audio cues from [SFX: ...] tags
-        string combinedText = res.dialogueText + " " + res.sfxTags;
-        string cleanDialogue = BattleSummonerAudioMaster.Instance != null 
-            ? BattleSummonerAudioMaster.Instance.ProcessAndScheduleSFXTags(combinedText)
-            : res.dialogueText;
-
-        // 2. Stream voiceover via ElevenLabs zero-latency bridge
-        if (ElevenLabsTTSBridge.Instance != null && !string.IsNullOrEmpty(cleanDialogue))
+        // 1. Combine dialogue and SFX tags cleanly without duplication
+        string rawDialogueWithSfx = res.dialogueText;
+        if (!string.IsNullOrEmpty(res.sfxTags) && !res.dialogueText.Contains("[SFX:"))
         {
-            ElevenLabsTTSBridge.Instance.SpeakDialogue(cleanDialogue, activeNpcId);
+            rawDialogueWithSfx = (res.dialogueText + " " + res.sfxTags).Trim();
+        }
+
+        string cleanDialogue = BattleSummoner.Audio.SFXCueParser.StripSfxTags(rawDialogueWithSfx);
+
+        // 2. Locate active character stage actor and mouth rig
+        BattleSummoner.Customization.FacialExpressionController facialRig = null;
+        if (MultiCharacterConversationHub.Instance != null)
+        {
+            var actor = MultiCharacterConversationHub.Instance.GetActor(activeNpcId);
+            if (actor != null) facialRig = actor.GetOrFindFacialRig();
+        }
+
+        // 3. Stream voiceover with synchronized SFX timing and mouth vowel animation
+        if (ElevenLabsTTSBridge.Instance != null && !string.IsNullOrEmpty(rawDialogueWithSfx))
+        {
+            ElevenLabsTTSBridge.Instance.SpeakDialogueSynchronized(rawDialogueWithSfx, activeNpcId, facialRig);
         }
 
         // 3. Dispatch spellcraft to ModularSpellEngine if requested

@@ -20,7 +20,7 @@ namespace BattleSummoner.Combat
         [SerializeField] private Transform avatarRigRoot;
 
         [Header("Blend Parameters")]
-        [SerializeField] private float speedDampTime = 0.12f;
+        [SerializeField] private float speedDampTime = 0.15f; // Smooth blending between Idle -> Walk -> Run -> Sprint
         [SerializeField] private float walkSpeedRef = 5.5f;
         [SerializeField] private float sprintSpeedRef = 9.5f;
 
@@ -37,15 +37,32 @@ namespace BattleSummoner.Combat
         private float currentBankAngle = 0f;
         private float lastYaw = 0f;
 
-        // Animator Parameter Hashes for maximum runtime efficiency
+        // Animator Parameter Hashes for maximum runtime efficiency and cross-fade blending
         private static readonly int HashSpeed = Animator.StringToHash("Speed");
         private static readonly int HashIsGrounded = Animator.StringToHash("IsGrounded");
         private static readonly int HashVerticalSpeed = Animator.StringToHash("VerticalSpeed");
         private static readonly int HashIsDashing = Animator.StringToHash("IsDashing");
+        private static readonly int HashIsDefending = Animator.StringToHash("IsDefending");
         private static readonly int HashIsMountRiding = Animator.StringToHash("IsMountRiding");
         private static readonly int HashDashTrigger = Animator.StringToHash("DashTrigger");
         private static readonly int HashSlashTrigger = Animator.StringToHash("SlashTrigger");
         private static readonly int HashCastTrigger = Animator.StringToHash("CastTrigger");
+        private static readonly int HashParryTrigger = Animator.StringToHash("ParryTrigger");
+        private static readonly int HashHitTrigger = Animator.StringToHash("HitTrigger");
+        private static readonly int HashDieTrigger = Animator.StringToHash("DieTrigger");
+        private static readonly int HashVictoryTrigger = Animator.StringToHash("VictoryTrigger");
+        private static readonly int HashLevelUpTrigger = Animator.StringToHash("LevelUpTrigger");
+
+        // Advanced Moveset Hashes (Free Sword, Brawler, Cooking, Archer, Throwing, Martial Arts)
+        private static readonly int HashSwordCombo = Animator.StringToHash("SwordCombo");
+        private static readonly int HashBrawlerStrike = Animator.StringToHash("BrawlerStrike");
+        private static readonly int HashCookingAction = Animator.StringToHash("CookingAction");
+        private static readonly int HashArcheryAim = Animator.StringToHash("ArcheryAim");
+        private static readonly int HashArcheryRelease = Animator.StringToHash("ArcheryRelease");
+        private static readonly int HashThrowTrigger = Animator.StringToHash("ThrowTrigger");
+        private static readonly int HashMartialArtStrike = Animator.StringToHash("MartialArtStrike");
+        private static readonly int HashCraftingAction = Animator.StringToHash("CraftingAction");
+        private static readonly int HashDanceAction = Animator.StringToHash("DanceAction");
 
         private void Awake()
         {
@@ -60,30 +77,63 @@ namespace BattleSummoner.Combat
             ResolveAnimator();
         }
 
+        public bool IsAnimatorPlayable => animator != null && animator.isActiveAndEnabled && animator.runtimeAnimatorController != null && animator.isInitialized;
+
         public void ResolveAnimator()
         {
-            if (animator == null)
+            // 1. Prioritize AvatarRigRoot or AnimeAvatarRigRoot
+            Transform rigRoot = transform.Find("AvatarRigRoot") ?? transform.Find("AnimeAvatarRigRoot");
+            if (rigRoot != null)
             {
-                if (avatarRigRoot == null)
+                if (!rigRoot.gameObject.activeSelf) rigRoot.gameObject.SetActive(true);
+                avatarRigRoot = rigRoot;
+                animator = avatarRigRoot.GetComponent<Animator>();
+
+                // Hide unrigged static starter visuals
+                Transform starter = transform.Find("StarterVisualRoot");
+                if (starter != null) starter.gameObject.SetActive(false);
+            }
+
+            // 2. Fallback to any active Animator in children with a valid controller
+            if (animator == null || !animator.gameObject.activeInHierarchy || animator.runtimeAnimatorController == null)
+            {
+                var anims = GetComponentsInChildren<Animator>(false);
+                foreach (var a in anims)
                 {
-                    avatarRigRoot = transform.Find("AvatarRigRoot");
-                }
-                if (avatarRigRoot != null)
-                {
-                    animator = avatarRigRoot.GetComponent<Animator>();
-                }
-                if (animator == null)
-                {
-                    animator = GetComponentInChildren<Animator>();
+                    if (a.gameObject.activeInHierarchy && a.runtimeAnimatorController != null)
+                    {
+                        animator = a;
+                        avatarRigRoot = a.transform;
+                        break;
+                    }
                 }
             }
 
-            if (avatarRigRoot != null)
+#if UNITY_EDITOR
+            // 3. Fallback: if animator has no controller assigned, link PlayerHeroAnimator
+            if (animator != null && animator.runtimeAnimatorController == null)
             {
-                hipsBone = avatarRigRoot.Find("HipsBone");
+                var ctrl = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Animators/PlayerHeroAnimator.controller");
+                if (ctrl != null)
+                {
+                    animator.runtimeAnimatorController = ctrl;
+                }
+            }
+#endif
+
+            // 4. Resolve Humanoid bones for secondary physics / spine banking
+            if (animator != null && animator.isHuman)
+            {
+                chestBone = animator.GetBoneTransform(HumanBodyBones.Chest);
+                hipsBone = animator.GetBoneTransform(HumanBodyBones.Hips);
+            }
+
+            if (chestBone == null && avatarRigRoot != null)
+            {
+                hipsBone = avatarRigRoot.Find("Modular_Character_Armature/Hips") ?? avatarRigRoot.Find("AnimeHumanoidRig/Root/Hips") ?? avatarRigRoot.Find("HipsBone");
                 if (hipsBone != null)
                 {
-                    chestBone = hipsBone.Find("TorsoBone/ChestBone");
+                    chestBone = hipsBone.Find("Spine/Chest") ?? hipsBone.Find("TorsoBone/ChestBone");
                 }
             }
 
@@ -113,10 +163,10 @@ namespace BattleSummoner.Combat
 
         private void Update()
         {
-            if (animator == null)
+            if (!IsAnimatorPlayable)
             {
                 ResolveAnimator();
-                if (animator == null) return;
+                if (!IsAnimatorPlayable) return;
             }
 
             // 1. Calculate Horizontal Velocity & Normalized Speed
@@ -177,27 +227,27 @@ namespace BattleSummoner.Combat
 
         private void HandleJump()
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetBool(HashIsGrounded, false);
             animator.SetFloat(HashVerticalSpeed, 8.5f);
         }
 
         private void HandleDash(Vector3 direction)
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetTrigger(HashDashTrigger);
             animator.SetBool(HashIsDashing, true);
         }
 
         private void HandleBladeSlash(Vector2 direction, float velocity)
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetTrigger(HashSlashTrigger);
         }
 
         private void HandleSpellCast(Vector2 screenPos)
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetTrigger(HashCastTrigger);
         }
 
@@ -206,7 +256,7 @@ namespace BattleSummoner.Combat
         /// </summary>
         public void PlaySlashAnimation()
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetTrigger(HashSlashTrigger);
         }
 
@@ -215,7 +265,7 @@ namespace BattleSummoner.Combat
         /// </summary>
         public void PlayCastAnimation()
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetTrigger(HashCastTrigger);
         }
 
@@ -224,8 +274,155 @@ namespace BattleSummoner.Combat
         /// </summary>
         public void PlayDashAnimation()
         {
-            if (animator == null) return;
+            if (!IsAnimatorPlayable) return;
             animator.SetTrigger(HashDashTrigger);
+        }
+
+        /// <summary>
+        /// Explicit API to trigger parry counter / shield impact animation.
+        /// </summary>
+        public void PlayParryAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetTrigger(HashParryTrigger);
+        }
+
+        /// <summary>
+        /// Triggers Free Sword combo steps (1: Horizontal Slash, 2: Diagonal Cleave, 3: Heavy Thrust Finisher).
+        /// </summary>
+        public void PlaySwordCombo(int comboIndex = 1)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashSwordCombo, Mathf.Clamp(comboIndex, 1, 3));
+            animator.SetTrigger(HashSlashTrigger);
+        }
+
+        /// <summary>
+        /// Triggers Brawler strikes (1: Left Jab, 2: Right Cross, 3: Rising Uppercut).
+        /// </summary>
+        public void PlayBrawlerStrike(int strikeType = 1)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashBrawlerStrike, Mathf.Clamp(strikeType, 1, 3));
+        }
+
+        /// <summary>
+        /// Triggers Life-Sim Cooking animations (1: Stir Pot, 2: Add Spice/Seasoning, 3: Taste Dish, 4: Plate Food).
+        /// </summary>
+        public void PlayCookingAction(int actionType = 1)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashCookingAction, Mathf.Clamp(actionType, 1, 4));
+        }
+
+        /// <summary>
+        /// Triggers Human Archer bow draw, aim holding, and arrow release.
+        /// </summary>
+        public void PlayArcheryAction(bool isAiming)
+        {
+            if (!IsAnimatorPlayable) return;
+            if (isAiming)
+            {
+                animator.SetBool(HashArcheryAim, true);
+            }
+            else
+            {
+                animator.SetBool(HashArcheryAim, false);
+                animator.SetTrigger(HashArcheryRelease);
+            }
+        }
+
+        /// <summary>
+        /// Triggers Human Throwing animation (Flask / Bomb / Potion toss).
+        /// </summary>
+        public void PlayThrowAction()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetTrigger(HashThrowTrigger);
+        }
+
+        /// <summary>
+        /// Triggers Martial Arts strikes (1: High Roundhouse Kick, 2: Palm Thrust, 3: Flying Knee).
+        /// </summary>
+        public void PlayMartialArtsStrike(int strikeType = 1)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashMartialArtStrike, Mathf.Clamp(strikeType, 1, 3));
+        }
+
+        /// <summary>
+        /// Triggers Human Crafting animations (1: Anvil Hammering, 2: Woodwork / Sawing, 3: Alchemy Stir, 4: Tailoring).
+        /// </summary>
+        public void PlayCraftingAnimation(int craftType = 1)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashCraftingAction, Mathf.Clamp(craftType, 1, 4));
+        }
+
+        public void StopCraftingAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashCraftingAction, 0);
+        }
+
+        /// <summary>
+        /// Triggers Human Dance animations (1: Celebration Folk Jig, 2: Victory Dance, 3: Campfire Rhythmic Sway).
+        /// </summary>
+        public void PlayDanceAnimation(int danceType = 1)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashDanceAction, Mathf.Clamp(danceType, 1, 3));
+        }
+
+        public void StopDanceAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetInteger(HashDanceAction, 0);
+        }
+
+        /// <summary>
+        /// Toggles shield guard / defend stance with seamless enter/exit cross-fade.
+        /// </summary>
+        public void SetDefending(bool isDefending)
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetBool(HashIsDefending, isDefending);
+        }
+
+        /// <summary>
+        /// Triggers hit reaction stagger animation.
+        /// </summary>
+        public void PlayHitReactionAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetTrigger(HashHitTrigger);
+        }
+
+        /// <summary>
+        /// Triggers death / downed animation.
+        /// </summary>
+        public void PlayDeathAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetTrigger(HashDieTrigger);
+        }
+
+        /// <summary>
+        /// Triggers boss subjugation victory celebration animation.
+        /// </summary>
+        public void PlayVictoryAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetTrigger(HashVictoryTrigger);
+        }
+
+        /// <summary>
+        /// Triggers level-up clutch surge celebration animation.
+        /// </summary>
+        public void PlayLevelUpAnimation()
+        {
+            if (!IsAnimatorPlayable) return;
+            animator.SetTrigger(HashLevelUpTrigger);
         }
     }
 }

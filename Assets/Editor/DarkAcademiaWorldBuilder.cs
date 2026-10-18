@@ -120,6 +120,10 @@ public static class DarkAcademiaWorldBuilder
         public Material grimoireLeather;
         public Material parchmentPaper;
         public Material waterSapphire;
+        public Material cobble;
+        public Material roofSlate;
+        public Material ivyVines;
+        public Material forestGrass;
 
         // Persona Character Materials
         public Material personaBlazer;
@@ -164,6 +168,11 @@ public static class DarkAcademiaWorldBuilder
         p.grimoireLeather = GetOrCreateMat("M_DA_GrimoireLeather", lit, new Color(0.35f, 0.10f, 0.12f), 0.45f, 0.10f);
         p.parchmentPaper = GetOrCreateMat("M_DA_ParchmentPaper", lit, new Color(0.88f, 0.82f, 0.68f), 0.15f, 0.0f);
         p.waterSapphire = GetOrCreateMat("M_DA_WaterSapphire", lit, new Color(0.08f, 0.32f, 0.55f), 0.95f, 0.15f);
+
+        p.cobble = AssetDatabase.LoadAssetAtPath<Material>(WORLD_MAT_DIR + "Mat_World_Cobblestone.mat") ?? p.carvedStone;
+        p.roofSlate = AssetDatabase.LoadAssetAtPath<Material>(WORLD_MAT_DIR + "Mat_World_RoofSlate.mat") ?? p.carvedStone;
+        p.ivyVines = AssetDatabase.LoadAssetAtPath<Material>(WORLD_MAT_DIR + "Mat_World_ForestGrass.mat") ?? p.foliage;
+        p.forestGrass = AssetDatabase.LoadAssetAtPath<Material>(WORLD_MAT_DIR + "Mat_World_ForestGrass.mat") ?? p.moss;
 
         // Lantern Flame (Unlit Emissive)
         p.lanternFlame = new Material(unlit) { name = "M_DA_LanternFlame", color = new Color(1.0f, 0.75f, 0.25f) };
@@ -901,6 +910,15 @@ public static class DarkAcademiaWorldBuilder
         // Build Persona protagonist in Overworld
         BuildPersonaProtagonistInActiveScene(p);
 
+        // 9. Instantiate Blender-Crafted Fantasy High-Res World Assets
+        InstantiateBlenderWorldAssets(root.transform, p);
+
+        // 10. Apply Asset Store Water Shader and NamuFX Particle FX
+        ApplyAssetStoreWaterAndEffects(root.transform, p);
+
+        // 11. Populate Grassy Meadows and Wildflowers (Dense Life Scattering)
+        PopulateLushGrassAndWildflowers(root.transform, p);
+
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, scenePath);
         Debug.Log("🌲 [OVERWORLD] Successfully refreshed Overworld with dark academia textures, fountain, greenery, lampposts, and Persona characters!");
@@ -1196,5 +1214,282 @@ public static class DarkAcademiaWorldBuilder
         if (coll != null) Object.DestroyImmediate(coll);
         return part;
     }
+
+    #region Blender Fantasy Assets, Asset Store Water & Lush Foliage
+    private static GameObject LoadEnvironmentModel(string assetBaseName)
+    {
+        string[] extensions = { ".fbx", ".glb" };
+        foreach (var ext in extensions)
+        {
+            string path = "Assets/Models/Environment/" + assetBaseName + ext;
+            var obj = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (obj != null) return obj;
+        }
+        return null;
+    }
+
+    public static void InstantiateBlenderWorldAssets(Transform root, WorldPalette p)
+    {
+        Transform envRoot = root.Find("BlenderFantasyAssets");
+        if (envRoot != null) Object.DestroyImmediate(envRoot.gameObject);
+        envRoot = new GameObject("BlenderFantasyAssets").transform;
+        envRoot.SetParent(root, false);
+
+        // 1. Fantasy Stone Arch Bridge (across river channel at x = 12)
+        GameObject bridgePrefab = LoadEnvironmentModel("FantasyStoneArchBridge");
+        if (bridgePrefab != null)
+        {
+            GameObject bridge = Object.Instantiate(bridgePrefab, envRoot);
+            bridge.name = "Blender_FantasyStoneArchBridge";
+            bridge.transform.position = new Vector3(12.0f, 0.0f, 0.0f);
+            bridge.transform.rotation = Quaternion.identity;
+            bridge.transform.localScale = Vector3.one;
+
+            // Add walkable deck collider
+            BoxCollider deckCol = bridge.AddComponent<BoxCollider>();
+            deckCol.center = new Vector3(0f, 0.90f, 0f);
+            deckCol.size = new Vector3(14.0f, 0.35f, 4.2f);
+
+            // Add parapet safety colliders
+            BoxCollider parapetN = bridge.AddComponent<BoxCollider>();
+            parapetN.center = new Vector3(0f, 1.45f, 2.1f);
+            parapetN.size = new Vector3(14.0f, 0.9f, 0.4f);
+
+            BoxCollider parapetS = bridge.AddComponent<BoxCollider>();
+            parapetS.center = new Vector3(0f, 1.45f, -2.1f);
+            parapetS.size = new Vector3(14.0f, 0.9f, 0.4f);
+
+            ApplyMaterialsToHierarchy(bridge, p.carvedStone, p.cobble);
+        }
+
+        // 2. Gothic Fantasy Town Gate (Framing Spire Avenue)
+        GameObject gatePrefab = LoadEnvironmentModel("GothicFantasyTownGate");
+        if (gatePrefab != null)
+        {
+            GameObject gate = Object.Instantiate(gatePrefab, envRoot);
+            gate.name = "Blender_GothicFantasyTownGate";
+            gate.transform.position = new Vector3(-13.0f, 0.0f, 30.0f);
+            gate.transform.rotation = Quaternion.identity;
+            gate.transform.localScale = Vector3.one;
+
+            BoxCollider towerL = gate.AddComponent<BoxCollider>();
+            towerL.center = new Vector3(-3.5f, 3.5f, 0f);
+            towerL.size = new Vector3(2.5f, 7.0f, 2.5f);
+
+            BoxCollider towerR = gate.AddComponent<BoxCollider>();
+            towerR.center = new Vector3(3.5f, 3.5f, 0f);
+            towerR.size = new Vector3(2.5f, 7.0f, 2.5f);
+
+            ApplyMaterialsToHierarchy(gate, p.carvedStone, p.roofSlate);
+        }
+
+        // 3. Blooming Stone Planters
+        GameObject planterPrefab = LoadEnvironmentModel("StonePlanter_BloomingFlora");
+        if (planterPrefab != null)
+        {
+            Vector3[] planterPositions = new Vector3[]
+            {
+                // Town Fountain Corners
+                new Vector3(-16.5f, 0f, -10.5f),
+                new Vector3(-9.5f, 0f, -10.5f),
+                new Vector3(-16.5f, 0f, -17.5f),
+                new Vector3(-9.5f, 0f, -17.5f),
+
+                // Arch Bridge Entrances & Exits
+                new Vector3(4.8f, 0f, -2.8f),
+                new Vector3(4.8f, 0f, 2.8f),
+                new Vector3(19.2f, 0f, -2.8f),
+                new Vector3(19.2f, 0f, 2.8f),
+
+                // Town Gate Outpost
+                new Vector3(-17.5f, 0f, 29.5f),
+                new Vector3(-8.5f, 0f, 29.5f)
+            };
+
+            for (int i = 0; i < planterPositions.Length; i++)
+            {
+                GameObject planter = Object.Instantiate(planterPrefab, envRoot);
+                planter.name = $"Blender_BloomingPlanter_{i + 1}";
+                planter.transform.position = planterPositions[i];
+                planter.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+                planter.transform.localScale = Vector3.one * 0.95f;
+                ApplyMaterialsToHierarchy(planter, p.carvedStone, p.ivyVines);
+            }
+        }
+    }
+
+    public static void ApplyAssetStoreWaterAndEffects(Transform root, WorldPalette p)
+    {
+        // 1. Asset Store Water Materials
+        Material waterMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/IgniteCoders/Simple Water Shader/Resources/Water_mat_01.mat");
+        if (waterMat == null)
+            waterMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/IgniteCoders/Simple Water Shader/Resources/Water_mat_03.mat");
+        if (waterMat == null)
+            waterMat = AssetDatabase.LoadAssetAtPath<Material>(WORLD_MAT_DIR + "Mat_World_FountainWater.mat");
+
+        if (waterMat != null)
+        {
+            // Apply to Town Fountain
+            GameObject fountain = GameObject.Find("TownFountain");
+            if (fountain != null)
+            {
+                Transform pool = fountain.transform.Find("EnchantedWaterSurface");
+                if (pool != null) pool.GetComponent<Renderer>().sharedMaterial = waterMat;
+
+                Transform upper = fountain.transform.Find("UpperWater");
+                if (upper != null) upper.GetComponent<Renderer>().sharedMaterial = waterMat;
+            }
+
+            // Apply to River Surface
+            GameObject riverSurface = GameObject.Find("EnchantedRiver_WaterSurface");
+            if (riverSurface != null)
+            {
+                riverSurface.GetComponent<Renderer>().sharedMaterial = waterMat;
+            }
+        }
+
+        // 2. NamuFX Particle FX
+        Transform fxRoot = root.Find("WaterFX");
+        if (fxRoot != null) Object.DestroyImmediate(fxRoot.gameObject);
+        fxRoot = new GameObject("WaterFX").transform;
+        fxRoot.SetParent(root, false);
+
+        GameObject bubblesPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/NamuFX/StylizedWaterEffects/Prefabs/Bubbles_Vertical_Loop.prefab");
+        if (bubblesPrefab != null)
+        {
+            // Fountain Center
+            GameObject fBubbles = Object.Instantiate(bubblesPrefab, fxRoot);
+            fBubbles.name = "FX_FountainBubbles";
+            fBubbles.transform.position = new Vector3(-13.0f, 0.55f, -14.0f);
+            fBubbles.transform.localScale = Vector3.one * 0.75f;
+
+            // River Rapids
+            GameObject rBubbles1 = Object.Instantiate(bubblesPrefab, fxRoot);
+            rBubbles1.name = "FX_RiverRapids_North";
+            rBubbles1.transform.position = new Vector3(12.0f, -0.05f, 12.0f);
+            rBubbles1.transform.localScale = Vector3.one * 0.8f;
+
+            GameObject rBubbles2 = Object.Instantiate(bubblesPrefab, fxRoot);
+            rBubbles2.name = "FX_RiverRapids_South";
+            rBubbles2.transform.position = new Vector3(12.0f, -0.05f, -12.0f);
+            rBubbles2.transform.localScale = Vector3.one * 0.8f;
+        }
+
+        GameObject splashPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/NamuFX/StylizedWaterEffects/Prefabs/Water_Splash_Multiple.prefab");
+        if (splashPrefab != null)
+        {
+            GameObject fSplash = Object.Instantiate(splashPrefab, fxRoot);
+            fSplash.name = "FX_FountainSplash";
+            fSplash.transform.position = new Vector3(-13.0f, 0.55f, -14.0f);
+            fSplash.transform.localScale = Vector3.one * 0.65f;
+        }
+    }
+
+    public static void PopulateLushGrassAndWildflowers(Transform root, WorldPalette p)
+    {
+        Transform foliageRoot = root.Find("LushVegetation");
+        if (foliageRoot != null) Object.DestroyImmediate(foliageRoot.gameObject);
+        foliageRoot = new GameObject("LushVegetation").transform;
+        foliageRoot.SetParent(root, false);
+
+        GameObject grassPrefab = LoadEnvironmentModel("LushGrassClump_A");
+        GameObject flowerPrefab = LoadEnvironmentModel("LushWildflowerPatch_B");
+
+        if (grassPrefab == null && flowerPrefab == null) return;
+
+        Random.InitState(777); // Consistent beautiful seed
+        int totalClumps = 160;
+
+        for (int i = 0; i < totalClumps; i++)
+        {
+            Vector3 pos;
+            int zone = Random.Range(0, 4);
+
+            if (zone == 0) // Riverbanks
+            {
+                float x = Random.value < 0.5f ? Random.Range(7.5f, 10.5f) : Random.Range(13.5f, 16.5f);
+                float z = Random.Range(-30f, 30f);
+                if (Mathf.Abs(z) < 3.2f) continue; // Skip bridge deck roadway
+                pos = new Vector3(x, 0.05f, z);
+            }
+            else if (zone == 1) // Meadow between Town and River
+            {
+                pos = new Vector3(Random.Range(-3f, 8f), 0.05f, Random.Range(-24f, 24f));
+            }
+            else if (zone == 2) // Mistwood Forest Floor
+            {
+                pos = new Vector3(Random.Range(20f, 42f), 0.05f, Random.Range(-24f, 24f));
+            }
+            else // Roadside Verges
+            {
+                float x = Random.value < 0.5f ? Random.Range(-17f, -15.5f) : Random.Range(-10.5f, -9f);
+                pos = new Vector3(x, 0.05f, Random.Range(2f, 26f));
+            }
+
+            GameObject prefabToUse = (Random.value < 0.45f && flowerPrefab != null) ? flowerPrefab : grassPrefab;
+            if (prefabToUse == null) prefabToUse = grassPrefab ?? flowerPrefab;
+
+            GameObject clump = Object.Instantiate(prefabToUse, foliageRoot);
+            clump.name = $"Foliage_{i + 1}";
+            clump.transform.position = pos;
+            clump.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+            float s = Random.Range(0.85f, 1.35f);
+            clump.transform.localScale = Vector3.one * s;
+
+            ApplyMaterialsToHierarchy(clump, p.forestGrass, p.ivyVines);
+        }
+
+        // Ambient Arcane Meadow Fireflies
+        GameObject fireflyObj = new GameObject("ArcaneMeadowFireflies");
+        fireflyObj.transform.SetParent(foliageRoot, false);
+        fireflyObj.transform.position = new Vector3(8f, 1.2f, 0f);
+
+        ParticleSystem ps = fireflyObj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.loop = true;
+        main.startLifetime = 4.5f;
+        main.startSpeed = 0.35f;
+        main.startSize = 0.12f;
+        main.maxParticles = 80;
+        main.startColor = new Color(0.95f, 0.90f, 0.45f, 0.75f); // Warm glowing ember
+
+        var emission = ps.emission;
+        emission.rateOverTime = 12f;
+
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(32f, 2.5f, 45f);
+
+        var vel = ps.velocityOverLifetime;
+        vel.enabled = true;
+        vel.y = 0.25f;
+
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.4f;
+        noise.frequency = 0.5f;
+
+        var renderer = fireflyObj.GetComponent<ParticleSystemRenderer>();
+        if (p.lanternFlame != null) renderer.sharedMaterial = p.lanternFlame;
+    }
+
+    private static void ApplyMaterialsToHierarchy(GameObject obj, Material primary, Material secondary)
+    {
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>(true);
+        foreach (var r in renderers)
+        {
+            if (r.sharedMaterial == null || r.sharedMaterial.name.StartsWith("Default") || r.sharedMaterial.name.StartsWith("Material"))
+            {
+                string rName = r.name.ToLower();
+                if (rName.Contains("slate") || rName.Contains("roof") || rName.Contains("wall"))
+                    r.sharedMaterial = secondary ?? primary;
+                else if (rName.Contains("flower") || rName.Contains("bloom") || rName.Contains("leaf"))
+                    r.sharedMaterial = secondary ?? primary;
+                else
+                    r.sharedMaterial = primary;
+            }
+        }
+    }
+    #endregion
     #endregion
 }

@@ -49,6 +49,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CaveMiningNode
   mineralType: 0
+  health: 3
+  gemDropId: PrismaticHeart
   maxStrikesRequired: 4
   currentStrikes: 0
   gemYield: 2

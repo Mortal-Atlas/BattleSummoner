@@ -41,6 +41,50 @@ public class InstrumentFreeplaySync : MonoBehaviour
         Debug.Log($"[Instrument Freeplay] Note broadcast: {noteName} ({frequency}Hz)");
         OnNotePlayed?.Invoke(noteName, frequency);
         BroadcastNoteTapped(noteName, frequency, 1.0f);
+
+        // Map 4D Mass and 10D Frequency to Android vibration/haptic amplitude
+        float mass = 12f;
+        if (RuneShapeCastingEngine.Instance != null && RuneShapeCastingEngine.Instance.ActiveSpellArtifact != null)
+        {
+            mass = RuneShapeCastingEngine.Instance.ActiveSpellArtifact.inertialMass_4D;
+        }
+        TriggerGauntletHapticFeedback(mass, frequency);
+    }
+
+    /// <summary>
+    /// Simulates physical back-EMF torque on the player's mobile phone mapped from 4D Mass and 10D Frequency.
+    /// </summary>
+    public static void TriggerGauntletHapticFeedback(float inertialMass_4D = 15f, float carrierFrequency_10D = 60f)
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        try
+        {
+            int amplitude = Mathf.Clamp((int)(inertialMass_4D * 2.5f + (carrierFrequency_10D * 0.35f)), 25, 255);
+            int durationMs = Mathf.Clamp((int)(inertialMass_4D * 3.5f), 30, 280);
+
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            using (AndroidJavaObject vibrator = currentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator"))
+            {
+                if (vibrator != null && vibrator.Call<bool>("hasVibrator"))
+                {
+                    using (AndroidJavaClass vibrationEffectClass = new AndroidJavaClass("android.os.VibrationEffect"))
+                    {
+                        AndroidJavaObject effect = vibrationEffectClass.CallStatic<AndroidJavaObject>("createOneShot", (long)durationMs, amplitude);
+                        vibrator.Call("vibrate", effect);
+                        return;
+                    }
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[GAUNTLET HAPTICS] Android vibration fallback: {ex.Message}");
+        }
+        Handheld.Vibrate();
+#else
+        // Editor / Non-Android simulation: back-EMF torque impulse
+#endif
     }
 
     private void Awake()

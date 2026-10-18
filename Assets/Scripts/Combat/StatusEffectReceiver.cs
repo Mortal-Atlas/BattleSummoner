@@ -413,11 +413,11 @@ namespace BattleSummoner.Combat
         {
             if (spireEnemy != null)
             {
-                spireEnemy.TakeDamage(amount);
+                spireEnemy.TakeDamage(amount, false, suppressPopup: true);
             }
             else if (bossController != null)
             {
-                bossController.TakeDamage(amount);
+                bossController.TakeDamage(amount, false, suppressPopup: true);
             }
             else if (playerProgression != null)
             {
@@ -547,6 +547,23 @@ namespace BattleSummoner.Combat
                 r.sharedMaterial = mat;
             }
             Destroy(burst, 0.35f);
+        }
+
+        public void CleanseAllDebuffs()
+        {
+            activeEffects.Clear();
+            IsFrozen = false;
+            IsAsleep = false;
+            IsParalyzed = false;
+            IsSlowed = false;
+            CurrentSpeedMultiplier = 1.0f;
+
+            if (iceCageVFX != null) iceCageVFX.SetActive(false);
+            if (fireAuraVFX != null) fireAuraVFX.SetActive(false);
+            if (shockAuraVFX != null) shockAuraVFX.SetActive(false);
+            if (poisonAuraVFX != null) poisonAuraVFX.SetActive(false);
+            if (acidAuraVFX != null) acidAuraVFX.SetActive(false);
+            if (sleepAuraVFX != null) sleepAuraVFX.SetActive(false);
         }
         #endregion
     }

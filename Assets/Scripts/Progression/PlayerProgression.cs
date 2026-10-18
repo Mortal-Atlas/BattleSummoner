@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using BattleSummoner.Hobbies;
 
 public class PlayerProgression : MonoBehaviour, ICombatEntity
 {
@@ -84,6 +86,27 @@ public class PlayerProgression : MonoBehaviour, ICombatEntity
 
     public void TakeDirectDamage(float amount)
     {
+        // 1. Check Parry Window (100% Complete Damage Negation + Riposte)
+        if (BattleSummoner.Combat.PlayerCombatStanceController.Instance != null)
+        {
+            if (BattleSummoner.Combat.PlayerCombatStanceController.Instance.IsParryActive)
+            {
+                BattleSummoner.Combat.PlayerCombatStanceController.Instance.TriggerSuccessfulParry(null);
+                return; // 100% Negation!
+            }
+
+            // 2. Check Passive Shield Block (Sword & Shield stance)
+            if (BattleSummoner.Combat.PlayerCombatStanceController.Instance.IsSwordAndShield)
+            {
+                BattleSummoner.Combat.PlayerCombatStanceController.Instance.TryProcessPassiveBlock(
+                    ref amount,
+                    transform.position + transform.forward * 2f,
+                    transform.position,
+                    transform.forward
+                );
+            }
+        }
+
         if (BattleSummoner.Social.TomodachiSocialLinkManager.Instance != null)
         {
             float defMult = BattleSummoner.Social.TomodachiSocialLinkManager.Instance.GetPlayerDefenseMultiplier();
@@ -94,14 +117,23 @@ public class PlayerProgression : MonoBehaviour, ICombatEntity
         }
         currentHp = Mathf.Max(0f, currentHp - amount);
         OnHealthChanged?.Invoke(currentHp, maxHp);
+
+        if (BattleSummoner.Combat.CombinationAttackManager.Instance != null)
+        {
+            BattleSummoner.Combat.CombinationAttackManager.Instance.RecordDamageTaken();
+        }
+
         if (currentHp <= 0f)
         {
-            Debug.Log("[Player State] Astral core collapsed.");
-            if (BattleSummoner.DungeonDimension.DungeonDimensionManager.Instance != null &&
-                BattleSummoner.DungeonDimension.DungeonDimensionManager.Instance.RunState == BattleSummoner.DungeonDimension.DungeonDimensionState.InRoom)
+            Debug.Log("[Player State] Astral core collapsed. Entering downed revival window...");
+            if (BattleSummoner.Progression.PlayerDownedReviveSystem.Instance != null)
             {
-                currentHp = maxHp * 0.5f; // Revived at half HP upon dimensional ejection
-                BattleSummoner.DungeonDimension.DungeonDimensionManager.Instance.EndRunOnDefeat();
+                BattleSummoner.Progression.PlayerDownedReviveSystem.Instance.EnterDownedState();
+            }
+            else
+            {
+                var downedSys = GetComponent<BattleSummoner.Progression.PlayerDownedReviveSystem>() ?? gameObject.AddComponent<BattleSummoner.Progression.PlayerDownedReviveSystem>();
+                downedSys.EnterDownedState();
             }
         }
     }
@@ -112,10 +144,103 @@ public class PlayerProgression : MonoBehaviour, ICombatEntity
         OnManaChanged?.Invoke(currentMp, maxMp);
     }
 
+    public bool DrainMana(float amount)
+    {
+        if (amount <= 0f) return true;
+        if (currentMp < amount) return false;
+        currentMp = Mathf.Max(0f, currentMp - amount);
+        OnManaChanged?.Invoke(currentMp, maxMp);
+        return true;
+    }
+
+    public void ConsumeMana(float amount)
+    {
+        if (amount <= 0f) return;
+        currentMp = Mathf.Max(0f, currentMp - amount);
+        OnManaChanged?.Invoke(currentMp, maxMp);
+    }
+
     public void Heal(float amount)
     {
+        if (amount <= 0f) return;
         currentHp = Mathf.Min(maxHp, currentHp + amount);
         OnHealthChanged?.Invoke(currentHp, maxHp);
+
+        // Spawn ticking green numbers drifting upwards with offset
+        if (BattleSummoner.Combat.CombatFeedbackManager.Instance != null)
+        {
+            BattleSummoner.Combat.CombatFeedbackManager.Instance.SpawnHealing(transform.position + Vector3.up * 1.2f, amount);
+        }
+
+        if (BattleSummoner.Combat.CombinationAttackManager.Instance != null)
+        {
+            BattleSummoner.Combat.CombinationAttackManager.Instance.RecordPlayerHeal(amount);
+        }
+    }
+
+    [Header("Food Buffs")]
+    [SerializeField] private CookedMealData activeMealBuff;
+    private Coroutine activeFoodManaRegenRoutine;
+
+    /// <summary>
+    /// When a player consumes a CookedMealData item from their quick-access belt carousel:
+    /// Adds meal.totalHealthRestore to currentHp and applies meal.manaRegenPerSecond to currentMp every second for meal.buffDurationSeconds.
+    /// </summary>
+    public void ConsumeCookedMeal(CookedMealData meal)
+    {
+        if (meal == null) return;
+
+        activeMealBuff = meal;
+
+        // 1. Add meal.totalHealthRestore to currentHp
+        if (meal.totalHealthRestore > 0f)
+        {
+            currentHp = Mathf.Min(maxHp, currentHp + meal.totalHealthRestore);
+            OnHealthChanged?.Invoke(currentHp, maxHp);
+
+            if (BattleSummoner.Combat.CombatFeedbackManager.Instance != null)
+            {
+                BattleSummoner.Combat.CombatFeedbackManager.Instance.SpawnHealing(transform.position + Vector3.up * 1.2f, meal.totalHealthRestore);
+            }
+            if (BattleSummoner.Combat.CombinationAttackManager.Instance != null)
+            {
+                BattleSummoner.Combat.CombinationAttackManager.Instance.RecordPlayerHeal(meal.totalHealthRestore);
+            }
+        }
+
+        // 2. Apply meal.manaRegenPerSecond to currentMp every second for meal.buffDurationSeconds
+        if (meal.manaRegenPerSecond > 0f && meal.buffDurationSeconds > 0f)
+        {
+            if (activeFoodManaRegenRoutine != null && Application.isPlaying)
+            {
+                StopCoroutine(activeFoodManaRegenRoutine);
+            }
+
+            if (Application.isPlaying)
+            {
+                activeFoodManaRegenRoutine = StartCoroutine(FoodManaRegenRoutine(meal.manaRegenPerSecond, meal.buffDurationSeconds));
+            }
+            else
+            {
+                // In edit-mode unit test execution, simulate initial tick
+                RestoreMana(meal.manaRegenPerSecond);
+            }
+        }
+
+        Debug.Log($"🍲 [PLAYER PROGRESSION] Consumed Cooked Meal: {meal.mealName}! Restored +{meal.totalHealthRestore:F0} HP. Regenerating +{meal.manaRegenPerSecond:F1} MP/s for {meal.buffDurationSeconds:F0}s.");
+    }
+
+    private IEnumerator FoodManaRegenRoutine(float manaRegenPerSecond, float durationSeconds)
+    {
+        float elapsed = 0f;
+        while (elapsed < durationSeconds)
+        {
+            yield return new WaitForSeconds(1.0f);
+            elapsed += 1.0f;
+            currentMp = Mathf.Min(maxMp, currentMp + manaRegenPerSecond);
+            OnManaChanged?.Invoke(currentMp, maxMp);
+        }
+        activeFoodManaRegenRoutine = null;
     }
 }
 

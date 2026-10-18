@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using BattleSummoner.Combat;
+using BattleSummoner.Quests;
 
 namespace BattleSummoner.UI
 {
@@ -14,9 +15,14 @@ namespace BattleSummoner.UI
         public string allyName;
         public float maxHP = 500f;
         public float currentHP = 240f; // Damaged baseline so player can test healing!
+        public float maxMP = 200f;
+        public float currentMP = 120f;
         public RectTransform rootRect;
         public Image portraitImg;
         public Image miniHPImg;
+        public Image miniMPImg;
+        public TextMeshProUGUI hpValueText;
+        public TextMeshProUGUI mpValueText;
         public Button clickButton;
         public GameObject selectionFrame;
     }
@@ -80,6 +86,11 @@ namespace BattleSummoner.UI
         {
             if (_instance == null) _instance = this;
             InitializeSquadMembers();
+            if (QuestManager.Instance != null)
+            {
+                QuestManager.Instance.OnWarHornBlitzTriggered -= Activate18PersonBlitzUI;
+                QuestManager.Instance.OnWarHornBlitzTriggered += Activate18PersonBlitzUI;
+            }
         }
 
         private void Start()
@@ -88,8 +99,22 @@ namespace BattleSummoner.UI
             SelectAlly(0); // Select first ally by default
         }
 
+        private void OnDestroy()
+        {
+            if (QuestManager.Instance != null)
+            {
+                QuestManager.Instance.OnWarHornBlitzTriggered -= Activate18PersonBlitzUI;
+            }
+        }
+
         public void InitializeSquadMembers()
         {
+            if (QuestManager.Instance != null)
+            {
+                QuestManager.Instance.OnWarHornBlitzTriggered -= Activate18PersonBlitzUI;
+                QuestManager.Instance.OnWarHornBlitzTriggered += Activate18PersonBlitzUI;
+            }
+
             if (squadMembers != null && squadMembers.Count == 9 && squadMembers[0].rootRect != null) return;
 
             squadMembers.Clear();
@@ -111,23 +136,59 @@ namespace BattleSummoner.UI
                     target.allyName = SQUAD_NAMES[(i - 1) % SQUAD_NAMES.Length];
                     target.maxHP = 500f;
                     target.currentHP = 220f + (i * 25f); // Varied starting health for gameplay testing
+                    target.maxMP = 200f;
+                    target.currentMP = 120f + (i * 8f);
                     target.rootRect = memberGo.GetComponent<RectTransform>();
 
-                    var pfpTr = memberGo.transform.Find("AllyPortrait");
+                    var pfpTr = memberGo.transform.Find("Inner/AllyPortrait") ?? memberGo.transform.Find("AllyPortrait");
                     if (pfpTr != null) target.portraitImg = pfpTr.GetComponent<Image>();
                     else target.portraitImg = memberGo.GetComponent<Image>();
 
-                    var hpTr = memberGo.transform.Find("MiniHP");
+                    var hpTr = memberGo.transform.Find("Inner/MiniHP") ?? memberGo.transform.Find("MiniHP");
                     if (hpTr != null)
                     {
-                        var fillTr = hpTr.Find("MiniHPFill");
+                        var fillTr = hpTr.Find("Fill") ?? hpTr.Find("MiniHPFill");
                         target.miniHPImg = (fillTr != null) ? fillTr.GetComponent<Image>() : hpTr.GetComponent<Image>();
                         if (target.miniHPImg != null)
                         {
                             target.miniHPImg.type = Image.Type.Filled;
                             target.miniHPImg.fillMethod = Image.FillMethod.Horizontal;
-                            target.miniHPImg.color = new Color(0.18f, 0.85f, 0.40f, 1f);
+                            target.miniHPImg.color = new Color(0.92f, 0.20f, 0.26f, 1f);
                             target.miniHPImg.fillAmount = target.currentHP / target.maxHP;
+                        }
+                    }
+
+                    var mpTr = memberGo.transform.Find("Inner/MiniMP") ?? memberGo.transform.Find("MiniMP");
+                    if (mpTr != null)
+                    {
+                        var fillTr = mpTr.Find("Fill") ?? mpTr.Find("MiniMPFill");
+                        target.miniMPImg = (fillTr != null) ? fillTr.GetComponent<Image>() : mpTr.GetComponent<Image>();
+                        if (target.miniMPImg != null)
+                        {
+                            target.miniMPImg.type = Image.Type.Filled;
+                            target.miniMPImg.fillMethod = Image.FillMethod.Horizontal;
+                            target.miniMPImg.color = new Color(0.18f, 0.75f, 1.0f, 1f);
+                            target.miniMPImg.fillAmount = target.currentMP / target.maxMP;
+                        }
+                    }
+
+                    var hpNumTr = memberGo.transform.Find("Inner/HPNumberText") ?? memberGo.transform.Find("HPNumberText");
+                    if (hpNumTr != null)
+                    {
+                        target.hpValueText = hpNumTr.GetComponent<TextMeshProUGUI>();
+                        if (target.hpValueText != null)
+                        {
+                            target.hpValueText.text = $"<color=#FF5566><b>{(int)target.currentHP}</b></color>";
+                        }
+                    }
+
+                    var mpNumTr = memberGo.transform.Find("Inner/MPNumberText") ?? memberGo.transform.Find("MPNumberText");
+                    if (mpNumTr != null)
+                    {
+                        target.mpValueText = mpNumTr.GetComponent<TextMeshProUGUI>();
+                        if (target.mpValueText != null)
+                        {
+                            target.mpValueText.text = $"<color=#33DDFF><b>{(int)target.currentMP}</b></color>";
                         }
                     }
 
@@ -259,10 +320,14 @@ namespace BattleSummoner.UI
             ally.currentHP = Mathf.Min(ally.maxHP, ally.currentHP + healAmount);
             float actualHealed = ally.currentHP - oldHP;
 
-            // Update UI health bar
+            // Update UI health bar and stylized numerical readout
             if (ally.miniHPImg != null)
             {
                 ally.miniHPImg.fillAmount = ally.currentHP / ally.maxHP;
+            }
+            if (ally.hpValueText != null)
+            {
+                ally.hpValueText.text = $"<color=#FF5566><b>{(int)ally.currentHP}</b></color>";
             }
 
             if (activeTargetLabelTMP != null)
@@ -277,8 +342,7 @@ namespace BattleSummoner.UI
 
             if (CombatFeedbackManager.Instance != null)
             {
-                string healString = $"<color=#00FF7F><size=130%><b>+{healAmount:F0} HP</b></size></color>";
-                CombatFeedbackManager.Instance.SpawnFloatingText(worldPos + Vector3.up * 0.8f, healString, 1.3f);
+                CombatFeedbackManager.Instance.SpawnHealing(worldPos, healAmount);
             }
 
             // Play audio feedback
@@ -290,6 +354,46 @@ namespace BattleSummoner.UI
             Debug.Log($"💚 [ALLY HEALED] Healed '{ally.allyName}' for +{healAmount:F0} HP (Acc: {accuracy * 100:F0}%, Size: {sizeRadius:F0}px, Total: {ally.currentHP:F0}/{ally.maxHP:F0}).");
             OnAllyHealed?.Invoke(ally, healAmount);
             return healAmount;
+        }
+
+        public void Activate18PersonBlitzUI(BattleSummoner.Quests.Quest q = null)
+        {
+            var partyCol = GameObject.Find("PartySquadColumn");
+            GameObject blitzBannerObj = GameObject.Find("Blitz18PersonBanner");
+            if (partyCol != null && blitzBannerObj == null)
+            {
+                blitzBannerObj = new GameObject("Blitz18PersonBanner", typeof(RectTransform), typeof(Image));
+                blitzBannerObj.transform.SetParent(partyCol.transform, false);
+                blitzBannerObj.transform.SetAsFirstSibling();
+                RectTransform rt = blitzBannerObj.GetComponent<RectTransform>();
+                rt.sizeDelta = new Vector2(100f, 44f);
+                blitzBannerObj.GetComponent<Image>().color = new Color(0.85f, 0.25f, 0.12f, 0.95f);
+
+                GameObject txtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+                txtObj.transform.SetParent(blitzBannerObj.transform, false);
+                RectTransform tr = txtObj.GetComponent<RectTransform>();
+                tr.anchorMin = Vector2.zero;
+                tr.anchorMax = Vector2.one;
+                tr.sizeDelta = Vector2.zero;
+                TextMeshProUGUI tmp = txtObj.GetComponent<TextMeshProUGUI>();
+                tmp.text = "📯 <b>18-UNIT BLITZ!</b>";
+                tmp.fontSize = 11;
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.color = Color.white;
+            }
+
+            if (blitzBannerObj != null) blitzBannerObj.SetActive(true);
+
+            // Give party portraits an active fiery gold frenzy border
+            for (int i = 0; i < squadMembers.Count; i++)
+            {
+                if (squadMembers[i].selectionFrame != null)
+                {
+                    squadMembers[i].selectionFrame.SetActive(true);
+                    var img = squadMembers[i].selectionFrame.GetComponent<Image>();
+                    if (img != null) img.color = new Color(1.0f, 0.45f, 0.15f, 0.95f);
+                }
+            }
         }
     }
 }

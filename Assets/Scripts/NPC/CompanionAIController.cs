@@ -1,4 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using BattleSummoner.Social;
 
 public class CompanionAIController : MonoBehaviour
 {
@@ -14,20 +17,64 @@ public class CompanionAIController : MonoBehaviour
     [SerializeField] private float attackRange = 3.0f;
     [SerializeField] private float supportCooldown = 6.0f;
 
+    [Header("Active Social Link Buffs")]
+    [SerializeField] private string activeBattleFormName = "Basic Bond";
+    [SerializeField] private float attackMultiplier = 1.0f;
+    [SerializeField] private float defenseMultiplier = 1.0f;
+    [SerializeField] private string specialTrait = "Standard Support";
+
     private Transform playerTransform;
+    private PlayerProgression playerProgression;
     private float lastSupportTime = 0f;
+    private SocialEntityProfile cachedSocialProfile;
 
     private void Start()
     {
-        PlayerProgression player = FindAnyObjectByType<PlayerProgression>();
-        if (player != null)
+        playerProgression = FindAnyObjectByType<PlayerProgression>();
+        if (playerProgression != null)
         {
-            playerTransform = player.transform;
+            playerTransform = playerProgression.transform;
         }
 
         if (companionProfile != null)
         {
             supportCooldown = companionProfile.companionSupportCooldown;
+        }
+
+        RefreshSocialLinkForm();
+
+        // Subscribe to social link updates
+        TomodachiSocialLinkManager.OnRankUp += HandleRankUp;
+    }
+
+    private void OnDestroy()
+    {
+        TomodachiSocialLinkManager.OnRankUp -= HandleRankUp;
+    }
+
+    private void HandleRankUp(SocialEntityProfile entity, int newRank)
+    {
+        if (companionProfile != null && entity != null && entity.entityId.Equals(companionProfile.npcId, System.StringComparison.OrdinalIgnoreCase))
+        {
+            RefreshSocialLinkForm();
+        }
+    }
+
+    public void RefreshSocialLinkForm()
+    {
+        if (TomodachiSocialLinkManager.Instance == null || companionProfile == null) return;
+
+        cachedSocialProfile = TomodachiSocialLinkManager.Instance.GetEntity(companionProfile.npcId);
+        if (cachedSocialProfile != null)
+        {
+            var form = cachedSocialProfile.GetActiveBattleForm();
+            if (form != null)
+            {
+                activeBattleFormName = form.formName;
+                attackMultiplier = Mathf.Max(1.0f, form.bonusAttackMultiplier);
+                defenseMultiplier = Mathf.Max(1.0f, form.bonusDefenseMultiplier);
+                specialTrait = form.specialAidTrait;
+            }
         }
     }
 
@@ -58,22 +105,109 @@ public class CompanionAIController : MonoBehaviour
             {
                 if (hits[i].CompareTag("Enemy"))
                 {
+                    float basePower = companionProfile != null ? companionProfile.combatAttackPower : 35f;
+                    float effectivePower = basePower * attackMultiplier;
+
                     if (hits[i].TryGetComponent<SpireEnemy>(out var enemy))
                     {
-                        enemy.TakeDamage(companionProfile != null ? companionProfile.combatAttackPower : 35f);
+                        enemy.TakeDamage(effectivePower);
                         lastSupportTime = Time.time;
-                        Debug.Log($"[COMPANION STRIKE] {name} assists player with kinetic support strike!");
+                        RecordSupportStrike(effectivePower);
                         break;
                     }
                     else if (hits[i].TryGetComponent<BossController>(out var boss))
                     {
-                        boss.TakeDamage(companionProfile != null ? companionProfile.combatAttackPower : 35f);
+                        boss.TakeDamage(effectivePower);
                         lastSupportTime = Time.time;
-                        Debug.Log($"[COMPANION STRIKE] {name} strikes boss armor!");
+                        RecordSupportStrike(effectivePower);
                         break;
                     }
                 }
             }
         }
+    }
+
+    private void RecordSupportStrike(float damage)
+    {
+        Debug.Log($"⚔️ [COMPANION STRIKE] {name} ({activeBattleFormName}) assists player with {damage:F0} damage! [{specialTrait}]");
+
+        if (BattleSummonerAudioMaster.Instance != null)
+        {
+            BattleSummonerAudioMaster.Instance.PlayPresetSFX("heavy_impact", 0.8f);
+        }
+
+        // Deepen bond through battle camaraderie
+        if (companionProfile != null && TomodachiSocialLinkManager.Instance != null)
+        {
+            TomodachiSocialLinkManager.Instance.RecordBattleVictoryWithCompanion(companionProfile.npcId, damage);
+        }
+
+        if (BattleSummoner.Combat.CombinationAttackManager.Instance != null)
+        {
+            BattleSummoner.Combat.CombinationAttackManager.Instance.RecordCompanionAction();
+        }
+    }
+
+    /// <summary>
+    /// Triggers the Duo Unison / Combination Attack unlocked via Social Links.
+    /// </summary>
+    public bool TriggerUnisonAttack(Vector3 targetCenter, out string attackName, out float damageDealt)
+    {
+        attackName = "None";
+        damageDealt = 0f;
+
+        if (cachedSocialProfile == null)
+        {
+            RefreshSocialLinkForm();
+        }
+
+        if (cachedSocialProfile == null || cachedSocialProfile.combinationAttack == null)
+        {
+            return false;
+        }
+
+        var combo = cachedSocialProfile.combinationAttack;
+        attackName = combo.comboName;
+        damageDealt = combo.baseDamage * attackMultiplier;
+
+        // Deal AoE damage to enemies around the target center
+        Collider[] hits = Physics.OverlapSphere(targetCenter, 7.5f);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].CompareTag("Enemy"))
+            {
+                if (hits[i].TryGetComponent<SpireEnemy>(out var enemy))
+                {
+                    enemy.TakeDamage(damageDealt);
+                }
+                else if (hits[i].TryGetComponent<BossController>(out var boss))
+                {
+                    boss.TakeDamage(damageDealt);
+                }
+            }
+        }
+
+        // Apply Unison Healing if combo has heal amount
+        if (combo.healAmount > 0f && playerProgression != null)
+        {
+            playerProgression.Heal(combo.healAmount);
+        }
+
+        // SFX and Visual feedback
+        if (BattleSummonerAudioMaster.Instance != null)
+        {
+            BattleSummonerAudioMaster.Instance.PlayPresetSFX("heavy_impact", 1.0f);
+        }
+
+        if (DevClassLoadoutManager.Instance != null)
+        {
+            DevClassLoadoutManager.Instance.ShowToast(
+                $"<color=#FFE040><b>⚡ UNISON STRIKE: {combo.comboName}! ⚡</b></color>\n" +
+                $"<i>\"{combo.cinematicQuote}\"</i>\n" +
+                $"Dealt <b>{damageDealt:F0}</b> {combo.element} damage!"
+            );
+        }
+
+        return true;
     }
 }

@@ -6,6 +6,7 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
     [Header("Enemy Stats")]
     [SerializeField] private string enemyName = "Spire Gargoyle";
     [SerializeField] private int mobTier = 1;
+    [SerializeField] private bool isBoss = false;
     [SerializeField] private float maxHealth = 150f;
     [SerializeField] private float currentHealth = 150f;
     [SerializeField] private double expReward = 65.0;
@@ -25,6 +26,7 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
     private float lastAttackTime = 0f;
     private Renderer enemyRenderer;
     private Color originalColor = Color.white;
+    private string lastDamageType = "PhysicalSlash";
 
     private void Awake()
     {
@@ -104,13 +106,15 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
 
     public DamageResult TakeAdvancedDamage(DamagePayload payload)
     {
+        lastDamageType = payload.damageType.ToString();
         if (statusReceiver != null)
         {
             return statusReceiver.TakeAdvancedDamage(payload);
         }
 
-        TakeDamage(payload.baseDamage);
-        return new DamageResult { finalDamage = payload.baseDamage, outcome = HitOutcome.Normal, damageType = payload.damageType };
+        bool isCrit = UnityEngine.Random.value < payload.critChance;
+        TakeDamage(payload.baseDamage, isCrit);
+        return new DamageResult { finalDamage = payload.baseDamage, outcome = isCrit ? HitOutcome.Critical : HitOutcome.Normal, damageType = payload.damageType };
     }
 
     public void Stagger(float duration, Vector3 origin)
@@ -131,9 +135,27 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
         Debug.Log($"[ENEMY STAGGER] {enemyName} staggered for {duration}s by kinetic shockwave!");
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage) => TakeDamage(damage, false, false);
+
+    public void TakeDamage(float damage, bool isCrit, bool suppressPopup = false)
     {
+        if (TryGetComponent<ApexNemesisEntity>(out var nemesis))
+        {
+            damage = nemesis.ModifyIncomingDamage(damage, lastDamageType, playerTransform);
+        }
+
         currentHealth -= damage;
+
+        // Floating combat text: White for normal damage, Red CRIT! for critical
+        if (!suppressPopup && CombatFeedbackManager.Instance != null)
+        {
+            CombatFeedbackManager.Instance.SpawnEnemyDamage(transform.position + Vector3.up * 1.0f, damage, isCrit);
+        }
+
+        if (CombinationAttackManager.Instance != null)
+        {
+            CombinationAttackManager.Instance.RecordPlayerCombatHit(damage, isCrit);
+        }
 
         // Check Execute Strike boon (instant spatial shatter below threshold)
         if (currentHealth > 0f && BattleSummoner.DungeonDimension.DungeonRunBuffSystem.Instance != null)
@@ -178,6 +200,13 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
             livingGear.OnMobSlain(mobTier);
         }
 
+        // Phase 3: Spire Ecological Memory & Apex Nemesis tracking
+        if (SpireEcologyNemesisManager.Instance != null)
+        {
+            int floorNum = playerProgression != null ? playerProgression.currentLevel : 1;
+            SpireEcologyNemesisManager.Instance.RecordMonsterKill(floorNum, enemyName, lastDamageType, maxHealth);
+        }
+
         // Check Cull the Weak kinetic blast on death
         if (BattleSummoner.DungeonDimension.DungeonRunBuffSystem.Instance != null &&
             BattleSummoner.DungeonDimension.DungeonRunBuffSystem.Instance.HasSlainExplosion(out float explodePct))
@@ -193,7 +222,58 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
             }
         }
 
-        Debug.Log($"[ENEMY DEFEATED] {enemyName} collapsed into mana dust.");
+        // Differentiated Loot System:
+        // Regular small enemies grant loot immediately into inventory.
+        // Bosses & Apex Nemesis entities spawn an interactive Monster Hunter carcass for manual carving!
+        if (isBoss || mobTier >= 3 || GetComponent<ApexNemesisEntity>() != null)
+        {
+            ApexBossCarcass.SpawnCarcass(transform.position, transform.rotation, enemyName);
+            Debug.Log($"⚔️ [BOSS DEFEATED] {enemyName} collapsed into a carveable apex carcass!");
+        }
+        else
+        {
+            GrantInstantMinionLoot();
+            Debug.Log($"[ENEMY DEFEATED] {enemyName} collapsed into mana dust with instant loot.");
+        }
+
         Destroy(gameObject);
+    }
+
+    private void GrantInstantMinionLoot()
+    {
+        // 1. Calculate instant minion drops
+        int goldDrop = UnityEngine.Random.Range(15, 35) * Mathf.Max(1, mobTier);
+        if (InventoryMenuUI.Instance != null)
+        {
+            InventoryMenuUI.Instance.AddGold(goldDrop);
+
+            // Random common or uncommon material drop
+            string[] minionItems = { "mat_spire_shard", "mat_gargoyle_stone", "mat_astral_thread", "potion_crimson" };
+            string[] minionNames = { "Spire Shard", "Gargoyle Stone", "Astral Thread", "Crimson Draught" };
+            int pick = UnityEngine.Random.Range(0, minionItems.Length);
+            int qty = pick == 3 ? 1 : UnityEngine.Random.Range(1, 3);
+
+            InventoryMenuUI.Instance.AddItem(new InventoryItemEntry
+            {
+                itemId = minionItems[pick],
+                displayName = minionNames[pick],
+                category = pick == 3 ? ItemCategory.Consumables : ItemCategory.Materials,
+                rarity = ItemRarity.Common,
+                quantity = qty,
+                description = "Acquired immediately upon defeating a Spire minion."
+            });
+
+            // 2. Spawn 3D floating loot toast
+            if (CombatFeedbackManager.Instance != null)
+            {
+                CombatFeedbackManager.Instance.SpawnLootFeedback(transform.position, $"+{qty} {minionNames[pick]} (+{goldDrop}G)", new Color(0.2f, 1f, 0.5f));
+            }
+        }
+
+        // 3. Play instant pickup chime
+        if (BattleSummonerAudioMaster.Instance != null)
+        {
+            BattleSummonerAudioMaster.Instance.PlayLootPickupChime();
+        }
     }
 }

@@ -34,7 +34,17 @@ public class CharacterStageActor
     public Light spotlight;
     public GameObject speechBubbleContainer;
     public TextMeshPro speechBubbleText;
+    public BattleSummoner.Customization.FacialExpressionController facialController;
     [HideInInspector] public Quaternion initialRotation;
+
+    public BattleSummoner.Customization.FacialExpressionController GetOrFindFacialRig()
+    {
+        if (facialController == null && characterRoot != null)
+        {
+            facialController = characterRoot.GetComponentInChildren<BattleSummoner.Customization.FacialExpressionController>();
+        }
+        return facialController;
+    }
 }
 
 /// <summary>
@@ -51,6 +61,23 @@ public class MultiCharacterConversationHub : MonoBehaviour
     [Header("Bespoke Stage Actors")]
     [SerializeField] private List<CharacterStageActor> actors = new List<CharacterStageActor>();
     private readonly Dictionary<string, CharacterStageActor> actorRegistry = new Dictionary<string, CharacterStageActor>();
+
+    public CharacterStageActor GetActor(string npcId)
+    {
+        if (actorRegistry.Count == 0 && actors != null)
+        {
+            foreach (var a in actors)
+            {
+                if (a != null && !string.IsNullOrEmpty(a.npcId))
+                {
+                    actorRegistry[a.npcId] = a;
+                }
+            }
+        }
+
+        if (actorRegistry.TryGetValue(npcId, out var actor)) return actor;
+        return null;
+    }
 
     [Header("Player Target Transform")]
     [SerializeField] private Transform playerObserverTransform;
@@ -158,9 +185,9 @@ public class MultiCharacterConversationHub : MonoBehaviour
         }
 
         if (quickPromptBtn1 != null) quickPromptBtn1.onClick.AddListener(() => SubmitPlayerUtterance("What ancient danger waits on Floor 50?"));
-        if (quickPromptBtn2 != null) quickPromptBtn2.onClick.AddListener(() => SubmitPlayerUtterance("Margo, what secrets are locked inside this Void Amethyst geode?"));
-        if (quickPromptBtn3 != null) quickPromptBtn3.onClick.AddListener(() => SubmitPlayerUtterance("Barnaby, can this blade survive another fracture without shattering the matrix?"));
-        if (quickPromptBtn4 != null) quickPromptBtn4.onClick.AddListener(() => SubmitPlayerUtterance("Zephyr, report on the wind currents and gargoyle swarms below."));
+        if (quickPromptBtn2 != null) quickPromptBtn2.onClick.AddListener(() => StartDirectDialogueWithActor("npc_margo"));
+        if (quickPromptBtn3 != null) quickPromptBtn3.onClick.AddListener(() => StartDirectDialogueWithActor("npc_barnaby"));
+        if (quickPromptBtn4 != null) quickPromptBtn4.onClick.AddListener(() => StartDirectDialogueWithActor("npc_zephyr"));
     }
 
     public void ReturnToDungeon()
@@ -241,45 +268,69 @@ public class MultiCharacterConversationHub : MonoBehaviour
 
         Debug.Log($"[Campfire Hub] {utterance.speakerName} -> {(addressee != null ? addressee.displayName : "Group")}: \"{utterance.text}\"");
 
-        // Append to transcript log
+        // Append to transcript log (clean text, no double scheduling)
         AppendToTranscript(utterance.speakerName, utterance.text, speaker != null ? speaker.themeColor : Color.white);
 
-        // Display 3D speech bubble with typewriter animation
+        string cleanDialogue = BattleSummoner.Audio.SFXCueParser.StripSfxTags(utterance.text);
+
+        // Display 3D speech bubble
         if (speaker != null && speaker.speechBubbleContainer != null && speaker.speechBubbleText != null)
         {
             speaker.speechBubbleContainer.SetActive(true);
-            if (activeTypewriterRoutine != null) StopCoroutine(activeTypewriterRoutine);
-            activeTypewriterRoutine = StartCoroutine(TypewriterRoutine(speaker.speechBubbleText, utterance.text));
+            speaker.speechBubbleText.text = "";
         }
 
-        // Trigger Voiceover through ElevenLabs TTS Bridge (or local VoxCraft fallback)
+        var facialRig = speaker != null ? speaker.GetOrFindFacialRig() : null;
+        bool speechCompleted = false;
+
+        // Trigger Voiceover through ElevenLabs TTS Bridge with synchronized SFX & Lip Sync
         if (ElevenLabsTTSBridge.Instance != null)
         {
-            ElevenLabsTTSBridge.Instance.SpeakDialogue(utterance.text, utterance.speakerId);
+            ElevenLabsTTSBridge.Instance.SpeakDialogueSynchronized(
+                utterance.text,
+                utterance.speakerId,
+                facialRig,
+                onPlaybackStarted: () =>
+                {
+                    OnUtteranceSpoken?.Invoke(utterance.speakerId, utterance.text);
+                },
+                onPlaybackCompleted: () =>
+                {
+                    speechCompleted = true;
+                },
+                onProgress: (progress) =>
+                {
+                    if (speaker != null && speaker.speechBubbleText != null)
+                    {
+                        int charCount = Mathf.Clamp(Mathf.RoundToInt(progress * cleanDialogue.Length), 0, cleanDialogue.Length);
+                        speaker.speechBubbleText.text = cleanDialogue.Substring(0, charCount);
+                    }
+                }
+            );
+
+            // Wait until the speech playback finishes
+            while (!speechCompleted)
+            {
+                yield return null;
+            }
+        }
+        else
+        {
+            // Direct text display fallback
+            if (speaker != null && speaker.speechBubbleText != null)
+            {
+                speaker.speechBubbleText.text = cleanDialogue;
+            }
+            yield return new WaitForSeconds(Mathf.Clamp(cleanDialogue.Length * 0.05f, 1.5f, 5.0f));
         }
 
-        OnUtteranceSpoken?.Invoke(utterance.speakerId, utterance.text);
-
-        // Calculate voiceover duration approximation (avg 140 words per min = ~2.3 words/sec)
-        int wordCount = Mathf.Max(1, utterance.text.Split(' ').Length);
-        float estimatedSpeechDuration = Mathf.Clamp(wordCount * 0.32f, 1.8f, 7.5f);
-
-        yield return new WaitForSeconds(estimatedSpeechDuration);
+        // Brief reading pause after speech ends
+        yield return new WaitForSeconds(0.35f);
 
         // Hide speech bubble after speaking
         if (speaker != null && speaker.speechBubbleContainer != null)
         {
             speaker.speechBubbleContainer.SetActive(false);
-        }
-    }
-
-    private IEnumerator TypewriterRoutine(TextMeshPro tmp, string fullText)
-    {
-        tmp.text = "";
-        for (int i = 0; i <= fullText.Length; i++)
-        {
-            tmp.text = fullText.Substring(0, i);
-            yield return new WaitForSeconds(0.015f);
         }
     }
 
@@ -308,11 +359,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
         if (transcriptLogText == null) return;
 
         string colHex = ColorUtility.ToHtmlStringRGB(speakerColor);
-        string cleanText = text;
-        if (BattleSummonerAudioMaster.Instance != null)
-        {
-            cleanText = BattleSummonerAudioMaster.Instance.ProcessAndScheduleSFXTags(text);
-        }
+        string cleanText = BattleSummoner.Audio.SFXCueParser.StripSfxTags(text);
 
         transcriptLogText.text += $"<color=#{colHex}><b>[{speakerName}]</b></color>: {cleanText}\n\n";
 
@@ -485,6 +532,37 @@ public class MultiCharacterConversationHub : MonoBehaviour
     }
     #endregion
 
+    #region Direct 1-on-1 Dialogue Integration
+    public void StartDirectDialogueWithActor(string npcId)
+    {
+        var actor = GetActor(npcId);
+        string displayName = actor != null ? actor.displayName : "Companion";
+
+        Debug.Log($"[Campfire Hub] Opening 1-on-1 Persona dialogue with {displayName} ({npcId})...");
+
+        // Pause autonomous banter while talking directly
+        if (activeBanterRoutine != null)
+        {
+            StopCoroutine(activeBanterRoutine);
+            activeBanterRoutine = null;
+        }
+
+        if (activeSpeakerHeader != null)
+        {
+            activeSpeakerHeader.text = $"<color=#FFD54F>★ Speaking directly with {displayName}</color>";
+        }
+
+        if (BattleSummoner.Dialogue.CampfirePanoramicCameraController.Instance != null)
+        {
+            BattleSummoner.Dialogue.CampfirePanoramicCameraController.Instance.InitiateDirectConversation(npcId, displayName);
+        }
+        else if (BattleSummoner.Dialogue.CampfireDualDialogueController.Instance != null)
+        {
+            BattleSummoner.Dialogue.CampfireDualDialogueController.Instance.StartDialogueWithCharacter(npcId, displayName);
+        }
+    }
+    #endregion
+
     #region Banter Controls
     public void ToggleBanterPlayback()
     {
@@ -535,7 +613,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_barnaby",
             speakerName = "Barnaby",
             addresseeId = "npc_margo",
-            text = "Tone it down?! That's Damascus fold-welding, girl! Without my temper, our delver's scythe would snap like a dry pine twig on Floor 10!",
+            text = "Tone it down?! That's Damascus fold-welding, girl! [SFX: anvil_shatter | at: 0.6s | vol: 75%] Without my temper, our delver's scythe would snap like a dry pine twig on Floor 10!",
             customDelayAfter = 1.8f
         });
         arc1.utterances.Add(new DialogueUtterance
@@ -543,7 +621,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_zephyr",
             speakerName = "Zephyr",
             addresseeId = "npc_margo",
-            text = "Both of you, hush. The drafts from the Lower Aqueduct are carrying strange vibrations. It's not Barnaby's anvil... something heavy is shifting below.",
+            text = "Both of you, hush. [SFX: whoosh | at: 0.4s | vol: 60%] The drafts from the Lower Aqueduct are carrying strange vibrations. It's not Barnaby's anvil... something heavy is shifting below.",
             customDelayAfter = 1.6f
         });
         arc1.utterances.Add(new DialogueUtterance
@@ -551,7 +629,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_margo",
             speakerName = "Margo",
             addresseeId = "npc_zephyr",
-            text = "Fabulous. More gargoyles to feed to my scythe. Did you at least unearth the Azurite clusters I asked for, Zephyr?",
+            text = "Fabulous. More gargoyles to feed to my scythe. [SFX: relic_chime | at: 0.8s | vol: 70%] Did you at least unearth the Azurite clusters I asked for, Zephyr?",
             customDelayAfter = 1.5f
         });
         arc1.utterances.Add(new DialogueUtterance
@@ -571,7 +649,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_barnaby",
             speakerName = "Barnaby",
             addresseeId = "npc_margo",
-            text = "I saw that delver tampering with a gravitational singularity matrix earlier. Pure reckless insanity!",
+            text = "I saw that delver tampering with a gravitational singularity matrix earlier. [SFX: singularity_whir | at: 0.5s | vol: 80%] Pure reckless insanity!",
             customDelayAfter = 1.6f
         });
         arc2.utterances.Add(new DialogueUtterance
@@ -579,7 +657,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_margo",
             speakerName = "Margo",
             addresseeId = "npc_barnaby",
-            text = "I warned them. The Spire doesn't tolerate cheat codes or thermodynamic over-pressurization. Breach the limit, and the anvil blows you straight into the Phantom Spire.",
+            text = "I warned them. The Spire doesn't tolerate cheat codes or thermodynamic over-pressurization. [SFX: glitch | at: 0.8s | vol: 65%] Breach the limit, and the anvil blows you straight into the Phantom Spire.",
             customDelayAfter = 1.8f
         });
         arc2.utterances.Add(new DialogueUtterance
@@ -587,7 +665,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_zephyr",
             speakerName = "Zephyr",
             addresseeId = "npc_barnaby",
-            text = "The Wardens of Floor 100 never blink. They quarantine rule-breakers before the shockwave even settles in the dust.",
+            text = "The Wardens of Floor 100 never blink. [SFX: thunder | at: 0.3s | vol: 85%] They quarantine rule-breakers before the shockwave even settles in the dust.",
             customDelayAfter = 1.7f
         });
         arc2.utterances.Add(new DialogueUtterance
@@ -595,7 +673,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_barnaby",
             speakerName = "Barnaby",
             addresseeId = "npc_zephyr",
-            text = "Aye. That's why I keep to good honest metallurgy. Hit the anvil three times on a fractured matrix, and you've got no one to blame but yourself!",
+            text = "Aye. That's why I keep to good honest metallurgy. Hit the anvil three times on a fractured matrix, [SFX: anvil_shatter | at: 1.2s | vol: 85%] and you've got no one to blame but yourself!",
             customDelayAfter = 1.8f
         });
         authoredTopicArcs.Add(arc2);
@@ -607,7 +685,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_zephyr",
             speakerName = "Zephyr",
             addresseeId = "npc_margo",
-            text = "I heard music echoing from the central chamber earlier. Someone was playing a Kalimba notation... Song of Fortitude, if I'm not mistaken.",
+            text = "I heard music echoing from the central chamber earlier. [SFX: chime | at: 0.3s | vol: 70%] Someone was playing a Kalimba notation... Song of Fortitude, if I'm not mistaken.",
             customDelayAfter = 1.7f
         });
         arc3.utterances.Add(new DialogueUtterance
@@ -615,7 +693,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_margo",
             speakerName = "Margo",
             addresseeId = "npc_zephyr",
-            text = "A bard with a 17-tine Celestiphone. At least their fingers were agile enough to dodge boss telegraphs while dual-thumbing the tines. 🖤",
+            text = "A bard with a 17-tine Celestiphone. [SFX: bard_chord_strum | at: 0.4s | vol: 75%] At least their fingers were agile enough to dodge boss telegraphs while dual-thumbing the tines. 🖤",
             customDelayAfter = 1.9f
         });
         arc3.utterances.Add(new DialogueUtterance
@@ -623,7 +701,7 @@ public class MultiCharacterConversationHub : MonoBehaviour
             speakerId = "npc_barnaby",
             speakerName = "Barnaby",
             addresseeId = "npc_margo",
-            text = "Hah! Give me a solid broadsword over a plucked music box any day. Though... I won't deny that +25% armor resonance felt damn good during the gargoyle raid!",
+            text = "Hah! Give me a solid broadsword over a plucked music box any day. [SFX: sword_whoosh | at: 0.6s | vol: 70%] Though... I won't deny that +25% armor resonance felt damn good during the gargoyle raid!",
             customDelayAfter = 1.8f
         });
         authoredTopicArcs.Add(arc3);

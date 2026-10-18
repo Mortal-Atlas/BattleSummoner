@@ -39,10 +39,22 @@ public class NPCConversationAgent : MonoBehaviour
     [SerializeField] private string apiKey = "YOUR_INFERENCE_API_KEY";
     [SerializeField] private string targetModel = "mistralai/Mistral-7B-Instruct-v0.3";
 
+    [Header("Speech & Rigging")]
+    [SerializeField] private bool autoSpeakDialogue = true;
+    [SerializeField] private BattleSummoner.Customization.FacialExpressionController facialController;
+
     private readonly List<LLMChatMessage> conversationMemory = new List<LLMChatMessage>();
 
     public event Action<string> OnDialogueReceived;
     public event Action<string> OnDialogueFailed;
+
+    private void Awake()
+    {
+        if (facialController == null)
+        {
+            facialController = GetComponentInChildren<BattleSummoner.Customization.FacialExpressionController>();
+        }
+    }
 
     private void Start()
     {
@@ -57,7 +69,9 @@ public class NPCConversationAgent : MonoBehaviour
             conversationMemory.Add(new LLMChatMessage
             {
                 role = "system",
-                content = npcProfile.systemPromptPersona + $"\nPlayer Affinity Level: {npcProfile.affinityLevel}/{npcProfile.maxAffinity}."
+                content = npcProfile.systemPromptPersona + 
+                          $"\nPlayer Affinity Level: {npcProfile.affinityLevel}/{npcProfile.maxAffinity}." +
+                          "\nFormat response in RFC-8259 JSON or natural speech with optional VoxCraft sound effect cues like [SFX: preset | at: Xs | vol: Y%]."
             });
         }
     }
@@ -80,8 +94,7 @@ public class NPCConversationAgent : MonoBehaviour
     {
         yield return new WaitForSeconds(0.35f);
         string reply = GetSimulatedPersonaReply(userText);
-        conversationMemory.Add(new LLMChatMessage { role = "assistant", content = reply });
-        OnDialogueReceived?.Invoke(reply);
+        DispatchDialogueReply(reply);
     }
 
     private string GetSimulatedPersonaReply(string userText)
@@ -91,13 +104,24 @@ public class NPCConversationAgent : MonoBehaviour
         switch (npcProfile.npcId)
         {
             case "npc_margo":
-                return "Oh, look who stumbled out of the abyss... Did you bring any shiny dark geodes, or just more mundane scrap? (¬_¬) Don't break my distillation coils.";
+                return "Oh, look who stumbled out of the abyss... [SFX: relic_chime | at: 0.2s | vol: 60%] Did you bring any shiny dark geodes, or just more mundane scrap? (¬_¬) Don't break my distillation coils.";
             case "npc_barnaby":
-                return "Ho there, Wanderer! Look at that edge temper! Three strikes on the anvil is all the cosmos grants before fracture debt consumes the blade. Tread carefully!";
+                return "Ho there, Wanderer! Look at that edge temper! [SFX: anvil_shatter | at: 0.4s | vol: 80%] Three strikes on the anvil is all the cosmos grants before fracture debt consumes the blade. Tread carefully!";
             case "npc_zephyr":
-                return "The wind whispers of unrest on Floor 50. Dispatch me on the low caverns—I will gather Azurite and strike true before the shadows lengthen.";
+                return "The wind whispers of unrest on Floor 50. [SFX: whoosh | at: 0.3s | vol: 65%] Dispatch me on the low caverns—I will gather Azurite and strike true before the shadows lengthen.";
             default:
-                return $"{npcProfile.displayName}: The Spire never yields its glyphs without blood and discipline.";
+                return $"{npcProfile.displayName}: The Spire never yields its glyphs without blood and discipline. [SFX: chime | at: 0.2s | vol: 50%]";
+        }
+    }
+
+    private void DispatchDialogueReply(string reply)
+    {
+        conversationMemory.Add(new LLMChatMessage { role = "assistant", content = reply });
+        OnDialogueReceived?.Invoke(reply);
+
+        if (autoSpeakDialogue && ElevenLabsTTSBridge.Instance != null && npcProfile != null)
+        {
+            ElevenLabsTTSBridge.Instance.SpeakDialogueSynchronized(reply, npcProfile.npcId, facialController);
         }
     }
 
