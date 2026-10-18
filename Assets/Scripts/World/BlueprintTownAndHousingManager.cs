@@ -13,6 +13,7 @@ namespace BattleSummoner.World
     {
         public string plotId;
         public Vector3 worldPosition;
+        public Vector2 normalizedDiagramCoords => new Vector2(worldPosition.x, worldPosition.z).normalized;
         public float facingAngleY;
         public bool isOwnedByPlayer;
         public string ownerPlayerId;
@@ -247,7 +248,7 @@ namespace BattleSummoner.World
 
         private bool IsWithinAvenueCorridor(float angleDeg, float repeatIntervalDeg, float corridorWidthMeters, float radius)
         {
-            float halfAngleSpan = ((corridorWidthMeters * 0.5f) / Mathf.Max(1f, radius)) * Mathf.Rad2Deg;
+            float halfAngleSpan = Mathf.Max(8.2f, ((corridorWidthMeters * 0.5f) / Mathf.Max(1f, radius)) * Mathf.Rad2Deg);
             float mod = Mathf.Abs((angleDeg + 360f) % repeatIntervalDeg);
             return (mod < halfAngleSpan) || (repeatIntervalDeg - mod < halfAngleSpan);
         }
@@ -261,6 +262,14 @@ namespace BattleSummoner.World
             plot.isOwnedByPlayer = true;
             plot.ownerPlayerId = playerId;
             OnPlotClaimedByPlayer?.Invoke(plotId, playerId);
+            return true;
+        }
+
+        public bool DeployPersonalStorefront(string plotId, List<string> shopItemIds)
+        {
+            var plot = townPlots.Find(p => p.plotId == plotId);
+            if (plot == null || !plot.isOwnedByPlayer) return false;
+            plot.offlineShopItemIds = new List<string>(shopItemIds);
             return true;
         }
 

@@ -158,7 +158,7 @@ namespace BattleSummoner.Core
             Vector3 camForward = mainCamera != null ? mainCamera.transform.forward : transform.forward;
             Vector3 camRight = mainCamera != null ? mainCamera.transform.right : transform.right;
 
-            Vector3 moveDir;
+            Vector3 moveDir = Vector3.zero;
             if (currentSwimState == SwimState.SurfaceSwimming)
             {
                 camForward.y = 0f;
@@ -198,6 +198,16 @@ namespace BattleSummoner.Core
                 {
                     TransitionToSwimState(SwimState.SurfaceSwimming);
                     Debug.Log("[Swimming] Executed Dolphin Surface Breach!");
+                }
+            }
+
+            if (moveDir.sqrMagnitude > 0.01f)
+            {
+                Vector3 rotDir = moveDir;
+                rotDir.y = 0f;
+                if (rotDir.sqrMagnitude > 0.001f)
+                {
+                    transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotDir.normalized), Time.deltaTime * 10f);
                 }
             }
         }

@@ -168,6 +168,17 @@ public class PlayerMovementController : MonoBehaviour
             input = new Vector2(h, v).normalized;
         }
 
+        // Swimming System Integration (Section 12 Master Spec)
+        var swimController = BattleSummoner.Core.SwimmingAndUnderwaterCombatController.Instance;
+        if (swimController != null && swimController.currentSwimState != BattleSummoner.Core.SwimState.DryGrounded)
+        {
+            float verticalDive = 0f;
+            if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.E)) verticalDive += 1f;
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.Q)) verticalDive -= 1f;
+            swimController.ExecuteSwimMovement(input, verticalDive);
+            return;
+        }
+
         // 2. Camera-Relative Movement Vectors
         Vector3 camForward = Camera.main != null ? Camera.main.transform.forward : Vector3.forward;
         camForward.y = 0f;
