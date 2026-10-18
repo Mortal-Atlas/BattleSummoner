@@ -525,11 +525,19 @@ namespace BattleSummoner.EditorScripts
             var hero = GameObject.Find("Player_Hero");
             var avatarRoot = hero != null ? hero.transform.Find("AvatarRigRoot") : null;
             var animCtrl = hero != null ? hero.GetComponent<HumanoidAnimationController>() : null;
+            if (animCtrl != null) animCtrl.ResolveAnimator();
             bool heroAvatarActive = avatarRoot != null && avatarRoot.gameObject.activeInHierarchy;
             bool heroPlayable = animCtrl != null && animCtrl.IsAnimatorPlayable;
 
             // 5. Verify Party Member Overworld Spawning & Animation
             var sandbox = CoreVerticalSliceSandboxController.Instance ?? UnityEngine.Object.FindFirstObjectByType<CoreVerticalSliceSandboxController>();
+            GameObject tempSandboxGo = null;
+            if (sandbox == null)
+            {
+                tempSandboxGo = new GameObject("Temp_Sandbox_Anim_Verifier");
+                sandbox = tempSandboxGo.AddComponent<CoreVerticalSliceSandboxController>();
+            }
+
             bool partyAnimationValid = false;
             if (sandbox != null)
             {
@@ -543,6 +551,8 @@ namespace BattleSummoner.EditorScripts
                 bool allyCleaned = testAlly.overworldInstance == null;
                 partyAnimationValid = allySpawned && allyHasAnim && allyCleaned;
             }
+
+            if (tempSandboxGo != null) UnityEngine.Object.DestroyImmediate(tempSandboxGo);
 
             bool pass = hasController && hasLoco && treeValid && loopingValid && comboStatesValid &&
                         attackTransitionsValid && specialStatesValid && heroAvatarActive && heroPlayable && partyAnimationValid;

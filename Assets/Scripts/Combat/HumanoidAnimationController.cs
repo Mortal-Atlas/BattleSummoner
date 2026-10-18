@@ -77,7 +77,7 @@ namespace BattleSummoner.Combat
             ResolveAnimator();
         }
 
-        public bool IsAnimatorPlayable => animator != null && animator.isActiveAndEnabled && animator.runtimeAnimatorController != null && animator.isInitialized;
+        public bool IsAnimatorPlayable => animator != null && animator.isActiveAndEnabled && animator.runtimeAnimatorController != null && (!Application.isPlaying || animator.isInitialized);
 
         public void ResolveAnimator()
         {

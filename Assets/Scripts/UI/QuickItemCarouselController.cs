@@ -3,781 +3,458 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
-using BattleSummoner.Hobbies;
+using BattleSummoner.Core;
+
+[System.Serializable]
+public class QuickItemData
+{
+    public string itemId;
+    public string itemName;
+    public Sprite itemIcon;
+    public int count;
+    public string description;
+    public System.Action onUse;
+}
 
 /// <summary>
-/// QuickItemCarouselController manages the combat usable item carousel positioned
-/// right above the controls in the bottom middle of the screen.
-/// Features:
-/// - Left and Right arrow buttons to cycle through usable items during combat.
-/// - Prominent center slot displaying the active item icon, name, and quantity count badge.
-/// - Tapping the center slot consumes the active item (healing, mana, buffs) with audio/visual feedback.
-/// - Keyboard shortcuts: Q (previous), E (next), R / F (use item).
+/// QuickItemCarouselController implements the 3-node horizontal quick-item carousel chassis.
+/// Follows Gemini specification for normalized anchor coordinates, hitboxes, drag thresholds,
+/// scale/alpha interpolation, and arrow step triggers.
 /// </summary>
-public class QuickItemCarouselController : MonoBehaviour
+public class QuickItemCarouselController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private static QuickItemCarouselController _instance;
-    public static QuickItemCarouselController Instance
-    {
-        get
-        {
-            if (_instance == null) _instance = UnityEngine.Object.FindAnyObjectByType<QuickItemCarouselController>();
-            return _instance;
-        }
-    }
+    public static QuickItemCarouselController Instance { get; private set; }
 
-    /// <summary>
-    /// Ensures QuickItemCarouselController exists in the scene and is positioned directly above the movement controls.
-    /// </summary>
-    public static QuickItemCarouselController EnsureInScene(Transform parentTransform = null)
-    {
-        if (_instance != null)
-        {
-            _instance.AlignAboveMovementControls();
-            return _instance;
-        }
+    [Header("Chassis & Sockets")]
+    [SerializeField] private Image chassisImage;
+    [SerializeField] private RectTransform leftSocket;
+    [SerializeField] private RectTransform centerSocket;
+    [SerializeField] private RectTransform rightSocket;
 
-        var existing = UnityEngine.Object.FindAnyObjectByType<QuickItemCarouselController>();
-        if (existing != null)
-        {
-            _instance = existing;
-            _instance.AlignAboveMovementControls();
-            return _instance;
-        }
+    [Header("Item Slot Visuals")]
+    [SerializeField] private Image leftIcon;
+    [SerializeField] private CanvasGroup leftCanvasGroup;
+    [SerializeField] private TextMeshProUGUI leftCountText;
 
-        if (parentTransform == null)
-        {
-            var canvas = UnityEngine.Object.FindAnyObjectByType<Canvas>();
-            if (canvas != null) parentTransform = canvas.transform;
-            else
-            {
-                var canvasGo = new GameObject("HUD_Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-                canvasGo.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-                parentTransform = canvasGo.transform;
-            }
-        }
+    [SerializeField] private Image centerIcon;
+    [SerializeField] private CanvasGroup centerCanvasGroup;
+    [SerializeField] private TextMeshProUGUI centerCountText;
+    [SerializeField] private TextMeshProUGUI centerNameText;
 
-        GameObject carouselRoot = new GameObject("QuickItemCarousel", typeof(RectTransform), typeof(Image));
-        carouselRoot.transform.SetParent(parentTransform, false);
-        var controller = carouselRoot.AddComponent<QuickItemCarouselController>();
-        controller.BuildProceduralHierarchy();
-        _instance = controller;
-        return controller;
-    }
+    [SerializeField] private Image rightIcon;
+    [SerializeField] private CanvasGroup rightCanvasGroup;
+    [SerializeField] private TextMeshProUGUI rightCountText;
 
-    public void AlignAboveMovementControls()
-    {
-        var stick = UnityEngine.Object.FindAnyObjectByType<FloatingVirtualStick>();
-        var rt = GetComponent<RectTransform>();
-        if (rt == null) return;
+    [Header("Navigation Chevrons")]
+    [SerializeField] private Button leftArrowButton;
+    [SerializeField] private RectTransform leftArrowRect;
+    [SerializeField] private Image leftArrowImage;
 
-        if (stick != null)
-        {
-            var stickRt = stick.GetComponent<RectTransform>();
-            float bottomY = Mathf.Max(0.22f, stickRt.anchorMax.y + 0.01f);
-            float topY = bottomY + 0.08f;
-            rt.anchorMin = new Vector2(stickRt.anchorMin.x, bottomY);
-            rt.anchorMax = new Vector2(stickRt.anchorMax.x, topY);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-        }
-        else
-        {
-            rt.anchorMin = new Vector2(0.04f, 0.23f);
-            rt.anchorMax = new Vector2(0.38f, 0.31f);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-        }
-    }
+    [SerializeField] private Button rightArrowButton;
+    [SerializeField] private RectTransform rightArrowRect;
+    [SerializeField] private Image rightArrowImage;
 
-    private void BuildProceduralHierarchy()
-    {
-        AlignAboveMovementControls();
+    [Header("Hitbox Zones")]
+    [SerializeField] private Button centerActivationButton;
+    [SerializeField] private RectTransform trackDragZone;
 
-        Image bg = GetComponent<Image>();
-        bg.color = new Color(0.08f, 0.10f, 0.16f, 0.88f);
+    [Header("Carousel State")]
+    [SerializeField] private int activeIndex = 0;
+    [SerializeField] private float transitionDuration = 0.20f;
+    [SerializeField] private float dragDeadzoneThreshold = 15f;
 
-        // Prev Arrow Button (<)
-        GameObject prevObj = new GameObject("ArrowLeftButton", typeof(RectTransform), typeof(Image), typeof(Button));
-        prevObj.transform.SetParent(transform, false);
-        RectTransform prevRt = prevObj.GetComponent<RectTransform>();
-        prevRt.anchorMin = new Vector2(0.02f, 0.12f);
-        prevRt.anchorMax = new Vector2(0.18f, 0.88f);
-        prevRt.offsetMin = Vector2.zero;
-        prevRt.offsetMax = Vector2.zero;
-        prevArrowButton = prevObj.GetComponent<Button>();
-        Image prevImg = prevObj.GetComponent<Image>();
-        prevImg.color = new Color(0.20f, 0.25f, 0.35f, 0.85f);
-        GameObject prevTxtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        prevTxtObj.transform.SetParent(prevObj.transform, false);
-        var prevTxt = prevTxtObj.GetComponent<TextMeshProUGUI>();
-        prevTxt.rectTransform.anchorMin = Vector2.zero;
-        prevTxt.rectTransform.anchorMax = Vector2.one;
-        prevTxt.rectTransform.offsetMin = Vector2.zero;
-        prevTxt.rectTransform.offsetMax = Vector2.zero;
-        prevTxt.text = "◄";
-        prevTxt.fontSize = 14f;
-        prevTxt.alignment = TextAlignmentOptions.Center;
-        prevTxt.color = Color.white;
-
-        // Next Arrow Button (>)
-        GameObject nextObj = new GameObject("ArrowRightButton", typeof(RectTransform), typeof(Image), typeof(Button));
-        nextObj.transform.SetParent(transform, false);
-        RectTransform nextRt = nextObj.GetComponent<RectTransform>();
-        nextRt.anchorMin = new Vector2(0.82f, 0.12f);
-        nextRt.anchorMax = new Vector2(0.98f, 0.88f);
-        nextRt.offsetMin = Vector2.zero;
-        nextRt.offsetMax = Vector2.zero;
-        nextArrowButton = nextObj.GetComponent<Button>();
-        Image nextImg = nextObj.GetComponent<Image>();
-        nextImg.color = new Color(0.20f, 0.25f, 0.35f, 0.85f);
-        GameObject nextTxtObj = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        nextTxtObj.transform.SetParent(nextObj.transform, false);
-        var nextTxt = nextTxtObj.GetComponent<TextMeshProUGUI>();
-        nextTxt.rectTransform.anchorMin = Vector2.zero;
-        nextTxt.rectTransform.anchorMax = Vector2.one;
-        nextTxt.rectTransform.offsetMin = Vector2.zero;
-        nextTxt.rectTransform.offsetMax = Vector2.zero;
-        nextTxt.text = "►";
-        nextTxt.fontSize = 14f;
-        nextTxt.alignment = TextAlignmentOptions.Center;
-        nextTxt.color = Color.white;
-
-        // Active Item Slot Button (Center)
-        GameObject itemSlotObj = new GameObject("ActiveItemButton", typeof(RectTransform), typeof(Image), typeof(Button));
-        itemSlotObj.transform.SetParent(transform, false);
-        RectTransform itemSlotRt = itemSlotObj.GetComponent<RectTransform>();
-        itemSlotRt.anchorMin = new Vector2(0.20f, 0.05f);
-        itemSlotRt.anchorMax = new Vector2(0.80f, 0.95f);
-        itemSlotRt.offsetMin = Vector2.zero;
-        itemSlotRt.offsetMax = Vector2.zero;
-        activeItemButton = itemSlotObj.GetComponent<Button>();
-        Image slotImg = itemSlotObj.GetComponent<Image>();
-        slotImg.color = new Color(0.12f, 0.14f, 0.22f, 0.95f);
-
-        // Item Icon Image
-        GameObject iconObj = new GameObject("ActiveItemIcon", typeof(RectTransform), typeof(Image));
-        iconObj.transform.SetParent(itemSlotObj.transform, false);
-        RectTransform iconRt = iconObj.GetComponent<RectTransform>();
-        iconRt.anchorMin = new Vector2(0.08f, 0.20f);
-        iconRt.anchorMax = new Vector2(0.45f, 0.92f);
-        iconRt.offsetMin = Vector2.zero;
-        iconRt.offsetMax = Vector2.zero;
-        activeItemIcon = iconObj.GetComponent<Image>();
-        activeItemIcon.preserveAspect = true;
-
-        // Item Count Badge (x5)
-        GameObject countObj = new GameObject("ItemCountText", typeof(RectTransform), typeof(TextMeshProUGUI));
-        countObj.transform.SetParent(itemSlotObj.transform, false);
-        itemCountTMP = countObj.GetComponent<TextMeshProUGUI>();
-        itemCountTMP.rectTransform.anchorMin = new Vector2(0.48f, 0.45f);
-        itemCountTMP.rectTransform.anchorMax = new Vector2(0.96f, 0.95f);
-        itemCountTMP.rectTransform.offsetMin = Vector2.zero;
-        itemCountTMP.rectTransform.offsetMax = Vector2.zero;
-        itemCountTMP.fontSize = 12f;
-        itemCountTMP.alignment = TextAlignmentOptions.MidlineRight;
-        itemCountTMP.color = new Color(1f, 0.92f, 0.45f);
-
-        // Item Name Label
-        GameObject nameObj = new GameObject("ItemNameText", typeof(RectTransform), typeof(TextMeshProUGUI));
-        nameObj.transform.SetParent(itemSlotObj.transform, false);
-        itemNameTMP = nameObj.GetComponent<TextMeshProUGUI>();
-        itemNameTMP.rectTransform.anchorMin = new Vector2(0.04f, 0.02f);
-        itemNameTMP.rectTransform.anchorMax = new Vector2(0.96f, 0.42f);
-        itemNameTMP.rectTransform.offsetMin = Vector2.zero;
-        itemNameTMP.rectTransform.offsetMax = Vector2.zero;
-        itemNameTMP.fontSize = 10f;
-        itemNameTMP.alignment = TextAlignmentOptions.Center;
-        itemNameTMP.color = new Color(0.95f, 0.85f, 0.45f);
-
-        InitializeDefaultInventory();
-        BindUIEvents();
-        RefreshDisplay();
-    }
-
-    [System.Serializable]
-    public class UsableCombatItem
-    {
-        public string id;
-        public string displayName;
-        public string effectDescription;
-        public string spriteFilename;
-        public int count;
-        public Color themeColor = Color.white;
-        public CookedMealData cookedMealData;
-    }
-
-    [Header("UI References")]
-    [SerializeField] private Button prevArrowButton;
-    [SerializeField] private Button nextArrowButton;
-    [SerializeField] private Button activeItemButton;
-    [SerializeField] private Image activeItemIcon;
-    [SerializeField] private TextMeshProUGUI itemCountTMP;
-    [SerializeField] private TextMeshProUGUI itemNameTMP;
-    [SerializeField] private RectTransform carouselContainer;
-
-    [Header("Inventory Data")]
-    [SerializeField] private List<UsableCombatItem> items = new List<UsableCombatItem>();
-    [SerializeField] private int currentIndex = 0;
-
-    [Header("Animation")]
-    [SerializeField] private float punchScale = 1.25f;
+    private List<QuickItemData> items = new List<QuickItemData>();
+    private bool isTransitioning = false;
+    private Vector2 dragStartPos;
+    private bool isDragging = false;
     private Coroutine punchCoroutine;
 
-    public int CurrentIndex => currentIndex;
-    public UsableCombatItem CurrentItem => (items != null && items.Count > 0) ? items[currentIndex] : null;
-    public IReadOnlyList<UsableCombatItem> Items => items;
-
-    public event Action<UsableCombatItem> OnItemUsed;
-    public event Action<int, UsableCombatItem> OnItemChanged;
+    public static QuickItemCarouselController EnsureInScene(Transform parent)
+    {
+        if (Instance != null) return Instance;
+        var existing = UnityEngine.Object.FindFirstObjectByType<QuickItemCarouselController>();
+        if (existing != null) return existing;
+        return null;
+    }
 
     private void Awake()
     {
-        if (_instance == null) _instance = this;
-        InitializeDefaultInventory();
+        Instance = this;
+        InitializeDefaultItemsIfEmpty();
     }
 
     private void Start()
     {
-        BindUIEvents();
-        RefreshDisplay();
+        BindEventListeners();
+        RefreshDisplay(false);
     }
 
-    public void InitializeDefaultInventory()
+    public void BindEventListeners()
     {
-        if (items != null && items.Count > 0)
+        if (leftArrowButton != null)
         {
-            if (!items.Exists(it => it.id == "item_whetstone"))
-            {
-                items.Insert(1, new UsableCombatItem
-                {
-                    id = "item_whetstone",
-                    displayName = "Whetstone Polish",
-                    effectDescription = "Hones Blade (+25% Temper / Slash DMG)",
-                    spriteFilename = "Mockup_Whetstone.png",
-                    count = 5,
-                    themeColor = new Color(0.95f, 0.82f, 0.45f)
-                });
-            }
-            if (!items.Exists(it => it.id == "meal_campfire_stew"))
-            {
-                items.Insert(2, new UsableCombatItem
-                {
-                    id = "meal_campfire_stew",
-                    displayName = "Campfire Stew",
-                    effectDescription = "Restores +220 HP & +12 MP/s (20s)",
-                    spriteFilename = "Mockup_PotionAmber.png",
-                    count = 3,
-                    themeColor = new Color(1.0f, 0.65f, 0.20f),
-                    cookedMealData = CookingMamaMinigame.CreatePresetMeal("meal_campfire_stew", "Campfire Stew", 220f, 12f, 20f)
-                });
-            }
-            return;
+            leftArrowButton.onClick.RemoveAllListeners();
+            leftArrowButton.onClick.AddListener(() => StepCarousel(-1));
         }
 
-        items = new List<UsableCombatItem>
+        if (rightArrowButton != null)
         {
-            new UsableCombatItem
-            {
-                id = "tool_fishing_rod",
-                displayName = "Fishing Rod",
-                effectDescription = "Cast & reel fish in water (F key)",
-                spriteFilename = "Mockup_PotionBlue.png",
-                count = 1,
-                themeColor = new Color(0.20f, 0.75f, 0.95f)
-            },
-            new UsableCombatItem
-            {
-                id = "tool_bug_net",
-                displayName = "Bug Net",
-                effectDescription = "Hold to stalk, release to swoop (G key)",
-                spriteFilename = "Mockup_Whetstone.png",
-                count = 1,
-                themeColor = new Color(0.35f, 0.85f, 0.40f)
-            },
-            new UsableCombatItem
-            {
-                id = "tool_watering_can",
-                displayName = "Watering Can",
-                effectDescription = "Hydrate crops & flowers (H key)",
-                spriteFilename = "Mockup_PotionAmber.png",
-                count = 1,
-                themeColor = new Color(0.40f, 0.65f, 0.85f)
-            },
-            new UsableCombatItem
-            {
-                id = "item_rose_seeds",
-                displayName = "Rose Seeds",
-                effectDescription = "Plant in soil garden beds",
-                spriteFilename = "Mockup_PotionRed.png",
-                count = 8,
-                themeColor = new Color(0.95f, 0.30f, 0.35f)
-            },
-            new UsableCombatItem
-            {
-                id = "potion_hp",
-                displayName = "Crimson Draught",
-                effectDescription = "Restores +250 Health",
-                spriteFilename = "Mockup_PotionRed.png",
-                count = 5,
-                themeColor = new Color(0.95f, 0.25f, 0.30f)
-            },
-            new UsableCombatItem
-            {
-                id = "item_whetstone",
-                displayName = "Whetstone Polish",
-                effectDescription = "Hones Blade (+25% Temper / Slash DMG)",
-                spriteFilename = "Mockup_Whetstone.png",
-                count = 5,
-                themeColor = new Color(0.95f, 0.82f, 0.45f)
-            },
-            new UsableCombatItem
-            {
-                id = "potion_amber",
-                displayName = "Amber Tonic",
-                effectDescription = "Restores +150 Mana",
-                spriteFilename = "Mockup_PotionAmber.png",
-                count = 4,
-                themeColor = new Color(1.0f, 0.75f, 0.20f)
-            },
-            new UsableCombatItem
-            {
-                id = "potion_mp",
-                displayName = "Cerulean Philter",
-                effectDescription = "Restores +280 Mana",
-                spriteFilename = "Mockup_PotionBlue.png",
-                count = 3,
-                themeColor = new Color(0.20f, 0.70f, 0.95f)
-            },
-            new UsableCombatItem
-            {
-                id = "potion_elixir",
-                displayName = "Elixir of Life",
-                effectDescription = "Full Recovery (+250 HP, +150 MP)",
-                spriteFilename = "Mockup_PotionElixir.png",
-                count = 2,
-                themeColor = new Color(0.85f, 0.35f, 0.95f)
-            },
-            new UsableCombatItem
-            {
-                id = "meal_campfire_stew",
-                displayName = "Campfire Stew",
-                effectDescription = "Restores +220 HP & +12 MP/s (20s)",
-                spriteFilename = "Mockup_PotionAmber.png",
-                count = 3,
-                themeColor = new Color(1.0f, 0.65f, 0.20f),
-                cookedMealData = CookingMamaMinigame.CreatePresetMeal("meal_campfire_stew", "Campfire Stew", 220f, 12f, 20f)
-            }
-        };
+            rightArrowButton.onClick.RemoveAllListeners();
+            rightArrowButton.onClick.AddListener(() => StepCarousel(1));
+        }
+
+        if (centerActivationButton != null)
+        {
+            centerActivationButton.onClick.RemoveAllListeners();
+            centerActivationButton.onClick.AddListener(OnCenterSocketClicked);
+        }
     }
 
-    /// <summary>
-    /// Adds a CookedMealData item to the quick-access belt carousel.
-    /// </summary>
-    public void AddCookedMeal(CookedMealData meal, int count = 1)
+    public void BindReferences(Button leftBtn, Button rightBtn, Button itemSlot, Image icon, TextMeshProUGUI countText, TextMeshProUGUI nameText, RectTransform root)
+    {
+        if (leftBtn != null) leftArrowButton = leftBtn;
+        if (rightBtn != null) rightArrowButton = rightBtn;
+        if (itemSlot != null) centerActivationButton = itemSlot;
+        if (icon != null) centerIcon = icon;
+        if (countText != null) centerCountText = countText;
+        if (nameText != null) centerNameText = nameText;
+        BindEventListeners();
+        RefreshDisplay(false);
+    }
+
+    public void BindReferences(Button leftBtn, Button rightBtn, GameObject itemSlot, Image icon, TextMeshProUGUI countText, TextMeshProUGUI nameText, RectTransform root)
+    {
+        BindReferences(leftBtn, rightBtn, itemSlot != null ? itemSlot.GetComponent<Button>() : null, icon, countText, nameText, root);
+    }
+
+    public void AddCookedMeal(object meal, int count)
     {
         if (meal == null) return;
-        InitializeDefaultInventory();
+        string mealName = meal.ToString();
+        var prop = meal.GetType().GetProperty("dishName") ?? meal.GetType().GetProperty("mealName") ?? meal.GetType().GetProperty("name");
+        if (prop != null) mealName = prop.GetValue(meal)?.ToString() ?? mealName;
 
-        var existing = items.Find(it => it.id == meal.mealId);
+        var existing = items.Find(i => i.itemName == mealName);
         if (existing != null)
         {
             existing.count += count;
-            existing.cookedMealData = meal;
-            existing.displayName = meal.mealName;
-            existing.effectDescription = $"+{meal.totalHealthRestore:F0} HP, +{meal.manaRegenPerSecond:F1} MP/s ({meal.buffDurationSeconds:F0}s)";
         }
         else
         {
-            items.Add(new UsableCombatItem
+            var amber = Resources.Load<Sprite>("UI/Mockup_PotionAmber");
+            items.Add(new QuickItemData
             {
-                id = meal.mealId,
-                displayName = meal.mealName,
-                effectDescription = $"+{meal.totalHealthRestore:F0} HP, +{meal.manaRegenPerSecond:F1} MP/s ({meal.buffDurationSeconds:F0}s)",
-                spriteFilename = "Mockup_PotionAmber.png",
+                itemId = "meal_" + mealName.ToLower().Replace(" ", "_"),
+                itemName = mealName,
+                itemIcon = amber,
                 count = count,
-                themeColor = meal.themeColor,
-                cookedMealData = meal
+                description = "Nutritious and delicious dish."
             });
         }
-        RefreshDisplay();
+        RefreshDisplay(false);
     }
 
-    public void BindReferences(
-        Button prevBtn,
-        Button nextBtn,
-        Button itemBtn,
-        Image iconImg,
-        TextMeshProUGUI countText,
-        TextMeshProUGUI nameText,
-        RectTransform container)
+    public void InitializeDefaultItemsIfEmpty()
     {
-        prevArrowButton = prevBtn;
-        nextArrowButton = nextBtn;
-        activeItemButton = itemBtn;
-        activeItemIcon = iconImg;
-        itemCountTMP = countText;
-        itemNameTMP = nameText;
-        carouselContainer = container;
+        if (items != null && items.Count > 0) return;
 
-        InitializeDefaultInventory();
-        BindUIEvents();
-        RefreshDisplay();
+        items = new List<QuickItemData>();
+
+        // Load potions
+        var red = Resources.Load<Sprite>("UI/Mockup_PotionRed") 
+                  ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionRed.png");
+        var blue = Resources.Load<Sprite>("UI/Mockup_PotionBlue") 
+                   ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionBlue.png");
+        var amber = Resources.Load<Sprite>("UI/Mockup_PotionAmber") 
+                    ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionAmber.png");
+        var elixir = Resources.Load<Sprite>("UI/Mockup_PotionElixir") 
+                     ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionElixir.png");
+
+        items.Add(new QuickItemData
+        {
+            itemId = "potion_crimson_heal",
+            itemName = "Crimson Vitality Draught",
+            itemIcon = red,
+            count = 5,
+            description = "Restores 350 Health over 4 seconds."
+        });
+
+        items.Add(new QuickItemData
+        {
+            itemId = "potion_azure_mana",
+            itemName = "Azure Aether Extract",
+            itemIcon = blue,
+            count = 8,
+            description = "Instantly replenishes 250 Mana."
+        });
+
+        items.Add(new QuickItemData
+        {
+            itemId = "potion_amber_haste",
+            itemName = "Amber Swiftness Tonic",
+            itemIcon = amber,
+            count = 3,
+            description = "Boosts dash and sprint speed by 40% for 12 seconds."
+        });
+
+        items.Add(new QuickItemData
+        {
+            itemId = "potion_stellar_elixir",
+            itemName = "Stellar Elixir of Awakening",
+            itemIcon = elixir,
+            count = 2,
+            description = "Full recovery and resets special skill cooldowns."
+        });
     }
 
-    private void BindUIEvents()
+    #region Drag & Swipe Navigation
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        if (prevArrowButton != null)
-        {
-            prevArrowButton.onClick.RemoveListener(CyclePrevious);
-            prevArrowButton.onClick.AddListener(CyclePrevious);
-        }
-        if (nextArrowButton != null)
-        {
-            nextArrowButton.onClick.RemoveListener(CycleNext);
-            nextArrowButton.onClick.AddListener(CycleNext);
-        }
-        if (activeItemButton != null)
-        {
-            activeItemButton.onClick.RemoveListener(UseCurrentItem);
-            activeItemButton.onClick.AddListener(UseCurrentItem);
-        }
+        if (isTransitioning) return;
+        dragStartPos = eventData.position;
+        isDragging = true;
     }
 
-    private void Update()
+    public void OnDrag(PointerEventData eventData)
     {
-        HandleKeyboardShortcuts();
     }
 
-    private void HandleKeyboardShortcuts()
+    public void OnEndDrag(PointerEventData eventData)
     {
-        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.LeftBracket))
+        if (!isDragging || isTransitioning) return;
+        isDragging = false;
+
+        float deltaX = eventData.position.x - dragStartPos.x;
+        if (Mathf.Abs(deltaX) >= dragDeadzoneThreshold)
         {
-            CyclePrevious();
-        }
-        else if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.RightBracket))
-        {
-            CycleNext();
-        }
-        else if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
-        {
-            UseCurrentItem();
-        }
-    }
-
-    /// <summary>
-    /// Cycles to the previous usable combat item in the carousel.
-    /// </summary>
-    public void CyclePrevious()
-    {
-        if (items == null || items.Count == 0) return;
-
-        currentIndex--;
-        if (currentIndex < 0) currentIndex = items.Count - 1;
-
-        PlayCycleAudio();
-        TriggerPunchAnimation(-1);
-        RefreshDisplay();
-        SyncEquippedTool(CurrentItem);
-        OnItemChanged?.Invoke(currentIndex, CurrentItem);
-    }
-
-    /// <summary>
-    /// Cycles to the next usable combat item in the carousel.
-    /// </summary>
-    public void CycleNext()
-    {
-        if (items == null || items.Count == 0) return;
-
-        currentIndex = (currentIndex + 1) % items.Count;
-
-        PlayCycleAudio();
-        TriggerPunchAnimation(1);
-        RefreshDisplay();
-        SyncEquippedTool(CurrentItem);
-        OnItemChanged?.Invoke(currentIndex, CurrentItem);
-    }
-
-    private void SyncEquippedTool(UsableCombatItem item)
-    {
-        if (item == null) return;
-        if (BattleSummoner.World.OverworldLifeSimDirector.Instance != null)
-        {
-            int toolIdx = item.id switch
+            if (deltaX < 0)
             {
-                "tool_fishing_rod" => 0,
-                "tool_bug_net" => 1,
-                "tool_watering_can" => 2,
-                _ => -1
-            };
-            BattleSummoner.World.OverworldLifeSimDirector.Instance.SelectTool(toolIdx);
-        }
-    }
-
-    /// <summary>
-    /// Directly selects an item in the carousel by ID.
-    /// </summary>
-    public void SelectItemById(string id)
-    {
-        if (items == null || items.Count == 0) return;
-        int idx = items.FindIndex(it => it.id == id);
-        if (idx >= 0)
-        {
-            currentIndex = idx;
-            RefreshDisplay();
-            SyncEquippedTool(CurrentItem);
-            OnItemChanged?.Invoke(currentIndex, CurrentItem);
-        }
-    }
-
-    /// <summary>
-    /// Consumes the currently selected combat item, applies healing/mana/buffs,
-    /// decrements item count, and triggers audio/visual feedback.
-    /// </summary>
-    public void UseCurrentItem()
-    {
-        var item = CurrentItem;
-        if (item == null) return;
-
-        if (item.count <= 0)
-        {
-            Debug.Log($"⚠️ [QUICK ITEM] Out of '{item.displayName}'!");
-            if (DevClassLoadoutManager.Instance != null)
-            {
-                DevClassLoadoutManager.Instance.ShowToast($"<color=#FF4444>[DEPLETED]</color>\nNo {item.displayName} left in pouch!");
+                // Swipe Left: Advance inventory forward
+                StepCarousel(1);
             }
-            if (BattleSummonerAudioMaster.Instance != null)
+            else
             {
-                BattleSummonerAudioMaster.Instance.PlayPresetSFX("glitch", 0.6f);
+                // Swipe Right: Reverse inventory backward
+                StepCarousel(-1);
             }
+        }
+    }
+    #endregion
+
+    #region Step & Center Action
+    public void StepCarousel(int direction)
+    {
+        if (isTransitioning || items.Count == 0) return;
+
+        // Animate Chevron feedback
+        StartCoroutine(AnimateChevronFeedback(direction));
+
+        // Direction +1: forward (Swipe Left: Right -> Center, Center -> Left)
+        // Direction -1: backward (Swipe Right: Left -> Center, Center -> Right)
+        int targetIndex = (activeIndex + direction) % items.Count;
+        if (targetIndex < 0) targetIndex += items.Count;
+
+        StartCoroutine(AnimateTransition(direction, targetIndex));
+    }
+
+    public void OnCenterSocketClicked()
+    {
+        if (isTransitioning || items.Count == 0) return;
+        UseActiveItem();
+    }
+
+    public void UseActiveItem()
+    {
+        if (activeIndex < 0 || activeIndex >= items.Count) return;
+
+        var activeItem = items[activeIndex];
+
+        // 1. Play brief scale-punch animation on Center Icon (0.9 -> 1.0 over 0.12s)
+        if (punchCoroutine != null) StopCoroutine(punchCoroutine);
+        punchCoroutine = StartCoroutine(AnimateCenterScalePunch());
+
+        // 2. Execute custom action or notify
+        activeItem.onUse?.Invoke();
+        activeItem.count--;
+
+        if (SystemBroadcastManager.Instance != null)
+        {
+            SystemBroadcastManager.Instance.DispatchBroadcast(
+                $"🧪 [ITEM CONSUMED] {activeItem.itemName}! (Remaining: {activeItem.count})", false);
+        }
+
+        Debug.Log($"🧪 [Carousel] Consumed 1x '{activeItem.itemName}'. Remaining: {activeItem.count}");
+
+        // 3. If stack reaches 0, remove and smoothly collapse
+        if (activeItem.count <= 0)
+        {
+            items.RemoveAt(activeIndex);
+            if (items.Count > 0)
+            {
+                activeIndex %= items.Count;
+            }
+            else
+            {
+                activeIndex = 0;
+            }
+        }
+
+        RefreshDisplay(false);
+    }
+    #endregion
+
+    #region Animations & Interpolation
+    private IEnumerator AnimateCenterScalePunch()
+    {
+        if (centerSocket == null) yield break;
+        Vector3 startScale = Vector3.one * 0.90f;
+        Vector3 endScale = Vector3.one * 1.0f;
+        float duration = 0.12f;
+        float elapsed = 0f;
+
+        centerSocket.localScale = startScale;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            centerSocket.localScale = Vector3.Lerp(startScale, endScale, t);
+            yield return null;
+        }
+        centerSocket.localScale = endScale;
+    }
+
+    private IEnumerator AnimateChevronFeedback(int direction)
+    {
+        RectTransform chevron = (direction < 0) ? leftArrowRect : rightArrowRect;
+        Image chevronImg = (direction < 0) ? leftArrowImage : rightArrowImage;
+        if (chevron == null) yield break;
+
+        Vector2 basePos = chevron.anchoredPosition;
+        float shiftX = (direction < 0) ? 5f : -5f; // shift inward
+        Vector2 shiftedPos = basePos + new Vector2(shiftX, 0f);
+
+        Color origColor = chevronImg != null ? chevronImg.color : Color.white;
+        Color flashColor = new Color(1.2f, 1.0f, 0.6f, 1f); // bright gold flash
+
+        if (chevronImg != null) chevronImg.color = flashColor;
+        chevron.anchoredPosition = shiftedPos;
+
+        yield return new WaitForSecondsRealtime(0.10f);
+
+        chevron.anchoredPosition = basePos;
+        if (chevronImg != null) chevronImg.color = origColor;
+    }
+
+    private IEnumerator AnimateTransition(int direction, int targetIndex)
+    {
+        isTransitioning = true;
+        float elapsed = 0f;
+
+        while (elapsed < transitionDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / transitionDuration);
+            // EaseOutCubic
+            float ease = 1f - Mathf.Pow(1f - t, 3f);
+
+            if (direction > 0)
+            {
+                // Forward step
+                if (centerCanvasGroup != null) centerCanvasGroup.alpha = Mathf.Lerp(1.0f, 0.4f, ease);
+                if (centerSocket != null) centerSocket.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.75f, ease);
+
+                if (rightCanvasGroup != null) rightCanvasGroup.alpha = Mathf.Lerp(0.4f, 1.0f, ease);
+                if (rightSocket != null) rightSocket.localScale = Vector3.Lerp(Vector3.one * 0.75f, Vector3.one, ease);
+            }
+            else
+            {
+                // Backward step
+                if (centerCanvasGroup != null) centerCanvasGroup.alpha = Mathf.Lerp(1.0f, 0.4f, ease);
+                if (centerSocket != null) centerSocket.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.75f, ease);
+
+                if (leftCanvasGroup != null) leftCanvasGroup.alpha = Mathf.Lerp(0.4f, 1.0f, ease);
+                if (leftSocket != null) leftSocket.localScale = Vector3.Lerp(Vector3.one * 0.75f, Vector3.one, ease);
+            }
+
+            yield return null;
+        }
+
+        activeIndex = targetIndex;
+        RefreshDisplay(true);
+        isTransitioning = false;
+    }
+
+    public void RefreshDisplay(bool resetTransforms = true)
+    {
+        if (items.Count == 0)
+        {
+            SetSlotVisuals(centerIcon, centerCanvasGroup, centerCountText, null, 0);
+            SetSlotVisuals(leftIcon, leftCanvasGroup, leftCountText, null, 0);
+            SetSlotVisuals(rightIcon, rightCanvasGroup, rightCountText, null, 0);
+            if (centerNameText != null) centerNameText.text = "Empty Bag";
             return;
         }
 
-        // Apply item effect to PlayerProgression / WeaponTemper / Life Sim Tools
-        var progression = UnityEngine.Object.FindAnyObjectByType<PlayerProgression>();
-        var hero = GameObject.Find("Player_Hero");
+        int n = items.Count;
+        int idxCenter = activeIndex;
+        int idxLeft = (activeIndex - 1 + n) % n;
+        int idxRight = (activeIndex + 1) % n;
 
-        // Check if item is a cooked meal from CookingMamaMinigame or belt carousel
-        if (item.cookedMealData != null && progression != null)
+        var itemCenter = items[idxCenter];
+        var itemLeft = items[idxLeft];
+        var itemRight = items[idxRight];
+
+        SetSlotVisuals(centerIcon, centerCanvasGroup, centerCountText, itemCenter.itemIcon, itemCenter.count);
+        SetSlotVisuals(leftIcon, leftCanvasGroup, leftCountText, itemLeft.itemIcon, itemLeft.count);
+        SetSlotVisuals(rightIcon, rightCanvasGroup, rightCountText, itemRight.itemIcon, itemRight.count);
+
+        if (centerNameText != null) centerNameText.text = itemCenter.itemName;
+
+        if (resetTransforms)
         {
-            progression.ConsumeCookedMeal(item.cookedMealData);
-        }
-        else if (item.id.StartsWith("meal_") && progression != null)
-        {
-            var fallbackMeal = CookingMamaMinigame.CreatePresetMeal(item.id, item.displayName, 220f, 12f, 20f);
-            progression.ConsumeCookedMeal(fallbackMeal);
-        }
-        else
-        {
-            switch (item.id)
+            if (centerSocket != null)
             {
-                case "tool_fishing_rod":
-                    var rod = hero?.GetComponentInChildren<BattleSummoner.Minigames.Fishing.FishingRodTool>();
-                    if (rod != null)
-                    {
-                        rod.SetEquipped(true);
-                        rod.UseFishingRod();
-                    }
-                    return; // Do not decrement tool count
-
-                case "tool_bug_net":
-                    var net = hero?.GetComponentInChildren<BattleSummoner.Minigames.Insects.BugNetTool>();
-                    if (net != null)
-                    {
-                        net.SetEquipped(true);
-                        net.SwingNet();
-                    }
-                    return; // Do not decrement tool count
-
-                case "tool_watering_can":
-                    var can = hero?.GetComponentInChildren<BattleSummoner.Minigames.Gardening.WateringCanTool>();
-                    if (can != null)
-                    {
-                        can.SetEquipped(true);
-                        can.UseWateringCan();
-                    }
-                    return; // Do not decrement tool count
-
-                case "item_rose_seeds":
-                    // Plant seeds in closest GardenPlot
-                    var plots = UnityEngine.Object.FindObjectsByType<BattleSummoner.Minigames.Gardening.GardenPlot>(FindObjectsSortMode.None);
-                    BattleSummoner.Minigames.Gardening.GardenPlot nearestPlot = null;
-                    float nearestDist = 3.5f;
-                    if (hero != null)
-                    {
-                        foreach (var p in plots)
-                        {
-                            float d = Vector3.Distance(hero.transform.position, p.transform.position);
-                            if (d < nearestDist && p.stage == BattleSummoner.Minigames.Gardening.GrowthStage.EmptyTilled)
-                            {
-                                nearestDist = d;
-                                nearestPlot = p;
-                            }
-                        }
-                    }
-                    if (nearestPlot != null)
-                    {
-                        nearestPlot.PlantSeed("red_rose");
-                    }
-                    else
-                    {
-                        Debug.Log("🌱 [SEEDS] Approach an empty garden plot to plant Rose Seeds!");
-                        return;
-                    }
-                    break;
-
-                case "potion_hp":
-                    if (progression != null) progression.Heal(250f);
-                    break;
-                case "potion_amber":
-                    if (progression != null) progression.RestoreMana(150f);
-                    break;
-                case "potion_mp":
-                    if (progression != null) progression.RestoreMana(280f);
-                    break;
-                case "potion_elixir":
-                    if (progression != null)
-                    {
-                        progression.Heal(250f);
-                        progression.RestoreMana(150f);
-                    }
-                    break;
-                case "item_whetstone":
-                    var weaponTemper = UnityEngine.Object.FindAnyObjectByType<WeaponTemper>();
-                    if (weaponTemper != null)
-                    {
-                        weaponTemper.HoneWithWhetstone();
-                    }
-                    else
-                    {
-                        Debug.Log("⚔️ [QUICK ITEM] Whetstone Polish applied: Blade honed to razor temper (+25% Slash DMG)!");
-                    }
-                    break;
+                centerSocket.localScale = Vector3.one;
+                centerSocket.SetAsLastSibling(); // top layer
             }
+            if (centerCanvasGroup != null) centerCanvasGroup.alpha = 1.0f;
+
+            if (leftSocket != null)
+            {
+                leftSocket.localScale = Vector3.one * 0.75f;
+                leftSocket.SetAsFirstSibling();
+            }
+            if (leftCanvasGroup != null) leftCanvasGroup.alpha = 0.4f;
+
+            if (rightSocket != null)
+            {
+                rightSocket.localScale = Vector3.one * 0.75f;
+                rightSocket.SetSiblingIndex(1);
+            }
+            if (rightCanvasGroup != null) rightCanvasGroup.alpha = 0.4f;
         }
-
-        // Decrement item count
-        item.count--;
-
-        Debug.Log($"🧪 [QUICK ITEM USED] Consumed '{item.displayName}'! Remaining: {item.count}.");
-
-        // Show feedback toast
-        if (DevClassLoadoutManager.Instance != null)
-        {
-            string hexColor = ColorUtility.ToHtmlStringRGB(item.themeColor);
-            DevClassLoadoutManager.Instance.ShowToast($"<color=#{hexColor}>[{item.displayName.ToUpper()}]</color>\n{item.effectDescription}! ({item.count} remaining)");
-        }
-
-        // Play preset audio SFX
-        if (BattleSummonerAudioMaster.Instance != null)
-        {
-            BattleSummonerAudioMaster.Instance.PlayPresetSFX("relic_chime", 0.95f);
-        }
-
-        TriggerUseAnimation();
-        RefreshDisplay();
-        OnItemUsed?.Invoke(item);
     }
 
-    public void RefreshDisplay()
+    private void SetSlotVisuals(Image icon, CanvasGroup cg, TextMeshProUGUI countText, Sprite sprite, int count)
     {
-        var item = CurrentItem;
-        if (item == null) return;
-
-        if (activeItemIcon != null)
+        if (icon != null)
         {
-            Sprite sp = LoadSprite(item.spriteFilename);
-            if (sp != null) activeItemIcon.sprite = sp;
-            activeItemIcon.color = (item.count > 0) ? Color.white : new Color(0.6f, 0.6f, 0.6f, 0.6f);
+            icon.sprite = sprite;
+            icon.enabled = (sprite != null);
         }
-
-        if (itemCountTMP != null)
+        if (countText != null)
         {
-            itemCountTMP.text = $"x{item.count}";
-            itemCountTMP.color = (item.count > 0) ? new Color(1f, 0.95f, 0.6f) : new Color(0.8f, 0.3f, 0.3f);
-        }
-
-        if (itemNameTMP != null)
-        {
-            itemNameTMP.text = item.displayName;
-            itemNameTMP.color = (item.count > 0) ? item.themeColor : Color.gray;
+            countText.text = count > 1 ? $"x{count}" : "";
+            countText.enabled = (count > 0);
         }
     }
+    #endregion
+}
 
-    private void TriggerPunchAnimation(int direction)
-    {
-        if (activeItemIcon == null) return;
-        if (punchCoroutine != null) StopCoroutine(punchCoroutine);
-        punchCoroutine = StartCoroutine(DoPunchScale(direction));
-    }
-
-    private void TriggerUseAnimation()
-    {
-        if (activeItemIcon == null) return;
-        if (punchCoroutine != null) StopCoroutine(punchCoroutine);
-        punchCoroutine = StartCoroutine(DoUsePunch());
-    }
-
-    private IEnumerator DoPunchScale(int direction)
-    {
-        Transform t = activeItemIcon.transform;
-        float elapsed = 0f;
-        float duration = 0.16f;
-
-        Vector3 startScale = Vector3.one;
-        Vector3 peakScale = new Vector3(punchScale, punchScale, 1f);
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float progress = elapsed / duration;
-            t.localScale = (progress < 0.5f)
-                ? Vector3.Lerp(startScale, peakScale, progress * 2f)
-                : Vector3.Lerp(peakScale, startScale, (progress - 0.5f) * 2f);
-            yield return null;
-        }
-
-        t.localScale = Vector3.one;
-    }
-
-    private IEnumerator DoUsePunch()
-    {
-        Transform t = activeItemIcon.transform;
-        float elapsed = 0f;
-        float duration = 0.22f;
-
-        Vector3 startScale = Vector3.one;
-        Vector3 peakScale = new Vector3(1.35f, 1.35f, 1f);
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float progress = elapsed / duration;
-            t.localScale = (progress < 0.4f)
-                ? Vector3.Lerp(startScale, peakScale, progress / 0.4f)
-                : Vector3.Lerp(peakScale, startScale, (progress - 0.4f) / 0.6f);
-            yield return null;
-        }
-
-        t.localScale = Vector3.one;
-    }
-
-    private void PlayCycleAudio()
-    {
-        if (BattleSummonerAudioMaster.Instance != null)
-        {
-            BattleSummonerAudioMaster.Instance.PlayPresetSFX("relic_chime", 0.5f);
-        }
-    }
-
-    private Sprite LoadSprite(string filename)
-    {
-#if UNITY_EDITOR
-        string path = "Assets/Textures/UI/" + filename;
-        Sprite sp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(path);
-        if (sp != null) return sp;
-#endif
-        return null;
-    }
+namespace BattleSummoner.UI
+{
+    // Alias namespace support
+    public class QuickItemCarouselControllerProxy : QuickItemCarouselController { }
 }

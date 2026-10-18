@@ -16,6 +16,7 @@ namespace BattleSummoner.Optimization
         private ParticleSystem[] _particles;
         private Light[] _lights;
         private LODGroup _lodGroup;
+        private BattleSummoner.Character.FacialAnimation.ModularFaceRigController _faceRig;
         private bool _isCurrentlyLoaded = true;
 
         private void Awake()
@@ -25,6 +26,8 @@ namespace BattleSummoner.Optimization
             _particles = GetComponentsInChildren<ParticleSystem>(true);
             _lights = GetComponentsInChildren<Light>(true);
             _lodGroup = GetComponent<LODGroup>();
+            _faceRig = GetComponent<BattleSummoner.Character.FacialAnimation.ModularFaceRigController>() 
+                      ?? GetComponentInChildren<BattleSummoner.Character.FacialAnimation.ModularFaceRigController>(true);
         }
 
         private void Start()
@@ -74,6 +77,12 @@ namespace BattleSummoner.Optimization
                 {
                     if (_lights[i] != null) _lights[i].enabled = shouldLoad;
                 }
+            }
+
+            // Optimization: Disable expensive face rig animation/visemes when outside 30ft proximity (Band 0) or culled
+            if (_faceRig != null)
+            {
+                _faceRig.enabled = shouldLoad && (distanceBand == 0);
             }
 
             if (!shouldLoad) return;

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
-namespace DisplayAnim
+namespace DisplayAnim.Brawler
 {
     public class DisplayAnimation : MonoBehaviour
     {

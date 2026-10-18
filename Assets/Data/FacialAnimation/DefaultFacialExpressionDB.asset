@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dba90e629fcb9474bbce81e7973e5428, type: 3}
+  m_Name: DefaultFacialExpressionDB
+  m_EditorClassIdentifier: Assembly-CSharp::BattleSummoner.Character.FacialAnimation.FacialExpressionDatabaseSO
+  emotionSets:
+  - emotion: 0
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 0, y: 0}
+    uvAtlasBlinkCoord: {x: 0, y: 2}
+    uvAtlasRestingMouthCoord: {x: 0, y: 4}
+  - emotion: 1
+    eyesAndBrowsOpen: {fileID: 21300000, guid: 6791705457922eb4e893ff8e524674f7, type: 3}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 1, y: 0}
+    uvAtlasBlinkCoord: {x: 1, y: 2}
+    uvAtlasRestingMouthCoord: {x: 1, y: 4}
+  - emotion: 2
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 2, y: 0}
+    uvAtlasBlinkCoord: {x: 2, y: 2}
+    uvAtlasRestingMouthCoord: {x: 2, y: 4}
+  - emotion: 3
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 3, y: 0}
+    uvAtlasBlinkCoord: {x: 3, y: 2}
+    uvAtlasRestingMouthCoord: {x: 3, y: 4}
+  - emotion: 4
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 0, y: 1}
+    uvAtlasBlinkCoord: {x: 0, y: 3}
+    uvAtlasRestingMouthCoord: {x: 0, y: 5}
+  - emotion: 5
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 1, y: 1}
+    uvAtlasBlinkCoord: {x: 1, y: 3}
+    uvAtlasRestingMouthCoord: {x: 1, y: 5}
+  - emotion: 6
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 2, y: 1}
+    uvAtlasBlinkCoord: {x: 2, y: 3}
+    uvAtlasRestingMouthCoord: {x: 2, y: 5}
+  - emotion: 7
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 3, y: 1}
+    uvAtlasBlinkCoord: {x: 3, y: 3}
+    uvAtlasRestingMouthCoord: {x: 3, y: 5}
+  - emotion: 8
+    eyesAndBrowsOpen: {fileID: 0}
+    eyesAndBrowsBlink: {fileID: 0}
+    restingEmotionMouth: {fileID: 0}
+    uvAtlasOpenCoord: {x: 0, y: 2}
+    uvAtlasBlinkCoord: {x: 0, y: 4}
+    uvAtlasRestingMouthCoord: {x: 0, y: 6}
+  phoneticMouthVisemes:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  phoneticMouthUVCoords:
+  - {x: 0, y: 0}
+  - {x: 1, y: 0}
+  - {x: 2, y: 0}
+  - {x: 3, y: 0}
+  - {x: 0, y: 1}
+  - {x: 1, y: 1}
+  atlasGridCells: {x: 4, y: 4}

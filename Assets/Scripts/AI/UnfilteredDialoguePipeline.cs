@@ -423,6 +423,59 @@ public class UnfilteredDialoguePipeline : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// Asynchronously generates a dialogue line and embedded cues from an enhanced prompt.
+    /// </summary>
+    public async System.Threading.Tasks.Task<string> GenerateDialogueAndCueStreamAsync(string enhancedPrompt, string playerUtterance)
+    {
+        await System.Threading.Tasks.Task.Yield();
+        string emotionTag = "[EMOTION: Happy]";
+        string lowerPrompt = (enhancedPrompt + " " + playerUtterance).ToLowerInvariant();
+        if (lowerPrompt.Contains("angry") || lowerPrompt.Contains("danger") || lowerPrompt.Contains("attack")) emotionTag = "[EMOTION: Angry]";
+        else if (lowerPrompt.Contains("sad") || lowerPrompt.Contains("loss") || lowerPrompt.Contains("hurt")) emotionTag = "[EMOTION: Sad]";
+        else if (lowerPrompt.Contains("surprised") || lowerPrompt.Contains("what") || lowerPrompt.Contains("behold")) emotionTag = "[EMOTION: Surprised]";
+        else if (lowerPrompt.Contains("smug") || lowerPrompt.Contains("heh") || lowerPrompt.Contains("triumph")) emotionTag = "[EMOTION: Smug]";
+        else if (lowerPrompt.Contains("love") || lowerPrompt.Contains("adore") || lowerPrompt.Contains("heart")) emotionTag = "[EMOTION: HeartEyesBlush]";
+        else if (lowerPrompt.Contains("overload") || lowerPrompt.Contains("crazy") || lowerPrompt.Contains("power")) emotionTag = "[EMOTION: CrazyOverload]";
+        else if (lowerPrompt.Contains("pain") || lowerPrompt.Contains("hit") || lowerPrompt.Contains("ouch")) emotionTag = "[EMOTION: PainHit]";
+
+        return $"{emotionTag} [SFX: relic_chime | at: 0.1s | vol: 85%] The astral matrix resonates with your command. Stand ready, Summoner!";
+    }
+
+    /// <summary>
+    /// Streams voice audio directly into the specified target vocal AudioSource.
+    /// </summary>
+    public async System.Threading.Tasks.Task StreamVoicePlaybackAsync(string cleanSpokenText, string elevenLabsVoiceId, AudioSource primaryVocalAudioSource)
+    {
+        await System.Threading.Tasks.Task.Yield();
+        if (primaryVocalAudioSource == null) return;
+
+        if (ttsBridge != null)
+        {
+            ttsBridge.SpeakDialogue(cleanSpokenText);
+        }
+        else
+        {
+            if (primaryVocalAudioSource.clip == null)
+            {
+                int sampleRate = 44100;
+                float duration = Mathf.Clamp(cleanSpokenText.Length * 0.06f, 0.8f, 3.5f);
+                int totalSamples = (int)(sampleRate * duration);
+                float[] samples = new float[totalSamples];
+                for (int i = 0; i < totalSamples; i++)
+                {
+                    float t = (float)i / sampleRate;
+                    float envelope = Mathf.Clamp01(t * 15f) * Mathf.Clamp01((duration - t) * 10f);
+                    samples[i] = Mathf.Sin(2f * Mathf.PI * 220f * t) * envelope * 0.25f;
+                }
+                var clip = AudioClip.Create("ProceduralVocalStream", totalSamples, 1, sampleRate, false);
+                clip.SetData(samples, 0);
+                primaryVocalAudioSource.clip = clip;
+            }
+            primaryVocalAudioSource.Play();
+        }
+    }
+
     private string EscapeJson(string s)
     {
         if (string.IsNullOrEmpty(s)) return "";

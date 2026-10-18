@@ -157,56 +157,8 @@ Shader "BattleSummoner/AnimeNature/Foliage"
             ENDHLSL
         }
 
-        Pass
-        {
-            Name "ShadowCaster"
-            Tags { "LightMode" = "ShadowCaster" }
-
-            ZWrite On
-            ZTest LEqual
-            ColorMask 0
-            Cull Off
-
-            HLSLPROGRAM
-            #pragma target 3.0
-            #pragma vertex vertShadow
-            #pragma fragment fragShadow
-            #pragma multi_compile_instancing
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            struct Attributes
-            {
-                float4 positionOS   : POSITION;
-                float3 normalOS     : NORMAL;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct Varyings
-            {
-                float4 positionCS   : SV_POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            Varyings vertShadow(Attributes input)
-            {
-                Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_TRANSFER_INSTANCE_ID(input, output);
-
-                float3 posWS = TransformObjectToWorld(input.positionOS.xyz);
-                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
-                output.positionCS = TransformWorldToHClip(ApplyShadowBias(posWS, normalWS, _MainLightPosition.xyz));
-
-                return output;
-            }
-
-            half4 fragShadow(Varyings input) : SV_Target
-            {
-                return 0;
-            }
-            ENDHLSL
-        }
+        UsePass "Universal Render Pipeline/Lit/ShadowCaster"
+        UsePass "Universal Render Pipeline/Lit/DepthOnly"
     }
     FallBack "Universal Render Pipeline/Lit"
 }
