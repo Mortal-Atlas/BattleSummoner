@@ -139,7 +139,29 @@ namespace BattleSummoner.Minigames.Fishing
             // Cast trajectory forward into water
             Vector3 castOrigin = rodTip != null ? rodTip.position : transform.position;
             Vector3 targetWaterPos = transform.position + (transform.forward * 6.5f);
-            targetWaterPos.y = 0.05f; // Water level in OverworldMap
+
+            // Dynamically detect water surface height (Moat: Y=-0.75m, Village Pond: Y=0.05m)
+            float waterY = 0.05f;
+            if (Physics.Raycast(new Vector3(targetWaterPos.x, targetWaterPos.y + 15f, targetWaterPos.z), Vector3.down, out RaycastHit hit, 30f))
+            {
+                string hitName = hit.collider.gameObject.name.ToLower();
+                if (hitName.Contains("water") || hitName.Contains("moat") || hitName.Contains("river") || hitName.Contains("pond") || hitName.Contains("ocean"))
+                {
+                    waterY = hit.point.y;
+                }
+                else
+                {
+                    float distFromCenter = new Vector2(targetWaterPos.x, targetWaterPos.z).magnitude;
+                    if (distFromCenter >= 290f) waterY = -0.75f;
+                }
+            }
+            else
+            {
+                float distFromCenter = new Vector2(targetWaterPos.x, targetWaterPos.z).magnitude;
+                if (distFromCenter >= 290f) waterY = -0.75f;
+            }
+
+            targetWaterPos.y = waterY;
 
             // Spawn Bobber
             var bobberGO = new GameObject("ActiveBobber");
@@ -148,7 +170,7 @@ namespace BattleSummoner.Minigames.Fishing
             ActiveBobber = currentBobber;
             isCast = true;
 
-            Debug.Log("[FISHING] Line cast! Waiting for fish shadows...");
+            Debug.Log($"[FISHING] Line cast at {targetWaterPos} (waterY={waterY:F2})! Waiting for fish shadows...");
         }
 
         public void ReelLine()

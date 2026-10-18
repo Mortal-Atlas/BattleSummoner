@@ -38,6 +38,7 @@ namespace BattleSummoner.World
         {
             SetupPlayerStarterAvatar();
             BuildFishingPierAndPond();
+            BuildMoatFishingPiersAndStockFish();
             SpawnWildInsects();
             BuildCommunityGarden();
             SpawnWorldCollectibles();
@@ -180,6 +181,93 @@ namespace BattleSummoner.World
             }
 
             Debug.Log("[LIFE SIM] Built Animal Crossing Fishing Pier & Pond with swimming fish shadows!");
+        }
+
+        private void BuildMoatFishingPiersAndStockFish()
+        {
+            var existing = GameObject.Find("Moat_Fishing_Ecosystem");
+            if (existing != null) return;
+
+            var rootGO = new GameObject("Moat_Fishing_Ecosystem");
+            var metroRoot = GameObject.Find("--- AETHELBURG METROPOLIS ROOT ---");
+            if (metroRoot != null) rootGO.transform.SetParent(metroRoot.transform, false);
+
+            var woodMat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+            woodMat.color = new Color(0.44f, 0.28f, 0.16f);
+
+            BuildMoatHub("MoatPier_South", rootGO.transform, new Vector3(22f, 0.20f, -315f), 180f, woodMat, new Vector3(22f, -0.73f, -324f));
+            BuildMoatHub("MoatPier_North", rootGO.transform, new Vector3(-22f, 0.20f, 315f), 0f, woodMat, new Vector3(-22f, -0.73f, 324f));
+            BuildMoatHub("MoatPier_East", rootGO.transform, new Vector3(315f, 0.20f, 22f), 90f, woodMat, new Vector3(324f, -0.73f, 22f));
+            BuildMoatHub("MoatPier_West", rootGO.transform, new Vector3(-315f, 0.20f, -22f), 270f, woodMat, new Vector3(-324f, -0.73f, -22f));
+
+            Debug.Log("🎣 [LIFE SIM] Built 4 Moat Fishing Piers & stocked 24 fish shadows in kingdom moat!");
+        }
+
+        private void BuildMoatHub(string hubName, Transform parent, Vector3 pierPos, float yRot, Material woodMat, Vector3 fishCenter)
+        {
+            var hub = new GameObject(hubName);
+            hub.transform.SetParent(parent, false);
+            hub.transform.position = pierPos;
+            hub.transform.rotation = Quaternion.Euler(0f, yRot, 0f);
+
+            var deck = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            deck.name = "PierDeck";
+            deck.transform.SetParent(hub.transform, false);
+            deck.transform.localPosition = Vector3.zero;
+            deck.transform.localScale = new Vector3(4.2f, 0.25f, 15.0f);
+            deck.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
+
+            Vector3[] pilings = new Vector3[] {
+                new Vector3(-1.9f, -1.9f, -5.5f), new Vector3(1.9f, -1.9f, -5.5f),
+                new Vector3(-1.9f, -1.9f, 0f), new Vector3(1.9f, -1.9f, 0f),
+                new Vector3(-1.9f, -1.9f, 5.5f), new Vector3(1.9f, -1.9f, 5.5f)
+            };
+            foreach (var p in pilings)
+            {
+                var piling = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                var col = piling.GetComponent<Collider>();
+                if (col != null) Destroy(col);
+                piling.name = "PierPiling";
+                piling.transform.SetParent(hub.transform, false);
+                piling.transform.localPosition = p;
+                piling.transform.localScale = new Vector3(0.32f, 2.0f, 0.32f);
+                piling.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
+            }
+
+            var lanternPost = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            var lpCol = lanternPost.GetComponent<Collider>();
+            if (lpCol != null) Destroy(lpCol);
+            lanternPost.name = "MoatPierLantern";
+            lanternPost.transform.SetParent(hub.transform, false);
+            lanternPost.transform.localPosition = new Vector3(1.7f, 1.25f, 6.8f);
+            lanternPost.transform.localScale = new Vector3(0.08f, 1.25f, 0.08f);
+            lanternPost.GetComponent<MeshRenderer>().sharedMaterial = woodMat;
+
+            var pLight = lanternPost.AddComponent<Light>();
+            pLight.type = LightType.Point;
+            pLight.color = new Color(1.0f, 0.85f, 0.48f);
+            pLight.range = 8.5f;
+            pLight.intensity = 1.8f;
+
+            FishShadowSize[] sizes = new FishShadowSize[] {
+                FishShadowSize.Large, FishShadowSize.Medium, FishShadowSize.Huge,
+                FishShadowSize.Finned, FishShadowSize.Small, FishShadowSize.Medium
+            };
+            for (int i = 0; i < sizes.Length; i++)
+            {
+                var fishGO = new GameObject($"FishShadow_Moat_{hubName}_{i + 1}");
+                fishGO.transform.SetParent(hub.transform, true);
+                float ang = (i * 60f + Random.Range(-15f, 15f)) * Mathf.Deg2Rad;
+                float rDist = Random.Range(3.5f, 10.5f);
+                Vector3 fishPos = fishCenter + new Vector3(Mathf.Sin(ang) * rDist, 0f, Mathf.Cos(ang) * rDist);
+                fishPos.y = -0.73f;
+                fishGO.transform.position = fishPos;
+
+                var fish = fishGO.AddComponent<FishShadowEntity>();
+                fish.shadowSize = sizes[i];
+                fish.wanderRadius = new Vector2(9f, 9f);
+                fish.moveSpeed = 1.25f;
+            }
         }
 
         private void SpawnWildInsects()

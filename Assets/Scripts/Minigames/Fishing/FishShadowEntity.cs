@@ -173,6 +173,19 @@ namespace BattleSummoner.Minigames.Fishing
                 Quaternion targetRot = Quaternion.LookRotation(dir);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * turnSpeed);
                 transform.position += transform.forward * (moveSpeed * 0.65f * Time.deltaTime);
+
+                // Moat canal radial clamp: keep within canal bed [304m, 341m]
+                float curDist = new Vector2(transform.position.x, transform.position.z).magnitude;
+                float originDist = new Vector2(spawnOrigin.x, spawnOrigin.z).magnitude;
+                if (originDist >= 295f && originDist <= 350f)
+                {
+                    if (curDist < 304f || curDist > 341f)
+                    {
+                        Vector2 clamped = new Vector2(transform.position.x, transform.position.z).normalized * Mathf.Clamp(curDist, 305f, 340f);
+                        transform.position = new Vector3(clamped.x, transform.position.y, clamped.y);
+                        PickNewWanderPoint();
+                    }
+                }
             }
         }
 
@@ -182,6 +195,20 @@ namespace BattleSummoner.Minigames.Fishing
             float rx = UnityEngine.Random.Range(-wanderRadius.x, wanderRadius.x);
             float rz = UnityEngine.Random.Range(-wanderRadius.y, wanderRadius.y);
             targetWanderPos = spawnOrigin + new Vector3(rx, 0, rz);
+
+            // Clamp moat target to canal radius
+            float originDist = new Vector2(spawnOrigin.x, spawnOrigin.z).magnitude;
+            if (originDist >= 295f && originDist <= 350f)
+            {
+                Vector2 planar = new Vector2(targetWanderPos.x, targetWanderPos.z);
+                float dist = planar.magnitude;
+                if (dist > 0.001f)
+                {
+                    planar = planar.normalized * Mathf.Clamp(dist, 306f, 339f);
+                    targetWanderPos.x = planar.x;
+                    targetWanderPos.z = planar.y;
+                }
+            }
         }
 
         private void CheckForBobberDetection()

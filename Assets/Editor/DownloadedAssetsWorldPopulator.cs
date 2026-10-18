@@ -137,9 +137,9 @@ namespace BattleSummoner.EditorScripts
 
             int spawnedTrees = 0;
 
-            // A. 4 Outer Mistwood Groves (R = 540m)
-            float[] forestAngles = new float[] { 180f, 225f, 270f, 315f };
-            string[] forestNames = new string[] { "South_Mistwood", "SouthWest_Grove", "West_Deepwoods", "NorthWest_HighForest" };
+            // A. Outer Green Land Groves (Strictly NW Mistwood & SE Meadows, never SW Desert or Riverbanks)
+            float[] forestAngles = new float[] { 135f, 155f, 315f, 335f };
+            string[] forestNames = new string[] { "NorthWest_Mistwood_A", "NorthWest_Mistwood_B", "SouthEast_Meadows_A", "SouthEast_Meadows_B" };
 
             for (int f = 0; f < forestAngles.Length; f++)
             {
@@ -147,15 +147,21 @@ namespace BattleSummoner.EditorScripts
                 float fRad = Mathf.Deg2Rad * fAng;
                 Vector3 center = new Vector3(Mathf.Sin(fRad) * 540f, Tier1Height, Mathf.Cos(fRad) * 540f);
 
-                GameObject grove = new GameObject($"Mistwood_AnimeGrove_{forestNames[f]}");
+                GameObject grove = new GameObject($"GreenLand_AnimeGrove_{forestNames[f]}");
                 grove.transform.SetParent(treesRoot.transform, false);
 
                 for (int t = 0; t < 28; t++)
                 {
                     float tAng = t * (360f / 28f) + UnityEngine.Random.Range(-5f, 5f);
-                    float tDist = UnityEngine.Random.Range(30f, 135f);
+                    float tDist = UnityEngine.Random.Range(20f, 95f);
                     Vector3 offset = new Vector3(Mathf.Sin(tAng * Mathf.Deg2Rad) * tDist, 0f, Mathf.Cos(tAng * Mathf.Deg2Rad) * tDist);
                     Vector3 pos = center + offset;
+
+                    // Strict river buffer: avoid radial rivers (every 45 degrees)
+                    float angCheck = Mathf.Atan2(pos.x, pos.z) * Mathf.Rad2Deg;
+                    if (angCheck < 0) angCheck += 360f;
+                    float mod45 = angCheck % 45f;
+                    if (Mathf.Min(mod45, 45f - mod45) < 6.5f) continue; // Skip if near river!
 
                     var treePrefab = treePrefabs[UnityEngine.Random.Range(0, treePrefabs.Count)];
                     GameObject treeObj = (GameObject)PrefabUtility.InstantiatePrefab(treePrefab, grove.transform);
@@ -164,7 +170,7 @@ namespace BattleSummoner.EditorScripts
                     float yaw = UnityEngine.Random.Range(0f, 360f);
                     treeObj.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-                    float scale = UnityEngine.Random.Range(5.5f, 8.5f);
+                    float scale = UnityEngine.Random.Range(0.55f, 0.85f);
                     treeObj.transform.localScale = Vector3.one * scale;
 
                     var cull = treeObj.GetComponent<CullableWorldProp>() ?? treeObj.AddComponent<CullableWorldProp>();
@@ -178,7 +184,7 @@ namespace BattleSummoner.EditorScripts
                     for (int b = 0; b < 14; b++)
                     {
                         float bAng = UnityEngine.Random.Range(0f, 360f);
-                        float bDist = UnityEngine.Random.Range(20f, 110f);
+                        float bDist = UnityEngine.Random.Range(15f, 85f);
                         Vector3 bPos = center + new Vector3(Mathf.Sin(bAng * Mathf.Deg2Rad) * bDist, 0f, Mathf.Cos(bAng * Mathf.Deg2Rad) * bDist);
 
                         var bushPrefab = bushPrefabs[UnityEngine.Random.Range(0, bushPrefabs.Count)];
@@ -186,36 +192,13 @@ namespace BattleSummoner.EditorScripts
                         bushObj.name = $"AnimeBush_{forestNames[f]}_{b + 1}";
                         bushObj.transform.position = bPos;
                         bushObj.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                        bushObj.transform.localScale = Vector3.one * UnityEngine.Random.Range(2.5f, 4.2f);
+                        bushObj.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.40f, 0.65f);
                     }
                 }
             }
 
-            // B. City Perimeter Greenbelt (Tier 1 Outer Moat Banks, R = 320m)
-            GameObject belt = new GameObject("Moat_Perimeter_Greenbelt");
-            belt.transform.SetParent(treesRoot.transform, false);
-            for (int i = 0; i < 32; i++)
-            {
-                float ang = i * (360f / 32f);
-                // Avoid blocking the 4 bridge approaches (0, 90, 180, 270)
-                if (Mathf.Abs(ang % 90f) < 8f) continue;
+            Debug.Log($"🍃 [Anime Nature] Spawned {spawnedTrees} anime trees and lush bushes exclusively on Green Land (NW Mistwood and SE Meadows)!");
 
-                float rad = ang * Mathf.Deg2Rad;
-                Vector3 pos = new Vector3(Mathf.Sin(rad) * 325f, Tier1Height, Mathf.Cos(rad) * 325f);
-
-                var treePrefab = treePrefabs[UnityEngine.Random.Range(0, treePrefabs.Count)];
-                GameObject treeObj = (GameObject)PrefabUtility.InstantiatePrefab(treePrefab, belt.transform);
-                treeObj.name = $"AnimeTree_MoatBelt_{i + 1}";
-                treeObj.transform.position = pos;
-                treeObj.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                treeObj.transform.localScale = Vector3.one * UnityEngine.Random.Range(5.0f, 7.5f);
-
-                var cull = treeObj.GetComponent<CullableWorldProp>() ?? treeObj.AddComponent<CullableWorldProp>();
-                cull.boundingRadius = 10f;
-                spawnedTrees++;
-            }
-
-            Debug.Log($"🍃 [Anime Nature] Spawned {spawnedTrees} anime trees and lush bushes across Mistwood and moat perimeters!");
         }
 
         // =========================================================================

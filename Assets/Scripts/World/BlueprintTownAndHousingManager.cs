@@ -12,8 +12,7 @@ namespace BattleSummoner.World
     public class TownPlotNode
     {
         public string plotId;
-        public Vector2 normalizedDiagramCoords;
-        public float elevationY;
+        public Vector3 worldPosition;
         public float facingAngleY;
         public bool isOwnedByPlayer;
         public string ownerPlayerId;
@@ -23,33 +22,36 @@ namespace BattleSummoner.World
     }
 
     /// <summary>
-    /// Blueprint Town House Population & Player Home / Personal Storefront Ownership.
-    /// Directly references Antigravity's self-generated circular multi-tiered town diagram.
-    /// Stepped elevation rises toward the Central Church of Revival, while wide radial avenues
-    /// are strictly preserved for mount squads (wolves, birds, reptiles).
+    /// Section 2: San Francisco High-Density Hillside Town Population & Player Home/Shop Ownership.
+    /// Replaces sparse ring logic with shoulder-to-shoulder packed blocks climbing steep hillside slopes
+    /// toward the Central Church, preserving wide 16m radial mount avenues and ring streets.
     /// </summary>
     [ExecuteInEditMode]
     public class BlueprintTownAndHousingManager : MonoBehaviour
     {
         public static BlueprintTownAndHousingManager Instance { get; private set; }
 
-        [Header("Antigravity Diagram Reference")]
-        [Tooltip("Direct reference to Antigravity's self-generated circular multi-tiered town blueprint diagram.")]
+        [Header("Antigravity Diagram & San Francisco Hillside Density")]
         public Texture2D antigravityTownBlueprintDiagram;
-        public float townRadius = 450f;
+        public float kingdomOuterWallRadius = 290f;
         public float centerChurchPeakElevation = 85f;
 
+        [Tooltip("Width of a single row-house footprint so buildings pack wall-to-wall like San Francisco.")]
+        public float averageRowHouseWidth = 7.2f;
+        [Tooltip("Wide street clearance reserved for mounts & carriages between packed blocks.")]
+        public float wideMountAvenueWidth = 16.0f;
+        public float ringStreetGapWidth = 14.0f;
+
         [Header("Prefabs")]
-        public GameObject[] residentialHousePrefabs;
+        public GameObject[] residentialRowHousePrefabs;
         public GameObject[] bakeryAndShopPrefabs;
         public GameObject playerStorefrontTablePrefab;
         public GameObject weekendFestivalLanternsRoot;
 
-        [Header("Town Plot Ledger")]
+        [Header("Town Plots Ledger")]
         public List<TownPlotNode> townPlots = new List<TownPlotNode>();
 
-        public event Action<string, string> OnPlotClaimedByPlayer; // (plotId, playerId)
-        public event Action<string, int> OnStorefrontStocked;     // (plotId, itemCount)
+        public event Action<string, string> OnPlotClaimedByPlayer;
         public event Action<bool> OnWeekendFestivalStateChanged;
 
         private void Awake()
@@ -61,7 +63,6 @@ namespace BattleSummoner.World
                 return;
             }
             Instance = this;
-
             EvaluateWeekendFestivalState();
         }
 
@@ -70,33 +71,20 @@ namespace BattleSummoner.World
             EvaluateWeekendFestivalState();
         }
 
+#if UNITY_EDITOR
         [ContextMenu("0. Auto-Load Metropolis Assets From Project")]
         public void AutoAssignBlueprintAssets()
         {
-#if UNITY_EDITOR
             if (antigravityTownBlueprintDiagram == null)
             {
                 antigravityTownBlueprintDiagram = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Screenshots/blueprint_aerial_overview_final.png")
                     ?? AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Screenshots/populated_town_blueprint_aerial.png");
             }
 
-            // Ensure clean Metropolis catalog free of raw oversized FBXs
-            bool needsReassign = residentialHousePrefabs == null || residentialHousePrefabs.Length == 0;
-            if (!needsReassign)
-            {
-                foreach (var p in residentialHousePrefabs)
-                {
-                    if (p == null || p.name.Contains("Shop_Building_Exterior") || p.name.Contains("Alchemist") || p.name.Contains("Armory"))
-                    {
-                        needsReassign = true;
-                        break;
-                    }
-                }
-            }
-
+            bool needsReassign = residentialRowHousePrefabs == null || residentialRowHousePrefabs.Length == 0;
             if (needsReassign)
             {
-                residentialHousePrefabs = LoadAssetsMatching(
+                residentialRowHousePrefabs = LoadAssetsMatching(
                     "Assets/Models/Metropolis/Building_House_Residential.fbx",
                     "Assets/Models/Metropolis/Building_House_LowDistrict.fbx",
                     "Assets/Models/Metropolis/Building_Inn_Lodge.fbx",
@@ -116,10 +104,8 @@ namespace BattleSummoner.World
 
             EditorUtility.SetDirty(this);
             Debug.Log($"[Town Housing Manager] Auto-assigned blueprint diagram ({antigravityTownBlueprintDiagram?.name}) and prefab libraries.");
-#endif
         }
 
-#if UNITY_EDITOR
         private GameObject[] LoadAssetsMatching(params string[] paths)
         {
             List<GameObject> list = new List<GameObject>();
@@ -132,7 +118,7 @@ namespace BattleSummoner.World
         }
 #endif
 
-        [ContextMenu("1. Populate Town From Self-Generated Diagram")]
+        [ContextMenu("Populate San Francisco Packed Hillside Town")]
         public void PopulateTownFromDiagram()
         {
 #if UNITY_EDITOR
@@ -149,138 +135,132 @@ namespace BattleSummoner.World
 
             townPlots.Clear();
 
-            // Concentric rings matching Antigravity's circular tiered diagram
-            float[] ringRadii = { 0.82f, 0.55f, 0.30f };
-            int[] counts = { 36, 24, 12 };
+            // Define tightly stepped hillside terraces from outside the Church plaza out to the Kingdom Walls
+            float innerChurchPlazaRadius = 65f;
+            float currentRadius = innerChurchPlazaRadius;
+            int ringIndex = 0;
 
-            for (int r = 0; r < ringRadii.Length; r++)
+            while (currentRadius < kingdomOuterWallRadius - 35f)
             {
-                float rad = ringRadii[r];
-                int count = counts[r];
-
-                for (int i = 0; i < count; i++)
+                // Pack 2 back-to-back rows of buildings per terrace block before leaving a wide street for mounts
+                for (int subRow = 0; subRow < 2; subRow++)
                 {
-                    // Leave clear openings for the 8 radial avenues (every 45 degrees)
-                    float angleRad = (i / (float)count) * Mathf.PI * 2f;
-                    float angleDeg = angleRad * Mathf.Rad2Deg;
+                    float rowRadius = currentRadius + (subRow * 9.5f);
+                    float circumference = 2f * Mathf.PI * rowRadius;
 
-                    // Skip plots directly cutting through the 8 grand radial avenues
-                    if (Mathf.Abs(angleDeg % 45f) < 8f) continue;
+                    // Steep San Francisco hillside elevation curve rising toward the Central Church
+                    float normalizedDist = rowRadius / kingdomOuterWallRadius;
+                    float baseElevation = Mathf.Pow(1f - normalizedDist, 1.35f) * centerChurchPeakElevation;
 
-                    Vector2 coords = new Vector2(Mathf.Sin(angleRad) * rad, Mathf.Cos(angleRad) * rad);
-                    // The concentric avenue is outward relative to the inner terrace plots.
-                    // Facade (+Z) faces outward directly toward the avenue so front doors open to the street.
-                    float faceAngle = angleDeg;
-                    Vector3 dirOut = new Vector3(Mathf.Sin(angleRad), 0f, Mathf.Cos(angleRad));
-                    Quaternion houseRotation = Quaternion.LookRotation(dirOut, Vector3.up);
+                    float cursorArcLength = 0f;
+                    int plotIndex = 0;
 
-                    // Determine ground elevation from actual terrace surface (prevents floating buildings)
-                    float dist = rad * townRadius;
-                    float elev = 0f;
-                    if (dist <= 75f) elev = 18f;
-                    else if (dist <= 155f) elev = 12f;
-                    else if (dist <= 235f) elev = 6f;
-                    else elev = 0f;
-
-                    Vector3 rayStart = new Vector3(coords.x * townRadius, elev + 20f, coords.y * townRadius);
-                    if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit groundHit, 50f))
+                    while (cursorArcLength < circumference)
                     {
-                        elev = groundHit.point.y;
-                    }
+                        float angleRad = cursorArcLength / rowRadius;
+                        float angleDeg = (angleRad * Mathf.Rad2Deg) % 360f;
 
-                    TownPlotNode plot = new TownPlotNode
-                    {
-                        plotId = $"Tier{r}_Plot{i:D2}",
-                        normalizedDiagramCoords = coords,
-                        elevationY = elev,
-                        facingAngleY = faceAngle
-                    };
+                        // Keep 4 major radial avenues + 4 secondary diagonal streets wide open for mounts!
+                        bool isMajorMountAvenue = IsWithinAvenueCorridor(angleDeg, 90f, wideMountAvenueWidth, rowRadius);
+                        bool isSecondaryMountStreet = IsWithinAvenueCorridor(angleDeg - 45f, 90f, wideMountAvenueWidth * 0.75f, rowRadius);
 
-                    Vector3 worldPos = new Vector3(coords.x * townRadius, elev, coords.y * townRadius);
-                    GameObject prefab = null;
-
-                    if (i % 4 == 0 && bakeryAndShopPrefabs != null && bakeryAndShopPrefabs.Length > 0)
-                    {
-                        prefab = bakeryAndShopPrefabs[(r + i) % bakeryAndShopPrefabs.Length];
-                    }
-                    else if (residentialHousePrefabs != null && residentialHousePrefabs.Length > 0)
-                    {
-                        prefab = residentialHousePrefabs[(r + i) % residentialHousePrefabs.Length];
-                    }
-
-                    if (prefab != null)
-                    {
-                        GameObject spawned;
-#if UNITY_EDITOR
-                        spawned = PrefabUtility.InstantiatePrefab(prefab, transform) as GameObject;
-                        if (spawned == null) spawned = Instantiate(prefab, worldPos, houseRotation, transform);
-                        else
+                        if (isMajorMountAvenue || isSecondaryMountStreet)
                         {
-                            spawned.transform.position = worldPos;
-                            spawned.transform.rotation = houseRotation;
+                            cursorArcLength += averageRowHouseWidth * 0.5f;
+                            continue;
                         }
-#else
-                        spawned = Instantiate(prefab, worldPos, houseRotation, transform);
-#endif
-                        spawned.transform.localScale = Vector3.one;
-                        spawned.name = $"Plot_{plot.plotId}_{prefab.name}";
-                        plot.spawnedBuildingInstance = spawned;
-                    }
 
-                    townPlots.Add(plot);
+                        // Pack buildings shoulder-to-shoulder with slight organic width jitter (San Francisco row-house style)
+                        float organicWidth = averageRowHouseWidth * UnityEngine.Random.Range(0.88f, 1.12f);
+                        float facadeDepthJitter = UnityEngine.Random.Range(-0.55f, 0.55f);
+                        float effectiveRadius = rowRadius + facadeDepthJitter;
+
+                        // Terrain height raycast to anchor houses firmly to the hillside
+                        float groundY = baseElevation;
+                        Vector3 rayOrigin = new Vector3(Mathf.Sin(angleRad) * effectiveRadius, baseElevation + 25f, Mathf.Cos(angleRad) * effectiveRadius);
+                        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 60f))
+                        {
+                            groundY = hit.point.y;
+                        }
+
+                        Vector3 worldPos = new Vector3(
+                            Mathf.Sin(angleRad) * effectiveRadius,
+                            groundY,
+                            Mathf.Cos(angleRad) * effectiveRadius
+                        );
+
+                        // Face the nearest street (subRow 0 faces uphill toward Church; subRow 1 faces downhill street)
+                        float inwardAngle = Mathf.Atan2(-worldPos.x, -worldPos.z) * Mathf.Rad2Deg;
+                        float facingAngle = (subRow == 0) ? inwardAngle : inwardAngle + 180f;
+
+                        TownPlotNode plot = new TownPlotNode
+                        {
+                            plotId = $"Tier{ringIndex}_R{subRow}_House{plotIndex}",
+                            worldPosition = worldPos,
+                            facingAngleY = facingAngle
+                        };
+
+                        bool isCornerOrMainShop = (plotIndex % 5 == 0);
+                        GameObject[] pool = (isCornerOrMainShop && bakeryAndShopPrefabs != null && bakeryAndShopPrefabs.Length > 0)
+                            ? bakeryAndShopPrefabs
+                            : residentialRowHousePrefabs;
+
+                        GameObject prefab = (pool != null && pool.Length > 0)
+                            ? pool[UnityEngine.Random.Range(0, pool.Length)]
+                            : null;
+
+                        if (prefab != null)
+                        {
+                            Quaternion rot = Quaternion.Euler(0f, facingAngle, 0f);
+                            GameObject instance;
+#if UNITY_EDITOR
+                            instance = PrefabUtility.InstantiatePrefab(prefab, transform) as GameObject;
+                            if (instance == null) instance = Instantiate(prefab, worldPos, rot, transform);
+                            else
+                            {
+                                instance.transform.position = worldPos;
+                                instance.transform.rotation = rot;
+                            }
+#else
+                            instance = Instantiate(prefab, worldPos, rot, transform);
+#endif
+                            // Subtle vertical scale variation so packed roofs step organically like San Francisco Victorian rows
+                            float heightScale = UnityEngine.Random.Range(0.90f, 1.18f);
+                            instance.transform.localScale = new Vector3(1f, heightScale, 1f);
+                            instance.name = $"Plot_{plot.plotId}_{prefab.name}";
+                            plot.spawnedBuildingInstance = instance;
+                        }
+
+                        townPlots.Add(plot);
+                        cursorArcLength += organicWidth; // Immediately abut the next building wall-to-wall!
+                        plotIndex++;
+                    }
                 }
+
+                // Step outward across a wide mount-accessible ring street to the next packed block
+                currentRadius += (9.5f * 2f) + ringStreetGapWidth;
+                ringIndex++;
             }
 
-            Debug.Log($"[Town Housing Manager] Successfully populated {townPlots.Count} stepped circular plots from Antigravity's blueprint diagram!");
-#if UNITY_EDITOR
-            EditorUtility.SetDirty(this);
-#endif
+            Debug.Log($"[San Francisco Hillside Builder] Packed {townPlots.Count} row-houses and shops with wide mount avenues!");
+        }
+
+        private bool IsWithinAvenueCorridor(float angleDeg, float repeatIntervalDeg, float corridorWidthMeters, float radius)
+        {
+            float halfAngleSpan = ((corridorWidthMeters * 0.5f) / Mathf.Max(1f, radius)) * Mathf.Rad2Deg;
+            float mod = Mathf.Abs((angleDeg + 360f) % repeatIntervalDeg);
+            return (mod < halfAngleSpan) || (repeatIntervalDeg - mod < halfAngleSpan);
         }
 
         public bool ClaimPlayerHousePlot(string plotId, string playerId, int manaCoreCost, ref int playerManaCores)
         {
             var plot = townPlots.Find(p => p.plotId == plotId);
-            if (plot == null || plot.isOwnedByPlayer || playerManaCores < manaCoreCost)
-            {
-                Debug.LogWarning($"[Town Housing] Cannot claim plot {plotId}: Already owned or insufficient Mana Cores ({playerManaCores}/{manaCoreCost}).");
-                return false;
-            }
+            if (plot == null || plot.isOwnedByPlayer || playerManaCores < manaCoreCost) return false;
 
             playerManaCores -= manaCoreCost;
             plot.isOwnedByPlayer = true;
             plot.ownerPlayerId = playerId;
-
-            // Spawn Personal Storefront Table outside the claimed house
-            if (playerStorefrontTablePrefab != null && plot.spawnedBuildingInstance != null && plot.spawnedStorefrontTable == null)
-            {
-                Vector3 tablePos = plot.spawnedBuildingInstance.transform.position + plot.spawnedBuildingInstance.transform.forward * 4.5f;
-                plot.spawnedStorefrontTable = Instantiate(playerStorefrontTablePrefab, tablePos, plot.spawnedBuildingInstance.transform.rotation, plot.spawnedBuildingInstance.transform);
-                plot.spawnedStorefrontTable.name = $"StorefrontTable_{playerId}";
-            }
-
-            if (SystemBroadcastManager.Instance != null)
-            {
-                SystemBroadcastManager.Instance.DispatchBroadcast(
-                    $"[Town Housing] Player '{playerId}' has established a home at {plotId}!", false);
-            }
-
-            if (BattleSummonerAudioMaster.Instance != null)
-            {
-                BattleSummonerAudioMaster.Instance.PlayPresetSFX("crystal_resonate", 0.9f);
-            }
-
             OnPlotClaimedByPlayer?.Invoke(plotId, playerId);
-            return true;
-        }
-
-        public bool DeployPersonalStorefront(string plotId, List<string> itemIdsToSell)
-        {
-            var plot = townPlots.Find(p => p.plotId == plotId);
-            if (plot == null || !plot.isOwnedByPlayer) return false;
-
-            plot.offlineShopItemIds = new List<string>(itemIdsToSell);
-            Debug.Log($"[Personal Storefront] Plot {plotId} stocked with {itemIdsToSell.Count} items for offline autopilot sales.");
-            OnStorefrontStocked?.Invoke(plotId, itemIdsToSell.Count);
             return true;
         }
 
@@ -294,13 +274,7 @@ namespace BattleSummoner.World
             {
                 weekendFestivalLanternsRoot.SetActive(isFestivalNight);
             }
-
             OnWeekendFestivalStateChanged?.Invoke(isFestivalNight);
-
-            if (isFestivalNight)
-            {
-                Debug.Log("🏮 [TOWN FESTIVAL NIGHT] Lantern Festival Active! Floating lanterns, fireworks, and town-wide morale buff enabled.");
-            }
         }
     }
 }

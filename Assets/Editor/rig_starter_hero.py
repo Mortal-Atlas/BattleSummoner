@@ -1,6 +1,7 @@
 """
 Blender headless Python script for auto-rigging starter hero humanoids.
 Executed inside Blender's embedded Python runtime.
+Automated skinning and bone weight calculations via numpy and mathutils.
 """
 
 import bpy  # type: ignore

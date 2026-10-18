@@ -29,7 +29,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 # -----------------------------------------------------------------------------
 GRID_SIZE = 1700.0  # meters (-850 to +850)
 RES = 280          # 280 x 280 vertices = 78,400 verts, 155,682 tris
-KINGDOM_R = 335.0  # Center kingdom radius (flat)
+KINGDOM_R = 348.0  # Center kingdom radius (flat foundation & moat canal up to 348m)
 KINGDOM_BLEND = 35.0 # Blend to terrain
 CALDERA_X, CALDERA_Z = 380.0, 380.0 # NE Caldera center (r ~ 537m, angle 45 deg)
 
@@ -124,21 +124,44 @@ h_meadow = 18.0 * np.sin(X * 0.012) * np.cos(Z * 0.011) + 10.0 * np.cos(X * 0.02
 h_raw_land = w_volc * h_volc + w_desert * h_desert + w_forest * h_forest + w_meadow * h_meadow
 
 # -----------------------------------------------------------------------------
-# 6. Combined Island Height with Kingdom Flat Core & Ocean Shelf
+# 6. Combined Island Height with Kingdom Flat Core, Moat Trench & Ocean Shelf
 # -----------------------------------------------------------------------------
-# Flat Kingdom Center (r <= 335m -> height = -0.2m for moat/city foundation)
-w_k = np.clip((R - KINGDOM_R) / KINGDOM_BLEND, 0.0, 1.0)
-s_kingdom = w_k * w_k * (3.0 - 2.0 * w_k)
+# Kingdom City Core: R <= 290m -> -0.5m
+# Inner Wall Drop: 290m to 298m -> smooth drop to -3.8m canal bed
+# Moat Canal: 298m to 348m -> -3.8m (water level is -0.75m, moat depth ~ 3.05m)
+# Outer Embankment: 348m to 375m -> smooth ramp from -3.8m to 0.0m
+# Outer Buffer: 375m to 420m -> smooth blend into raw biome terrain
+# Outer Island: R > 420m -> h_raw_land with river carving and ocean shelf (-14m)
 
-# River depth carving (in-river bed = -3.2m, matching water plane)
+# River carving on raw land
 h_river_carved = w_river * h_raw_land + (1.0 - w_river) * (-3.2)
 
 # Coastline falloff to ocean floor (-14m)
 w_coast = np.clip((R - (R_coast - 45.0)) / 75.0, 0.0, 1.0)
 s_coast = w_coast * w_coast * (3.0 - 2.0 * w_coast)
+h_outer_island = (1.0 - s_coast) * h_river_carved + s_coast * (-14.0)
 
-# Final Height
-Y = (1.0 - s_kingdom) * (-0.2) + s_kingdom * ((1.0 - s_coast) * h_river_carved + s_coast * (-14.0))
+# Smooth blend from buffer zone (375m..420m) into outer terrain
+w_outer = np.clip((R - 375.0) / 45.0, 0.0, 1.0)
+s_outer = w_outer * w_outer * (3.0 - 2.0 * w_outer)
+h_post_moat = (1.0 - s_outer) * 0.0 + s_outer * h_outer_island
+
+# Outer moat embankment ramp (348m..375m: -3.8m up to 0.0m)
+w_ramp = np.clip((R - 348.0) / 27.0, 0.0, 1.0)
+s_ramp = w_ramp * w_ramp * (3.0 - 2.0 * w_ramp)
+h_embankment = -3.8 + s_ramp * 3.8
+
+# Inner city drop (290m..298m: -0.5m down to -3.8m)
+w_inner = np.clip((R - 290.0) / 8.0, 0.0, 1.0)
+s_inner = w_inner * w_inner * (3.0 - 2.0 * w_inner)
+h_city_drop = (1.0 - s_inner) * (-0.5) + s_inner * (-3.8)
+
+# Final Height Composition
+Y = np.where(R <= 290.0, -0.5,
+    np.where(R <= 298.0, h_city_drop,
+    np.where(R <= 348.0, -3.8,
+    np.where(R <= 375.0, h_embankment,
+             h_post_moat))))
 
 # -----------------------------------------------------------------------------
 # 7. Build Blender Mesh

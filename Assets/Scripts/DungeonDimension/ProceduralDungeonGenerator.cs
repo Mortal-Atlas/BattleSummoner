@@ -161,5 +161,12 @@ namespace BattleSummoner.DungeonDimension
             spawnedRoomInstances.Clear();
             occupiedCells.Clear();
         }
+
+        public List<GeneratedRoomNode> GenerateUniqueProceduralDungeon(int? overrideSeed = null, int fortressEscalationBonusRooms = 0)
+        {
+            int activeSeed = overrideSeed ?? (Guid.NewGuid().GetHashCode() ^ System.Environment.TickCount);
+            return BuildUniqueDungeonRun(activeSeed, fortressEscalationBonusRooms * 0.1f);
+        }
     }
 }
+

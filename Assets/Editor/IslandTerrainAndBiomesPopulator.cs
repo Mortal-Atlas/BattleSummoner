@@ -356,46 +356,68 @@ namespace BattleSummoner.EditorScripts
         // =========================================================================
         private static void SetupWaterways()
         {
-            var bitgemWaterMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Bitgem/StylisedWater/URP/Materials/example-water-01.mat");
-            if (bitgemWaterMat == null) return;
+            var azureWaterMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Environment/Mat_Moat_StylizedWater_Azure.mat")
+                                ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/Bitgem/StylisedWater/URP/Materials/example-water-01.mat");
+            if (azureWaterMat == null) return;
 
-            // Ensure moat and rivers are active and styled
+            // Ensure moat and rivers are active and styled with vibrant azure water
             var renderers = UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var r in renderers)
             {
                 string n = r.name.ToLower();
                 if (n.Contains("moat_watersurface") || n.StartsWith("outerwilds_river_") || n.Contains("fishingpond"))
                 {
-                    r.sharedMaterial = bitgemWaterMat;
+                    r.sharedMaterial = azureWaterMat;
                 }
             }
 
-            // Outer Ocean Ring Plane
+            // Outer Ocean Ring Mesh (outer ocean starting beyond island coastline R=720m to horizon R=2600m)
+            var oceanRingMesh = AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Models/Environment/Mesh_Outerwilds_Ocean_Ring.asset");
             GameObject oceanObj = GameObject.Find("Outerwilds_Ocean_Water");
             if (oceanObj == null)
             {
-                oceanObj = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                oceanObj.name = "Outerwilds_Ocean_Water";
-                oceanObj.transform.position = new Vector3(0f, -2.5f, 0f);
-                oceanObj.transform.localScale = new Vector3(250f, 1f, 250f); // 2500m span
+                oceanObj = new GameObject("Outerwilds_Ocean_Water");
+                oceanObj.transform.position = new Vector3(0f, -2.0f, 0f);
+                oceanObj.transform.localScale = Vector3.one;
 
                 var metroRoot = GameObject.Find("--- AETHELBURG METROPOLIS ROOT ---");
                 if (metroRoot != null) oceanObj.transform.SetParent(metroRoot.transform, false);
 
-                var r = oceanObj.GetComponent<Renderer>();
-                if (r != null) r.sharedMaterial = bitgemWaterMat;
+                var mf = oceanObj.AddComponent<MeshFilter>();
+                if (oceanRingMesh != null) mf.sharedMesh = oceanRingMesh;
 
-                // Remove default collider so it doesn't block player
-                var col = oceanObj.GetComponent<Collider>();
-                if (col != null) UnityEngine.Object.DestroyImmediate(col);
+                var mr = oceanObj.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = azureWaterMat;
             }
             else
             {
-                var r = oceanObj.GetComponent<Renderer>();
-                if (r != null) r.sharedMaterial = bitgemWaterMat;
+                oceanObj.transform.position = new Vector3(0f, -2.0f, 0f);
+                oceanObj.transform.localScale = Vector3.one;
+
+                var mf = oceanObj.GetComponent<MeshFilter>() ?? oceanObj.AddComponent<MeshFilter>();
+                if (oceanRingMesh != null) mf.sharedMesh = oceanRingMesh;
+
+                var mr = oceanObj.GetComponent<MeshRenderer>() ?? oceanObj.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = azureWaterMat;
+
+                var col = oceanObj.GetComponent<Collider>();
+                if (col != null) UnityEngine.Object.DestroyImmediate(col);
             }
 
-            Debug.Log("🌊 [Waterways] Configured 8 river waterways and 2.5km outer ocean plane with Bitgem Stylized Water shader.");
+            // Recook Moat MeshCollider if present
+            var moatObj = GameObject.Find("Moat_WaterSurface");
+            if (moatObj != null)
+            {
+                var mc = moatObj.GetComponent<MeshCollider>();
+                if (mc != null && mc.sharedMesh != null)
+                {
+                    var m = mc.sharedMesh;
+                    mc.sharedMesh = null;
+                    mc.sharedMesh = m;
+                }
+            }
+
+            Debug.Log("🌊 [Waterways] Configured 8 river waterways, circular moat canal, and horizon ocean ring with Azure Stylized Water shader.");
         }
     }
 }

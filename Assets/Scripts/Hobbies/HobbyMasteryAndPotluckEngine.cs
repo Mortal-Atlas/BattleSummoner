@@ -128,7 +128,7 @@ namespace BattleSummoner.Hobbies
             return dish;
         }
 
-        private void GainCookingExp(float amt)
+        public void GainCookingExp(float amt)
         {
             cookingExp += amt;
             while (cookingExp >= GetRequiredExp(cookingLevel))

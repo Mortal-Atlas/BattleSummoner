@@ -370,7 +370,7 @@ namespace BattleSummoner.EditorScripts
         }
 
         // =========================================================================
-        // 5. DENSE ANIME TREE & BUSH POPULATION
+        // 5. DENSE ANIME TREE & BUSH POPULATION (STRICT GREEN LAND ONLY)
         // =========================================================================
         private static void PopulateDenseAnimeTreesAndBushes()
         {
@@ -405,51 +405,66 @@ namespace BattleSummoner.EditorScripts
             int totalTreesPlaced = 0;
             int totalBushesPlaced = 0;
 
-            // A. Northwest Mistwood Canopy Highlands (Dense Ancient Forest)
+            // =====================================================================
+            // A. NORTHWEST MISTWOOD HIGHLANDS (LUSH ANCIENT FOREST - GREEN LAND)
+            // =====================================================================
             var nwGroup = new GameObject("Group_NW_Mistwood_AncientCanopy");
             nwGroup.transform.SetParent(natureRoot.transform, false);
-            Vector3 nwCenter = new Vector3(-450f, 0f, 450f);
-            PlantGrove(nwGroup.transform, nwCenter, 130, 50, 160f, 40f, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
 
-            // B. Southeast Verdant Terraced Meadows & Orchards
-            var seGroup = new GameObject("Group_SE_Verdant_Terrace_Meadows");
-            seGroup.transform.SetParent(natureRoot.transform, false);
-            Vector3 seCenter = new Vector3(450f, 0f, -450f);
-            PlantGrove(seGroup.transform, seCenter, 100, 40, 150f, 35f, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
-
-            // C. 8 Meandering Riverbank Willows & Woodlands
-            var riverGroup = new GameObject("Group_Riverbank_Woodlands");
-            riverGroup.transform.SetParent(natureRoot.transform, false);
-            for (int k = 0; k < 8; k++)
+            // 1. Dense Packed Forest Groves (Tight shoulder-to-shoulder clusters)
+            Vector3[] nwDenseGroveCenters = new Vector3[]
             {
-                float ang = k * 45f * Mathf.Deg2Rad;
-                for (float r = 360f; r < 720f; r += 42f)
-                {
-                    // Left and right banks of the river
-                    Vector3 basePos = new Vector3(Mathf.Sin(ang) * r, 0f, Mathf.Cos(ang) * r);
-                    Vector3 perp = new Vector3(Mathf.Cos(ang), 0f, -Mathf.Sin(ang));
+                new Vector3(-440f, 0f, 480f),
+                new Vector3(-520f, 0f, 390f),
+                new Vector3(-370f, 0f, 540f),
+                new Vector3(-460f, 0f, 360f)
+            };
 
-                    // Left bank tree
-                    PlantSingleItem(riverGroup.transform, basePos + perp * UnityEngine.Random.Range(14f, 28f), treePrefabs, 0.52f, 0.76f, ref totalTreesPlaced);
-                    // Right bank tree
-                    PlantSingleItem(riverGroup.transform, basePos - perp * UnityEngine.Random.Range(14f, 28f), treePrefabs, 0.52f, 0.76f, ref totalTreesPlaced);
-                    // Riverbank shrubs
-                    if (bushPrefabs.Count > 0 && UnityEngine.Random.value < 0.65f)
-                    {
-                        PlantSingleBush(riverGroup.transform, basePos + perp * UnityEngine.Random.Range(10f, 20f), bushPrefabs, ref totalBushesPlaced);
-                    }
-                }
+            foreach (var center in nwDenseGroveCenters)
+            {
+                PlantDenseCluster(nwGroup.transform, center, 32, 16, 28f, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
             }
 
-            // D. Kingdom Farmland (Tier 1) & Civic Boulevards (Tier 2) Urban Foliage
+            // 2. Scattered Mistwood Trees (Organic spread across green hills)
+            PlantScatteredTrees(nwGroup.transform, new Vector2(-650f, -360f), new Vector2(360f, 650f), 85, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
+
+            // =====================================================================
+            // B. SOUTHEAST VERDANT MEADOWS & ORCHARDS (PASTORAL GREEN LAND)
+            // =====================================================================
+            var seGroup = new GameObject("Group_SE_Verdant_Terrace_Meadows");
+            seGroup.transform.SetParent(natureRoot.transform, false);
+
+            // 1. Dense Packed Copse Groves
+            Vector3[] seDenseGroveCenters = new Vector3[]
+            {
+                new Vector3(440f, 0f, -480f),
+                new Vector3(530f, 0f, -380f),
+                new Vector3(380f, 0f, -530f),
+                new Vector3(460f, 0f, -360f)
+            };
+
+            foreach (var center in seDenseGroveCenters)
+            {
+                PlantDenseCluster(seGroup.transform, center, 28, 14, 25f, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
+            }
+
+            // 2. Scattered Meadow & Orchard Trees
+            PlantScatteredTrees(seGroup.transform, new Vector2(360f, 650f), new Vector2(-650f, -360f), 80, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
+
+            // =====================================================================
+            // C. KINGDOM FARMLAND (TIER 1) & CIVIC PARKS (TIER 2) URBAN FOLIAGE
+            // =====================================================================
             var cityGroup = new GameObject("Group_Kingdom_UrbanParks_And_Boulevards");
             cityGroup.transform.SetParent(natureRoot.transform, false);
-            // Tier 1 Farmland Orchard Clusters (R ~ 240m to 290m)
-            for (int i = 0; i < 48; i++)
+
+            // Tier 1 Farmland Orchard Clusters (R ~ 245m to 285m, outside avenues)
+            for (int i = 0; i < 40; i++)
             {
-                float ang = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-                float dist = UnityEngine.Random.Range(245f, 290f);
-                Vector3 cityPos = new Vector3(Mathf.Sin(ang) * dist, 0f, Mathf.Cos(ang) * dist);
+                float ang = UnityEngine.Random.Range(0f, 360f);
+                if (Mathf.Abs(ang % 45f) < 8f) continue; // Avoid radial avenues
+                float rad = ang * Mathf.Deg2Rad;
+                float dist = UnityEngine.Random.Range(245f, 285f);
+                Vector3 cityPos = new Vector3(Mathf.Sin(rad) * dist, 0f, Mathf.Cos(rad) * dist);
                 PlantSingleItem(cityGroup.transform, cityPos, treePrefabs, 0.45f, 0.65f, ref totalTreesPlaced);
                 if (bushPrefabs.Count > 0 && UnityEngine.Random.value < 0.5f)
                 {
@@ -457,56 +472,134 @@ namespace BattleSummoner.EditorScripts
                 }
             }
 
-            // Tier 2 Civic Ring Gardens (R ~ 160m to 195m)
-            for (int i = 0; i < 32; i++)
+            // Tier 2 Civic Ring Gardens (R ~ 165m to 195m)
+            for (int i = 0; i < 28; i++)
             {
-                float ang = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
+                float ang = UnityEngine.Random.Range(0f, 360f);
+                if (Mathf.Abs(ang % 45f) < 8f) continue;
+                float rad = ang * Mathf.Deg2Rad;
                 float dist = UnityEngine.Random.Range(165f, 195f);
-                Vector3 cityPos = new Vector3(Mathf.Sin(ang) * dist, 6f, Mathf.Cos(ang) * dist);
-                PlantSingleItem(cityGroup.transform, cityPos, treePrefabs, 0.42f, 0.60f, ref totalTreesPlaced);
+                Vector3 cityPos = new Vector3(Mathf.Sin(rad) * dist, 6f, Mathf.Cos(rad) * dist);
+                PlantSingleItem(cityGroup.transform, cityPos, treePrefabs, 0.40f, 0.58f, ref totalTreesPlaced);
             }
 
-            // E. Southwest Desert Oasis Foliage (Palms/Acacias around Oasis pool)
-            var desertGroup = new GameObject("Group_SW_Desert_Oasis_Foliage");
-            desertGroup.transform.SetParent(natureRoot.transform, false);
-            Vector3 oasisCenter = new Vector3(-430f, 0f, -430f);
-            PlantGrove(desertGroup.transform, oasisCenter, 22, 16, 45f, 8f, treePrefabs, bushPrefabs, ref totalTreesPlaced, ref totalBushesPlaced);
-
-            Debug.Log($"🌲 [Anime Trees Populated] Successfully planted {totalTreesPlaced} authentic Anime Trees and {totalBushesPlaced} bushes across the island at realistic human proportions!");
+            Debug.Log($"🌲 [Green Land Tree Population] Successfully planted {totalTreesPlaced} Anime Trees and {totalBushesPlaced} bushes exclusively on Green Land (NW Mistwood, SE Meadows, and Kingdom Parks)! STRICTLY ZERO trees in desert or riverbanks.");
         }
 
-        private static void PlantGrove(Transform parent, Vector3 center, int treeCount, int bushCount, float maxRadius, float minRadius,
+        /// <summary>
+        /// Strict validator ensuring trees ONLY spawn on Green Land, never in the SW Desert,
+        /// never in rivers or river banks, and never in the moat.
+        /// </summary>
+        private static bool IsValidGreenLandLocation(Vector3 pos)
+        {
+            float r = Mathf.Sqrt(pos.x * pos.x + pos.z * pos.z);
+
+            // 1. Moat Canal Exclusion (R in [290m, 360m])
+            if (r >= 290f && r <= 360f) return false;
+
+            // 2. Central Church Peak Exclusion
+            if (r < 65f) return false;
+
+            // 3. Island Outer Ocean/Cliffs Exclusion
+            if (r > 750f) return false;
+
+            // 4. Outside Kingdom (R > 290m): River & Biome Validation
+            if (r > 290f)
+            {
+                // River exclusion: 8 radiating rivers at 0, 45, 90, 135, 180, 225, 270, 315 deg
+                float ang = Mathf.Atan2(pos.x, pos.z) * Mathf.Rad2Deg;
+                if (ang < 0f) ang += 360f;
+                float mod45 = ang % 45f;
+                float deltaAngle = Mathf.Min(mod45, 45f - mod45);
+                float distToRiver = r * Mathf.Sin(deltaAngle * Mathf.Deg2Rad);
+                if (distToRiver < 42f) return false; // Strict 42m river + bank buffer!
+
+                // SW Desert Biome Exclusion (x < -30 and z < -30) -> STRICTLY ZERO TREES!
+                if (pos.x < -30f && pos.z < -30f) return false;
+
+                // NE Volcanic Caldera Exclusion (x > 30 and z > 30) -> No lush green trees in lava/obsidian
+                if (pos.x > 30f && pos.z > 30f) return false;
+
+                // Must be in Northwest Mistwood or Southeast Meadows
+                bool isNWMistwood = (pos.x < -30f && pos.z > 30f);
+                bool isSEMeadows = (pos.x > 30f && pos.z < -30f);
+                if (!isNWMistwood && !isSEMeadows) return false;
+            }
+
+            return true;
+        }
+
+        private static void PlantDenseCluster(Transform parent, Vector3 center, int treeCount, int bushCount, float clusterRadius,
             List<GameObject> treePrefabs, List<GameObject> bushPrefabs, ref int totalTrees, ref int totalBushes)
         {
+            GameObject clusterObj = new GameObject($"DenseCluster_{center.x:F0}_{center.z:F0}");
+            clusterObj.transform.SetParent(parent, false);
+
             for (int i = 0; i < treeCount; i++)
             {
                 float ang = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-                float dist = UnityEngine.Random.Range(minRadius, maxRadius);
-                Vector3 pos = center + new Vector3(Mathf.Sin(ang) * dist, 0f, Mathf.Cos(ang) * dist);
-                // Proportions: normal trees scale 0.48 - 0.72 (height ~6.5m to 10m), occasional grand tree 0.85 - 1.0
-                float scale = (UnityEngine.Random.value < 0.12f)
-                    ? UnityEngine.Random.Range(0.85f, 1.02f)
-                    : UnityEngine.Random.Range(0.48f, 0.72f);
-                PlantSingleItem(parent, pos, treePrefabs, scale, scale, ref totalTrees);
+                float dist = UnityEngine.Random.Range(2.5f, clusterRadius);
+                Vector3 candidate = center + new Vector3(Mathf.Sin(ang) * dist, 0f, Mathf.Cos(ang) * dist);
+
+                if (!IsValidGreenLandLocation(candidate)) continue;
+
+                float scale = (UnityEngine.Random.value < 0.15f)
+                    ? UnityEngine.Random.Range(0.85f, 1.05f) // Grand ancient tree
+                    : UnityEngine.Random.Range(0.50f, 0.75f);
+
+                PlantSingleItem(clusterObj.transform, candidate, treePrefabs, scale, scale, ref totalTrees);
             }
 
             for (int i = 0; i < bushCount; i++)
             {
                 float ang = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-                float dist = UnityEngine.Random.Range(minRadius, maxRadius);
-                Vector3 pos = center + new Vector3(Mathf.Sin(ang) * dist, 0f, Mathf.Cos(ang) * dist);
-                PlantSingleBush(parent, pos, bushPrefabs, ref totalBushes);
+                float dist = UnityEngine.Random.Range(1.5f, clusterRadius * 0.9f);
+                Vector3 candidate = center + new Vector3(Mathf.Sin(ang) * dist, 0f, Mathf.Cos(ang) * dist);
+                if (!IsValidGreenLandLocation(candidate)) continue;
+
+                PlantSingleBush(clusterObj.transform, candidate, bushPrefabs, ref totalBushes);
+            }
+        }
+
+        private static void PlantScatteredTrees(Transform parent, Vector2 xRange, Vector2 zRange, int count,
+            List<GameObject> treePrefabs, List<GameObject> bushPrefabs, ref int totalTrees, ref int totalBushes)
+        {
+            GameObject scatteredObj = new GameObject($"ScatteredTrees_{xRange.x:F0}_{zRange.x:F0}");
+            scatteredObj.transform.SetParent(parent, false);
+
+            int attempts = 0;
+            int placed = 0;
+            while (placed < count && attempts < count * 3)
+            {
+                attempts++;
+                float x = UnityEngine.Random.Range(Mathf.Min(xRange.x, xRange.y), Mathf.Max(xRange.x, xRange.y));
+                float z = UnityEngine.Random.Range(Mathf.Min(zRange.x, zRange.y), Mathf.Max(zRange.x, zRange.y));
+                Vector3 candidate = new Vector3(x, 0f, z);
+
+                if (!IsValidGreenLandLocation(candidate)) continue;
+
+                float scale = UnityEngine.Random.Range(0.52f, 0.78f);
+                PlantSingleItem(scatteredObj.transform, candidate, treePrefabs, scale, scale, ref totalTrees);
+                placed++;
+
+                if (bushPrefabs.Count > 0 && UnityEngine.Random.value < 0.4f)
+                {
+                    Vector3 bushPos = candidate + new Vector3(UnityEngine.Random.Range(-3f, 3f), 0f, UnityEngine.Random.Range(-3f, 3f));
+                    PlantSingleBush(scatteredObj.transform, bushPos, bushPrefabs, ref totalBushes);
+                }
             }
         }
 
         private static void PlantSingleItem(Transform parent, Vector3 targetPos, List<GameObject> prefabs, float minScale, float maxScale, ref int count)
         {
-            // Sample terrain height via raycast from 200m above
+            // Sample terrain height via raycast from 250m above
             float groundY = targetPos.y;
             Vector3 rayOrigin = new Vector3(targetPos.x, 250f, targetPos.z);
             if (Physics.Raycast(rayOrigin, Vector3.down, out var hit, 500f))
             {
                 groundY = hit.point.y;
+                // Reject if submerged under water surface
+                if (groundY <= 0.8f) return;
             }
 
             var prefab = prefabs[UnityEngine.Random.Range(0, prefabs.Count)];
@@ -517,6 +610,7 @@ namespace BattleSummoner.EditorScripts
             instance.transform.localScale = Vector3.one * s;
             count++;
         }
+
 
         private static void PlantSingleBush(Transform parent, Vector3 targetPos, List<GameObject> prefabs, ref int count)
         {

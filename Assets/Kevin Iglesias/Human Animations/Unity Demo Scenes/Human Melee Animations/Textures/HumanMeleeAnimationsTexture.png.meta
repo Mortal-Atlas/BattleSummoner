@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 53f61a14ec1e519429f48aa3e993a03b
+guid: 2c8e7f499d401414b8215275b03a4c66
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -143,5 +143,6 @@ AssetOrigin:
   productId: 165785
   packageName: Human Melee Animations FREE
   packageVersion: 2.0.2
-  assetPath: Assets/Kevin Iglesias/Human Animations/Textures/HumanAnimations_ColorPalette.png
-  uploadId: 825254
+  assetPath: Assets/Kevin Iglesias/Human Animations/Unity Demo Scenes/Human Melee
+    Animations/Textures/HumanMeleeAnimationsTexture.png
+  uploadId: 937352
