@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 63db3673b3fcc0145862e622fa6a3fca
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213197
+  packageName: Unity URP Terrain | Terrain Sample Project
+  packageVersion: 1.0.3
+  assetPath: Assets/TerrainSampleAssets/Prefabs/Details/GrassDry_D.prefab
+  uploadId: 996076

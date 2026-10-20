@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 404470
+  packageName: Anime Star VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Anime Star VFX URP/VFX/Textures/LUT/T_VFX_LUT_Water_01.tga
+  uploadId: 988824

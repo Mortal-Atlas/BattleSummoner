@@ -282,6 +282,9 @@ namespace BattleSummoner.Combat
                 Debug.Log($"⚔️ [BLADE SLICE{(isOffHand ? " (OFF-HAND)" : "")}] Hit {col.name}! Damage={finalKineticDamage:F1} (Riposte={riposteMult:F1}x)");
             }
 
+            // Step 2 Sequelitis Integration: Selective Z-Axis Cleave for flying swarms, destructible pillars, instant chests, and boss limbs
+            CheckSliceCollisions(worldSlashDir, swipeAngleDeg, velocity, baseSlashPower * speedMultiplier, "Physical");
+
             if (struckAny)
             {
                 float hitStop = hitStopDurationSec * (maxPrecisionHit >= 0.8f ? 1.45f : 1.0f);
@@ -322,10 +325,9 @@ namespace BattleSummoner.Combat
         private IEnumerator ExecuteHitStopRoutine(float duration)
         {
             inHitStop = true;
-            float prevTimeScale = Time.timeScale;
             Time.timeScale = 0.05f;
             yield return new WaitForSecondsRealtime(duration);
-            Time.timeScale = prevTimeScale;
+            Time.timeScale = 1.0f;
             inHitStop = false;
         }
 
@@ -356,6 +358,21 @@ namespace BattleSummoner.Combat
 
             target?.OnSlice(point, direction, finalKineticDamage);
             return finalKineticDamage;
+        }
+
+        /// <summary>
+        /// Sequelitis & How About Master Engine Integration:
+        /// Slices with a vertical slab in 3D space to cleave flying bat swarms, low crawlers,
+        /// provoke Iron Knuckle guards, sever boss limbs, smash destructible pillars, and pop instant chests.
+        /// </summary>
+        public void CheckSliceCollisions(Vector3 worldSlashDir, float swipeAngleDeg, float velocity, float baseDamage, string elementTag = "Physical")
+        {
+            if (BattleSummoner.DesignPhilosophy.SequelitisAndHowAboutMasterEngine.Instance != null)
+            {
+                Vector3 origin = transform.position;
+                BattleSummoner.DesignPhilosophy.SequelitisAndHowAboutMasterEngine.Instance.ExecuteSelectiveZAxisSwipeCleave(
+                    origin, worldSlashDir, swipeAngleDeg, velocity, baseDamage, elementTag);
+            }
         }
     }
 }

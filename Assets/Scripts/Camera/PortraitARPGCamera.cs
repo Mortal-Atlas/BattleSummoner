@@ -48,8 +48,14 @@ public class PortraitARPGCamera : MonoBehaviour
     [SerializeField] private float maxPitch = 60f;
     [SerializeField] private float positionDamping = 12f;
     [SerializeField] private float rotationDamping = 14f;
-    [SerializeField] private float lookSensitivityX = 0.22f;
-    [SerializeField] private float lookSensitivityY = 0.18f;
+    public float lookSensitivityX = 0.22f;
+    public float lookSensitivityY = 0.18f;
+
+    public void SetSensitivityMultiplier(float mult)
+    {
+        lookSensitivityX = 0.22f * mult;
+        lookSensitivityY = 0.18f * mult;
+    }
 
     [Header("Dynamic Portrait Aspect FOV")]
     [Tooltip("Target vertical FOV for a standard 9:16 portrait display.")]
@@ -144,7 +150,18 @@ public class PortraitARPGCamera : MonoBehaviour
 
     private void HandleDesktopCameraControls()
     {
-        // Right Mouse Button or Middle Mouse Button Drag
+        // Right Mouse Button or Middle Mouse Button Drag with clean cursor locking
+        if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else if (Input.GetMouseButtonUp(1) || Input.GetMouseButtonUp(2))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         if (Input.GetMouseButton(1) || Input.GetMouseButton(2))
         {
             float mouseX = Input.GetAxis("Mouse X");
@@ -159,12 +176,12 @@ public class PortraitARPGCamera : MonoBehaviour
             cameraDistance = Mathf.Clamp(cameraDistance - scroll * 4f, minDistance, maxDistance);
         }
 
-        // Desktop keyboard shortcuts: Q/E or Left/Right Arrow to orbit
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.Q))
+        // Keyboard shortcuts: Left/Right/Up/Down Arrow keys to orbit
+        if (Input.GetKey(KeyCode.LeftArrow))
         {
             RotateCamera(-85f * Time.deltaTime, 0f);
         }
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.E))
+        if (Input.GetKey(KeyCode.RightArrow))
         {
             RotateCamera(85f * Time.deltaTime, 0f);
         }

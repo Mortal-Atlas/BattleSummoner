@@ -6,3 +6,10 @@ NativeFormatImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407778
+  packageName: Wind Grass - Interaction
+  packageVersion: 1.0
+  assetPath: Assets/Nyxis_GrassInteractionSystem/Mat/Custom_URP_Genshin_Grass_Unity6.mat
+  uploadId: 995300

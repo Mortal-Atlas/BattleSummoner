@@ -35,7 +35,7 @@ namespace BattleSummoner.Character.FacialAnimation.Editor
                 // If attached directly to a 3D Head bone, localPosition is close to head front
                 bool isHeadBone = headAnchor != selected.transform;
                 groupObj.transform.localPosition = isHeadBone 
-                    ? new Vector3(0f, 0.08f, 0.12f) 
+                    ? new Vector3(0f, 0f, 0.088f) 
                     : new Vector3(0f, 1.48f, 0f);
             }
             else
@@ -51,15 +51,17 @@ namespace BattleSummoner.Character.FacialAnimation.Editor
             SpriteRenderer upperRenderer = GetOrCreateChildSpriteRenderer(
                 groupObj.transform,
                 "UpperFace_EyesBrows",
-                new Vector3(0f, 0.045f, -0.005f),
+                new Vector3(0f, 0.142f, 0f),
                 10);
+            upperRenderer.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
 
             // 3. Create Channel 2: LowerFace_Mouth
             SpriteRenderer lowerRenderer = GetOrCreateChildSpriteRenderer(
                 groupObj.transform,
                 "LowerFace_Mouth",
-                new Vector3(0f, -0.115f, -0.005f),
+                new Vector3(0f, 0.075f, 0.001f),
                 10);
+            lowerRenderer.transform.localScale = new Vector3(0.06f, 0.06f, 0.06f);
 
             // 4. Attach & wire ModularFaceRigController
             ModularFaceRigController controller = selected.GetComponent<ModularFaceRigController>();

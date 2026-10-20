@@ -571,10 +571,9 @@ namespace BattleSummoner.Combat
 
         private IEnumerator RoutineHitStop(float duration)
         {
-            float prevScale = Time.timeScale;
             Time.timeScale = 0.05f;
             yield return new WaitForSecondsRealtime(duration);
-            Time.timeScale = prevScale;
+            Time.timeScale = 1.0f;
         }
         #endregion
 

@@ -37,12 +37,14 @@ namespace BattleSummoner.UI
         private int currentEmoteIndex = 0;
         private readonly string[] emoteNames = new string[]
         {
-            "💃 Royal Waltz Dance",
-            "🕺 Energetic Folk Step",
-            "🔥 Campfire Rhythmic Sway",
-            "🥊 Martial Arts Kata Strike",
-            "🏹 Archer Flourish",
-            "🎉 Victorious Battle Cheer"
+            "💃 Chicken Wing Dance",
+            "🕺 Groovy Step Loop",
+            "💧 Sprinkler Dance",
+            "🤸 Freestyle Groove",
+            "🔥 Arms Pump & Step",
+            "⚡ Kick & Pump Arms",
+            "🥋 Martial Arts Taunt",
+            "🎉 Victorious Cheer"
         };
 
         private RectTransform rectTransform;
@@ -113,12 +115,18 @@ namespace BattleSummoner.UI
                         animCtrl.PlayDanceAnimation(3);
                         break;
                     case 3:
-                        animCtrl.PlayMartialArtsStrike(1);
+                        animCtrl.PlayDanceAnimation(4);
                         break;
                     case 4:
-                        animCtrl.PlayArcheryAction(false);
+                        animCtrl.PlayDanceAnimation(5);
                         break;
                     case 5:
+                        animCtrl.PlayDanceAnimation(6);
+                        break;
+                    case 6:
+                        animCtrl.PlayMartialArtsStrike(1);
+                        break;
+                    case 7:
                         animCtrl.PlayVictoryAnimation();
                         break;
                 }

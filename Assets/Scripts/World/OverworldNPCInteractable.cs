@@ -88,6 +88,17 @@ namespace BattleSummoner.World
         {
             if (_overheadCanvasObj != null) return;
 
+            var existing = transform.Find("Overhead_Prompt_Billboard");
+            if (existing != null)
+            {
+                _overheadCanvasObj = existing.gameObject;
+                var nObj = _overheadCanvasObj.transform.Find("Nameplate_Text");
+                if (nObj != null) _nameplateTMP = nObj.GetComponent<TextMeshPro>();
+                var pObj = _overheadCanvasObj.transform.Find("Prompt_Text");
+                if (pObj != null) _promptTMP = pObj.GetComponent<TextMeshPro>();
+                return;
+            }
+
             _overheadCanvasObj = new GameObject("Overhead_Prompt_Billboard");
             _overheadCanvasObj.transform.SetParent(transform, false);
             _overheadCanvasObj.transform.localPosition = new Vector3(0f, overheadBadgeHeight, 0f);
@@ -107,7 +118,7 @@ namespace BattleSummoner.World
             promptObj.transform.SetParent(_overheadCanvasObj.transform, false);
             promptObj.transform.localPosition = new Vector3(0f, -0.22f, 0f);
             _promptTMP = promptObj.AddComponent<TextMeshPro>();
-            _promptTMP.text = "<color=#FFFF55><b>[ TALK ]</b></color>";
+            _promptTMP.text = "<color=#FFFF55><b>[E] TALK</b></color>";
             _promptTMP.fontSize = 3.0f;
             _promptTMP.alignment = TextAlignmentOptions.Center;
             _promptTMP.sortingOrder = 51;
@@ -116,16 +127,16 @@ namespace BattleSummoner.World
 
         private void Update()
         {
-            if (_playerTransform == null)
-            {
-                FindPlayerReference();
-                if (_playerTransform == null) return;
-            }
-
             // Billboard overhead prompt toward Camera
             if (_overheadCanvasObj != null && Camera.main != null)
             {
                 _overheadCanvasObj.transform.rotation = Camera.main.transform.rotation;
+            }
+
+            if (_playerTransform == null)
+            {
+                FindPlayerReference();
+                if (_playerTransform == null) return;
             }
 
             float dist = Vector3.Distance(transform.position, _playerTransform.position);

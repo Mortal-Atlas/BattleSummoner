@@ -47,6 +47,7 @@ namespace BattleSummoner.Customization
 
         private MaterialPropertyBlock skinPropertyBlock;
         private MaterialPropertyBlock armorPropertyBlock;
+        private MaterialPropertyBlock hairPropertyBlock;
 
         private static readonly int BaseColorProp = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorProp = Shader.PropertyToID("_Color");
@@ -144,26 +145,26 @@ namespace BattleSummoner.Customization
             AutoDetectRenderers();
 
             // 1. Modular Body vs Armor Swapping:
-            // Torso: when armor is equipped, naked torso and arms/shoulders covered by armor are hidden
+            // Torso: when armor is equipped, show armor mantle over torso; always keep arms active so player never has missing limbs
             if (armorTorso != null) armorTorso.gameObject.SetActive(data.equipTorso);
-            if (bodyTorso != null) bodyTorso.gameObject.SetActive(!data.equipTorso);
-            if (bodyArms != null) bodyArms.gameObject.SetActive(!data.equipTorso);
+            if (bodyTorso != null) bodyTorso.gameObject.SetActive(true);
+            if (bodyArms != null) bodyArms.gameObject.SetActive(true);
 
-            // Gauntlets: when equipped, get rid of hand/wrist and replace with gauntlets!
+            // Gauntlets: when equipped, show gauntlets over wrists
             if (armorGauntlets != null) armorGauntlets.gameObject.SetActive(data.equipGauntlets);
             if (bodyHands != null) bodyHands.gameObject.SetActive(!data.equipGauntlets);
 
-            // Leggings: when equipped, get rid of legs and replace with leggings!
+            // Leggings: when equipped, fit leggings over legs
             if (armorLeggings != null) armorLeggings.gameObject.SetActive(data.equipLeggings);
-            if (bodyLegs != null) bodyLegs.gameObject.SetActive(!data.equipLeggings);
+            if (bodyLegs != null) bodyLegs.gameObject.SetActive(true);
 
-            // Boots: when equipped, get rid of bare feet and replace with boots!
-            if (armorBoots != null) armorBoots.gameObject.SetActive(data.equipBoots);
-            if (bodyFeet != null) bodyFeet.gameObject.SetActive(!data.equipBoots);
+            // Boots & Feet: maintain clean feet mesh
+            if (armorBoots != null) armorBoots.gameObject.SetActive(false);
+            if (bodyFeet != null) bodyFeet.gameObject.SetActive(true);
 
             // Helmet: when equipped, head is tucked/hidden under helmet
             if (armorHelmet != null) armorHelmet.gameObject.SetActive(data.equipHelmet);
-            if (bodyHead != null) bodyHead.gameObject.SetActive(!data.equipHelmet);
+            if (bodyHead != null) bodyHead.gameObject.SetActive(true);
 
             // 2. Apply Dynamic Color Tinting
             ApplySkinTint(data.skinColor);
@@ -175,7 +176,65 @@ namespace BattleSummoner.Customization
             // 4. Apply Bone Scale Morphs
             ApplyBoneMorphs(data);
 
+            // 5. Apply Hair Attachment and Tinting
+            ApplyHair(data);
+
             OnAppearanceChanged?.Invoke(data);
+        }
+
+        public void ApplyHair(ModularPlayerAppearanceData data)
+        {
+            var headBone = FindChildRecursive(transform, "Head");
+            if (headBone == null) return;
+
+            Transform hairT = headBone.Find("Hero_Hair");
+            if (hairT == null)
+            {
+                var hairGo = new GameObject("Hero_Hair");
+                hairGo.transform.SetParent(headBone, false);
+                hairT = hairGo.transform;
+                var mf = hairGo.AddComponent<MeshFilter>();
+                var mr = hairGo.AddComponent<MeshRenderer>();
+#if UNITY_EDITOR
+                mf.sharedMesh = UnityEditor.AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Models/Characters/Starter/Hair01_Clean.asset");
+                mr.sharedMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Characters/M_Hero_Hair.mat");
+#endif
+            }
+
+            if (hairT != null)
+            {
+                var mf = hairT.GetComponent<MeshFilter>();
+                if (mf != null && mf.sharedMesh == null)
+                {
+#if UNITY_EDITOR
+                    mf.sharedMesh = UnityEditor.AssetDatabase.LoadAssetAtPath<Mesh>("Assets/Models/Characters/Starter/Hair01_Clean.asset");
+#endif
+                }
+
+                // If helmet is equipped, hide hair to eliminate clipping; otherwise display
+                hairT.gameObject.SetActive(!data.equipHelmet);
+
+                // Precise anatomical alignment on anime skull cranium, normalized against parent armature scale
+                float pScaleY = headBone.lossyScale.y > 0.001f ? headBone.lossyScale.y : 1f;
+                float pScaleZ = headBone.lossyScale.z > 0.001f ? headBone.lossyScale.z : 1f;
+                hairT.localRotation = Quaternion.Euler(0f, 270f, 0f);
+                hairT.localScale = Vector3.one * (0.34f / pScaleY);
+                hairT.localPosition = new Vector3(0f, 0.05f / pScaleY, 0.04f / pScaleZ);
+
+                // Disable legacy 2D floating FaceRig if present so painted 3D anime face renders cleanly
+                var faceRig = transform.Find("AvatarRigRoot/Modular_Body_Head/FaceRig_SortingGroup") ?? transform.Find("AvatarRigRoot/FaceRig_SortingGroup");
+                if (faceRig != null) faceRig.gameObject.SetActive(false);
+
+                // Apply dynamic hair color
+                var mr = hairT.GetComponent<MeshRenderer>();
+                if (mr != null)
+                {
+                    if (hairPropertyBlock == null) hairPropertyBlock = new MaterialPropertyBlock();
+                    hairPropertyBlock.SetColor(BaseColorProp, data.hairColor);
+                    hairPropertyBlock.SetColor(ColorProp, data.hairColor);
+                    mr.SetPropertyBlock(hairPropertyBlock);
+                }
+            }
         }
 
         public void SetTorsoArmor(bool equipped)
@@ -217,6 +276,7 @@ namespace BattleSummoner.Customization
             currentData.equipHelmet = equipped;
             if (armorHelmet != null) armorHelmet.gameObject.SetActive(equipped);
             if (bodyHead != null) bodyHead.gameObject.SetActive(!equipped);
+            ApplyHair(currentData);
         }
 
         public void ApplySkinTint(Color color)
@@ -248,14 +308,18 @@ namespace BattleSummoner.Customization
 
         public void EquipWeapon(string weaponId)
         {
-            if (activeWeaponInstance != null)
-            {
-                Destroy(activeWeaponInstance);
-                activeWeaponInstance = null;
-            }
-
             if (!rightHandSocket) AutoDetectRenderers();
             if (!rightHandSocket) return;
+
+            // Remove any and all duplicate previous weapon models cleanly in both edit and play modes
+            for (int i = rightHandSocket.childCount - 1; i >= 0; i--)
+            {
+                var child = rightHandSocket.GetChild(i).gameObject;
+                if (Application.isPlaying) Destroy(child);
+                else DestroyImmediate(child);
+            }
+            activeWeaponInstance = null;
+
             if (string.IsNullOrEmpty(weaponId) || weaponId == "none") return;
 
             string prefabPath = weaponId.ToLower() switch
@@ -277,8 +341,32 @@ namespace BattleSummoner.Customization
             {
                 activeWeaponInstance = Instantiate(wPrefab, rightHandSocket);
                 activeWeaponInstance.name = $"Equipped_{weaponId}";
-                activeWeaponInstance.transform.localPosition = Vector3.zero;
-                activeWeaponInstance.transform.localRotation = Quaternion.identity;
+
+                // Proper grip alignment so weapons are held firmly by the hilt/handle rather than inverted/by the blade
+                Vector3 weaponOffset = Vector3.zero;
+                Quaternion weaponRot = Quaternion.identity;
+                string wKey = weaponId.ToLower();
+                if (wKey.Contains("sword"))
+                {
+                    // Weapon_Sword mesh hilt grip center is at y = 0.64m, blade extends in -Y
+                    weaponOffset = new Vector3(-0.015f, -0.64f, -0.01f);
+                    weaponRot = Quaternion.identity;
+                }
+                else if (wKey.Contains("axe"))
+                {
+                    weaponOffset = new Vector3(0f, -0.50f, 0f);
+                }
+                else if (wKey.Contains("staff"))
+                {
+                    weaponOffset = new Vector3(0f, -0.60f, 0f);
+                }
+                else if (wKey.Contains("wand"))
+                {
+                    weaponOffset = new Vector3(0f, -0.20f, 0f);
+                }
+
+                activeWeaponInstance.transform.localPosition = weaponOffset;
+                activeWeaponInstance.transform.localRotation = weaponRot;
                 activeWeaponInstance.transform.localScale = Vector3.one;
 
                 // Bind weapon material if needed
@@ -311,9 +399,6 @@ namespace BattleSummoner.Customization
         {
             transform.localScale = Vector3.one * Mathf.Clamp(data.heightScale, 0.70f, 1.35f);
 
-            var headBone = FindChildRecursive(transform, "Head");
-            if (headBone != null) headBone.localScale = Vector3.one * Mathf.Clamp(data.headScale, 0.75f, 1.30f);
-
             var chestBone = FindChildRecursive(transform, "Chest");
             if (chestBone != null)
             {
@@ -331,6 +416,21 @@ namespace BattleSummoner.Customization
                     Mathf.Clamp(data.waistScale, 0.70f, 1.30f),
                     1.0f,
                     Mathf.Clamp(data.waistScale, 0.70f, 1.30f)
+                );
+            }
+
+            var headBone = FindChildRecursive(transform, "Head");
+            if (headBone != null)
+            {
+                // Counter-scale parent non-uniform scaling from Chest and Spine
+                // so the head maintains 1:1:1 uniform anime facial proportions without egg/cone distortion
+                float pScaleX = Mathf.Clamp(data.shoulderWidth, 0.75f, 1.40f) * Mathf.Clamp(data.waistScale, 0.70f, 1.30f);
+                float pScaleZ = Mathf.Clamp(data.chestScale, 0.75f, 1.45f) * Mathf.Clamp(data.waistScale, 0.70f, 1.30f);
+                float hScale = Mathf.Clamp(data.headScale, 0.75f, 1.30f);
+                headBone.localScale = new Vector3(
+                    hScale / (pScaleX > 0.001f ? pScaleX : 1f),
+                    hScale,
+                    hScale / (pScaleZ > 0.001f ? pScaleZ : 1f)
                 );
             }
 

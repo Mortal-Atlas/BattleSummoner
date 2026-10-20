@@ -59,12 +59,12 @@ def add_box_to_bmesh(bm, min_pt, max_pt, mat_idx):
         bm.verts.new((min_pt[0], max_pt[1], max_pt[2])),
     ]
     faces = [
-        bm.faces.new((verts[0], verts[1], verts[2], verts[3])), # bottom
-        bm.faces.new((verts[4], verts[7], verts[6], verts[5])), # top
-        bm.faces.new((verts[0], verts[4], verts[5], verts[1])), # front (-Y)
-        bm.faces.new((verts[2], verts[6], verts[7], verts[3])), # back (+Y)
-        bm.faces.new((verts[0], verts[3], verts[7], verts[4])), # left (-X)
-        bm.faces.new((verts[1], verts[5], verts[6], verts[2])), # right (+X)
+        bm.faces.new((verts[0], verts[3], verts[2], verts[1])), # bottom (-Z)
+        bm.faces.new((verts[4], verts[5], verts[6], verts[7])), # top (+Z)
+        bm.faces.new((verts[0], verts[1], verts[5], verts[4])), # front (-Y)
+        bm.faces.new((verts[2], verts[3], verts[7], verts[6])), # back (+Y)
+        bm.faces.new((verts[0], verts[4], verts[7], verts[3])), # left (-X)
+        bm.faces.new((verts[1], verts[2], verts[6], verts[5])), # right (+X)
     ]
     for f in faces:
         f.material_index = mat_idx
@@ -149,9 +149,10 @@ def export_current_mesh(mesh_name, materials, filename):
     for m in materials:
         obj.data.materials.append(m)
     
-    # UV Unwrap
+    # Recalculate normals to outside & UV Unwrap
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.normals_make_consistent(inside=False)
     bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
     bpy.ops.object.mode_set(mode='OBJECT')
     

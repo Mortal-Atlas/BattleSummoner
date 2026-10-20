@@ -44,8 +44,22 @@ public class SimsCharacterCreatorUI : MonoBehaviour
         new Color(0.20f, 0.22f, 0.26f, 1.0f)  // Obsidian Knight
     };
 
+    public static readonly Color[] HairColorPresets = new Color[]
+    {
+        new Color(0.12f, 0.12f, 0.15f, 1.0f), // Raven Black
+        new Color(0.35f, 0.22f, 0.14f, 1.0f), // Chestnut Brown
+        new Color(0.85f, 0.72f, 0.45f, 1.0f), // Golden Blonde
+        new Color(0.88f, 0.90f, 0.94f, 1.0f), // Silver / White
+        new Color(0.72f, 0.20f, 0.22f, 1.0f), // Crimson Auburn
+        new Color(0.35f, 0.48f, 0.85f, 1.0f), // Cerulean Blue
+        new Color(0.55f, 0.28f, 0.72f, 1.0f), // Royal Violet
+        new Color(0.20f, 0.72f, 0.55f, 1.0f)  // Emerald Green
+    };
+
     public int selectedSkinIndex = 0;
     public int selectedArmorDyeIndex = 0;
+    public int selectedHairIndex = 1;
+    public int selectedHairColorIndex = 0;
 
     [Header("Active State")]
     public int activeViewMode = 2; // 0=Male Only, 1=Female Only, 2=Dual View
@@ -755,6 +769,8 @@ public class SimsCharacterCreatorUI : MonoBehaviour
         modData.gender = isFemaleTarget ? 1 : 0;
         modData.skinColor = SkinTonePresets[Mathf.Clamp(selectedSkinIndex, 0, SkinTonePresets.Length - 1)];
         modData.armorDyeColor = ArmorDyePresets[Mathf.Clamp(selectedArmorDyeIndex, 0, ArmorDyePresets.Length - 1)];
+        modData.hairColor = HairColorPresets[Mathf.Clamp(selectedHairColorIndex, 0, HairColorPresets.Length - 1)];
+        modData.hairStyleIndex = selectedHairIndex;
 
         var activeModular = isFemaleTarget && femaleCharacterInstance != null
             ? femaleCharacterInstance.GetComponentInChildren<BattleSummoner.Customization.ModularCharacterAppearance>()
@@ -809,6 +825,8 @@ public class SimsCharacterCreatorUI : MonoBehaviour
         PlayerPrefs.SetInt("Equip_Leggings", modData.equipLeggings ? 1 : 0);
         PlayerPrefs.SetInt("Equip_Shoes", modData.equipBoots ? 1 : 0);
         PlayerPrefs.SetString("Equip_Weapon", modData.weaponId);
+        PlayerPrefs.SetInt("Hair_Style", modData.hairStyleIndex);
+        PlayerPrefs.SetString("Hair_Color", ColorUtility.ToHtmlStringRGBA(modData.hairColor));
 
         PlayerPrefs.SetInt("CharacterCreationCompleted", 1);
         PlayerPrefs.Save();
@@ -976,8 +994,79 @@ public class SimsCharacterCreatorUI : MonoBehaviour
 
     public void SetPortraitHair(int hairIndex)
     {
+        selectedHairIndex = hairIndex;
         if (sideProfilePortrait != null)
             sideProfilePortrait.SetHair((BattlePortraitHair)hairIndex);
+
+        Set3DCharacterHair(hairIndex);
+    }
+
+    public void Set3DCharacterHair(int hairIndex)
+    {
+        selectedHairIndex = hairIndex;
+        ApplyHairToCharacter(femaleCharacterInstance, hairIndex);
+        ApplyHairToCharacter(maleCharacterInstance, hairIndex);
+    }
+
+    public void SetHairColor(int presetIndex)
+    {
+        if (presetIndex < 0 || presetIndex >= HairColorPresets.Length) return;
+        selectedHairColorIndex = presetIndex;
+        Color c = HairColorPresets[presetIndex];
+
+        ApplyHairColorToCharacter(femaleCharacterInstance, c);
+        ApplyHairColorToCharacter(maleCharacterInstance, c);
+    }
+
+    private void ApplyHairToCharacter(GameObject charObj, int hairIndex)
+    {
+        if (charObj == null) return;
+        var modular = charObj.GetComponentInChildren<BattleSummoner.Customization.ModularCharacterAppearance>();
+        if (modular != null)
+        {
+            if (modular.CurrentData == null)
+            {
+                modular.ApplyAppearance(new BattleSummoner.Customization.ModularPlayerAppearanceData());
+            }
+            modular.CurrentData.hairStyleIndex = hairIndex;
+
+            Transform head = null;
+            var allT = charObj.GetComponentsInChildren<Transform>(true);
+            foreach (var t in allT)
+            {
+                if (t.name.Equals("Head", StringComparison.OrdinalIgnoreCase))
+                {
+                    head = t;
+                    break;
+                }
+            }
+
+            if (head != null)
+            {
+                var hair = head.Find("Hero_Hair");
+                if (hair != null)
+                {
+                    hair.gameObject.SetActive(hairIndex > 0 && !modular.CurrentData.equipHelmet);
+                }
+            }
+
+            modular.ApplyHair(modular.CurrentData);
+        }
+    }
+
+    private void ApplyHairColorToCharacter(GameObject charObj, Color color)
+    {
+        if (charObj == null) return;
+        var modular = charObj.GetComponentInChildren<BattleSummoner.Customization.ModularCharacterAppearance>();
+        if (modular != null)
+        {
+            if (modular.CurrentData == null)
+            {
+                modular.ApplyAppearance(new BattleSummoner.Customization.ModularPlayerAppearanceData());
+            }
+            modular.CurrentData.hairColor = color;
+            modular.ApplyHair(modular.CurrentData);
+        }
     }
 
     public void SetPortraitFace(int faceIndex)

@@ -371,7 +371,7 @@ namespace BattleSummoner.Combat
         public void PlayDanceAnimation(int danceType = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashDanceAction, Mathf.Clamp(danceType, 1, 3));
+            animator.SetInteger(HashDanceAction, Mathf.Clamp(danceType, 1, 6));
         }
 
         public void StopDanceAnimation()

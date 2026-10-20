@@ -114,3 +114,6 @@ InitTestScene*.unity*
 .elevenlabs*
 secrets/
 config.secret.*
+
+Assets/_Recovery/
+[Aa]ssets/_Recovery/

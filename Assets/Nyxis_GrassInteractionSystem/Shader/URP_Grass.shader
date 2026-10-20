@@ -25,6 +25,10 @@ Properties
     [Range(1,4)]
     _FalloffSoftness("Falloff Softness", Float) = 2.0
 
+    [Header(Distance Culling and Fade)]
+    _FadeStartDist("Fade Start Distance (400 Feet / 122m)", Float) = 122.0
+    _FadeEndDist("Fade Max Distance (500 Feet / 152.4m)", Float) = 152.4
+
     [Header(Alpha)]
     _Cutoff("Alpha Cutoff", Range(0,1)) = 0.5
 }
@@ -66,6 +70,9 @@ SubShader
         float _PushStrength;
         float _BendDownStrength;
         float _FalloffSoftness;
+
+        float _FadeStartDist;
+        float _FadeEndDist;
 
         float _Cutoff;
 
@@ -241,6 +248,13 @@ SubShader
                 worldPos
             );
 
+        // Distance Culling: Discard vertices beyond 500 feet (152.4m)
+        float distToCam = distance(_WorldSpaceCameraPos, worldPos);
+        float maxDist = (_FadeEndDist > 0.0) ? _FadeEndDist : 152.4;
+        if (distToCam > maxDist + 5.0)
+        {
+            OUT.positionCS = float4(0, 0, 0, 0);
+        }
 
         return OUT;
     }
@@ -301,8 +315,6 @@ SubShader
         {
             UNITY_SETUP_INSTANCE_ID(IN);
 
-
-
             half4 texColor =
                 SAMPLE_TEXTURE2D(
                     _MainTex,
@@ -310,7 +322,13 @@ SubShader
                     IN.uv
                 );
 
-            clip(texColor.a - _Cutoff);
+            // Grass visible up to 500 feet (~152.4m), smoothly fading from 400 feet (~122m)
+            float distToCam = distance(_WorldSpaceCameraPos, IN.worldPos);
+            float fadeStart = (_FadeStartDist > 0.0) ? _FadeStartDist : 122.0;
+            float fadeEnd = (_FadeEndDist > 0.0) ? _FadeEndDist : 152.4;
+            float fadeFactor = saturate((fadeEnd - distToCam) / max(0.01, fadeEnd - fadeStart));
+
+            clip(texColor.a * fadeFactor - _Cutoff);
 
 
 
@@ -499,6 +517,13 @@ SubShader
                 TransformWorldToHClip(
                     worldPos
                 );
+
+            float distToCam = distance(_WorldSpaceCameraPos, worldPos);
+            float maxDist = (_FadeEndDist > 0.0) ? _FadeEndDist : 152.4;
+            if (distToCam > maxDist)
+            {
+                OUT.positionCS = float4(0, 0, 0, 0);
+            }
 
             OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
 
@@ -713,6 +738,12 @@ SubShader
                     worldPos
                 );
 
+            float distToCam = distance(_WorldSpaceCameraPos, worldPos);
+            float maxDist = (_FadeEndDist > 0.0) ? _FadeEndDist : 152.4;
+            if (distToCam > maxDist)
+            {
+                OUT.positionCS = float4(0, 0, 0, 0);
+            }
 
             OUT.normalWS =
                 normalize(

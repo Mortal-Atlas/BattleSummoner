@@ -29,13 +29,14 @@ namespace BattleSummoner.Customization
         public Color skinColor = new Color(1.0f, 0.91f, 0.83f, 1.0f);
         public Color eyeColor = new Color(0.12f, 0.65f, 0.95f, 1.0f);
         public Color hairColor = new Color(0.15f, 0.15f, 0.18f, 1.0f);
+        public int hairStyleIndex = 0;
         public Color armorDyeColor = new Color(0.25f, 0.42f, 0.82f, 1.0f);
 
         // Modular Equipment Slot Toggles (replaces underlying body parts)
-        public bool equipTorso = true;       // Replaces Body_Torso with Armor_Torso
+        public bool equipTorso = false;      // Replaces Body_Torso with Armor_Torso
         public bool equipGauntlets = true;   // Replaces Body_Hands (wrist/hand) with Armor_Gauntlets
         public bool equipLeggings = true;    // Replaces Body_Legs with Armor_Leggings
-        public bool equipBoots = true;       // Replaces Body_Feet with Armor_Boots
+        public bool equipBoots = false;      // Replaces Body_Feet with Armor_Boots
         public bool equipHelmet = false;     // Toggles Armor_Helmet
         public string weaponId = "sword";
 
@@ -154,6 +155,12 @@ namespace BattleSummoner.Customization
             if (PlayerPrefs.HasKey("Equip_Shoes")) data.equipBoots = PlayerPrefs.GetInt("Equip_Shoes", 1) == 1;
             if (PlayerPrefs.HasKey("Equip_Helmet")) data.equipHelmet = PlayerPrefs.GetInt("Equip_Helmet", 0) == 1;
             if (PlayerPrefs.HasKey("Equip_Weapon")) data.weaponId = PlayerPrefs.GetString("Equip_Weapon", "sword");
+            if (PlayerPrefs.HasKey("Hair_Style")) data.hairStyleIndex = PlayerPrefs.GetInt("Hair_Style", 0);
+            if (PlayerPrefs.HasKey("Hair_Color"))
+            {
+                if (ColorUtility.TryParseHtmlString("#" + PlayerPrefs.GetString("Hair_Color"), out Color c))
+                    data.hairColor = c;
+            }
 
             return data;
         }

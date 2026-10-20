@@ -216,9 +216,9 @@ namespace BattleSummoner.UI
             if (Input.GetKeyDown(KeyCode.Alpha2)) ExecuteSkill2();
             if (Input.GetKeyDown(KeyCode.Alpha3)) ExecuteSkill3();
 
-            // Potions (Q, E)
+            // Potions (Q for HP, R for MP)
             if (Input.GetKeyDown(KeyCode.Q)) UseHpPotion();
-            if (Input.GetKeyDown(KeyCode.E)) UseMpPotion();
+            if (Input.GetKeyDown(KeyCode.R)) UseMpPotion();
 
             // Campfire travel shortcut (M)
             if (Input.GetKeyDown(KeyCode.M)) TransitionToCampfireHub();

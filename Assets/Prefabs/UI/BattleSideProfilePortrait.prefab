@@ -55,8 +55,8 @@ MonoBehaviour:
   templateDirectImage: {fileID: 590671050052279164}
   templateMascSprite: {fileID: 21300000, guid: 627a57fbef892ad49831bc8f83469196, type: 3}
   templateFemeSprite: {fileID: 21300000, guid: 49221ca6f97a22848acad8baa08981c2, type: 3}
-  cleanTemplateMascSprite: {fileID: 21300000, guid: 9441efc931e0d1744ae46cd1b7874f7e, type: 3}
-  cleanTemplateFemeSprite: {fileID: 21300000, guid: 380610078f21f73478cb285fc14699f3, type: 3}
+  cleanTemplateMascSprite: {fileID: 21300000, guid: 32e2654d737c09a419cb8bd92ae96e3a, type: 3}
+  cleanTemplateFemeSprite: {fileID: 21300000, guid: e59c7508d285ec649aad6207d202d0f9, type: 3}
   modularLayersRoot: {fileID: 1719401545952956865}
   frameBackingImage: {fileID: 9087543044936990419}
   baseHeadImage: {fileID: 4507421355650225946}

@@ -219,6 +219,10 @@ namespace BattleSummoner.DungeonDimension
         private void DispatchTownRaidAlert()
         {
             Debug.LogWarning("[TOWN RAID ALERT] An unchecked Fortress has launched a full invasion toward the Kingdom Walls!");
+            if (World.MagicCityUtilityAndTransitGrid.Instance != null)
+            {
+                World.MagicCityUtilityAndTransitGrid.Instance.SetPerimeterManaShieldSiegeState(true);
+            }
         }
 
         public void GenerateFreshDungeonSeed()

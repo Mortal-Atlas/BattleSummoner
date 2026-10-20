@@ -88,22 +88,28 @@ public class SimsBodyMorphController : MonoBehaviour
         // 1. Overall Height
         transform.localScale = Vector3.one * proportions.heightScale;
 
-        // 2. Head
-        if (headBone != null)
-        {
-            headBone.localScale = Vector3.one * proportions.headScale;
-        }
-
         // 3. Chest
         if (chestBone != null)
         {
-            chestBone.localScale = new Vector3(proportions.chestScale, 1.0f, proportions.chestScale);
+            chestBone.localScale = new Vector3(proportions.shoulderWidth, 1.0f, proportions.chestScale);
         }
 
         // 4. Waist / Spine
         if (spineBone != null)
         {
             spineBone.localScale = new Vector3(proportions.waistWidth, 1.0f, proportions.waistWidth);
+        }
+
+        // 2. Head (Counter-scale parent chest and spine non-uniform scale to keep head aspect ratio 1:1:1)
+        if (headBone != null)
+        {
+            float pScaleX = proportions.shoulderWidth * proportions.waistWidth;
+            float pScaleZ = proportions.chestScale * proportions.waistWidth;
+            headBone.localScale = new Vector3(
+                proportions.headScale / (pScaleX > 0.001f ? pScaleX : 1f),
+                proportions.headScale,
+                proportions.headScale / (pScaleZ > 0.001f ? pScaleZ : 1f)
+            );
         }
 
         // 5. Hips / Pelvis

@@ -8,13 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_VFX_Anime_Star_04_LUT_Camera_Push
-  m_Shader: {fileID: 4800000, guid: 89140d959505e6341b7444b91afb021b, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0722dac866331fc479720c145b8d462d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ISADDITIVE_ON
+  m_InvalidKeywords:
   - _RECEIVE_SHADOWS_OFF
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -70,6 +70,15 @@ Material:
     - _EllipseScale: 1
     - _EmissiveMult: 1
     - _ErosionSmoothness: 1
+    - _FlickerIntensity01: 1
+    - _FlickerIntensity02: 1
+    - _FlickerIntensity03: 1
+    - _FlickerMax: 1
+    - _FlickerMin: 0.5
+    - _FlickerSpeed01: 7.731
+    - _FlickerSpeed02: 3.137
+    - _FlickerSpeed03: 0.373
+    - _FlickerSpeedOverall: 3.333
     - _HueShift: 0
     - _HueShiftSpeed: 0
     - _IsAdditive: 1

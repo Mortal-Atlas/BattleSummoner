@@ -7,3 +7,10 @@ ShaderImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 407778
+  packageName: Wind Grass - Interaction
+  packageVersion: 1.0
+  assetPath: Assets/Nyxis_GrassInteractionSystem/Shader/Nyxis_Skybox.shader
+  uploadId: 995300

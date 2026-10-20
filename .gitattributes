@@ -10,10 +10,8 @@
 [attr]lfs               filter=lfs diff=lfs merge=lfs -text
 [attr]unity-json        eol=lf linguist-language=json
 [attr]unity-yaml        merge=unityyamlmerge eol=lf linguist-language=yaml
-
 # Optionally collapse Unity YAML files on GitHub diffs
 # [attr]unity-yaml        merge=unityyamlmerge text linguist-language=yaml linguist-generated
-
 # Unity source files
 *.cginc                 text
 *.compute               text linguist-language=hlsl
@@ -21,7 +19,6 @@
 *.hlsl                  text linguist-language=hlsl
 *.raytrace              text linguist-language=hlsl
 *.shader                text
-
 # Unity JSON files
 *.asmdef                unity-json
 *.asmref                unity-json
@@ -29,12 +26,10 @@
 *.inputactions          unity-json
 *.shadergraph           unity-json
 *.shadersubgraph        unity-json
-
 # Unity UI Toolkit files
 *.tss                   text diff=css linguist-language=css
 *.uss                   text diff=css linguist-language=css
 *.uxml                  text linguist-language=xml linguist-detectable
-
 # Unity YAML files
 *.anim                  unity-yaml
 *.asset                 unity-yaml
@@ -61,19 +56,15 @@
 *.spriteatlasv2         unity-yaml
 *.terrainlayer          unity-yaml
 *.unity                 unity-yaml
-
 # "physic" for 3D but "physics" for 2D
 *.physicMaterial        unity-yaml
 *.physicsMaterial2D     unity-yaml
-
 # Exclude from GitHub stats and diffs: third-party plugins, packages lock file
 Assets/Plugins/**           linguist-generated
 Packages/packages-lock.json linguist-generated
-
 # Unity LFS
 *.cubemap               lfs
 *.unitypackage          lfs
-
 # 3D models
 *.3dm                   lfs
 *.3ds                   lfs
@@ -96,7 +87,6 @@ Packages/packages-lock.json linguist-generated
 *.skp                   lfs
 *.stl                   lfs
 *.ztl                   lfs
-
 # Audio
 *.aif                   lfs
 *.aiff                  lfs
@@ -107,7 +97,6 @@ Packages/packages-lock.json linguist-generated
 *.s3m                   lfs
 *.wav                   lfs
 *.xm                    lfs
-
 # Video
 *.asf                   lfs
 *.avi                   lfs
@@ -118,7 +107,6 @@ Packages/packages-lock.json linguist-generated
 *.mpg                   lfs
 *.ogv                   lfs
 *.wmv                   lfs
-
 # Images
 *.bmp                   lfs
 *.exr                   lfs
@@ -134,7 +122,6 @@ Packages/packages-lock.json linguist-generated
 *.tif                   lfs
 *.tiff                  lfs
 *.webp                  lfs
-
 # Compressed Archive
 *.7z                    lfs
 *.bz2                   lfs
@@ -142,30 +129,119 @@ Packages/packages-lock.json linguist-generated
 *.rar                   lfs
 *.tar                   lfs
 *.zip                   lfs
-
 # Compiled Dynamic Library
 *.dll                   lfs
 *.pdb                   lfs
 *.so                    lfs
-
 # Fonts
 *.otf                   lfs
 *.ttf                   lfs
-
 # Executable/Installer
 *.apk                   lfs
 *.exe                   lfs
-
 # Documents
 *.pdf                   lfs
-
 # ETC
 *.a                     lfs
 *.reason                lfs
 *.rns                   lfs
-
 # Spine export file for Unity
 *.skel.bytes            lfs
-
 # Exceptions for .asset files such as lightning pre-baking
 LightingData.asset     binary
+/Assets/Anime[[:space:]]Trees/Scenes/New[[:space:]]Terrain.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Grass[[:space:]]And[[:space:]]Flowers[[:space:]]Pack[[:space:]]1/Example[[:space:]]Scene/Terrain[[:space:]]Data.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Idyllic[[:space:]]Fantasy[[:space:]]Nature/Demo/Demo.unity filter=lfs diff=lfs merge=lfs -text
+/Assets/Idyllic[[:space:]]Fantasy[[:space:]]Nature/Demo/Settings/Land_Terrain.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Kevin[[:space:]]Iglesias/Human[[:space:]]Animations/Unity[[:space:]]Demo[[:space:]]Scenes/Human[[:space:]]Throwing[[:space:]]Animations/Human[[:space:]]Throwing[[:space:]]Animations[[:space:]]-[[:space:]]Unity[[:space:]]Demo[[:space:]]Scene.unity filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Character_Base_Female_Apose.glb filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Character_Base_Male_Apose.glb filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Character_Mesh_Female_FacialRigged.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Character_Mesh_Male_FacialRigged.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Starter/MaleStarter.glb filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Starter/femalestarter.glb filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Starter/manbase.glb filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Characters/Starter/womanbase.glb filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Environment/Mesh_Island_Overworld_Terrain.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/NatureStarterKit2/Animations/cameraanim.anim filter=lfs diff=lfs merge=lfs -text
+/Assets/NatureStarterKit2/Scene/New[[:space:]]Terrain.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/NatureStarterKit2/Scene/SecondaryTerrain.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Nyxis_GrassInteractionSystem/Terrain/New[[:space:]]Terrain.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Scenes/OverworldMap.unity filter=lfs diff=lfs merge=lfs -text
+/Assets/TextMesh[[:space:]]Pro/Resources/Fonts[[:space:]]&[[:space:]]Materials/LiberationSans[[:space:]]SDF.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Environments/Floor01_MacroContinent_CorrectNormals.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/Models/Environments/Floor01_MacroContinent_Terrain_Subdivided.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_Hexmap.unity filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_Hexmap/New[[:space:]]Terrain[[:space:]]3.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_Hexmap/TerrainData_46ec0c70-60e2-482c-9572-a4ba8735cc2e.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_Hexmap/TerrainData_6e571268-18cb-4596-8c74-3fc638a4a61d.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_Hexmap/TerrainData_febf8d9b-ca42-48e2-8abe-f1650518d04e.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_MultiLayerBiomeBlending/Terrain_0_0_8c53b585-5e91-420b-aca2-cd0a22b730c4.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_MultiLayerBiomeBlending/Terrain_0_1_9e45f6b0-6012-4fab-9f33-63a081a1dccc.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_MultiLayerBiomeBlending/Terrain_1_0_e7b15c48-8fa1-4bab-b478-418b4449804c.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/PinwheelStudio/Vista/Personal/Samples/Scenes/Demo_MultiLayerBiomeBlending/Terrain_1_1_53d40d9a-7d1b-474b-ae1e-088a7c9d2337.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/ProceduralTerrainPainter/_Demo/TerrainData/TerrainChunk_0.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/ProceduralTerrainPainter/_Demo/TerrainData/TerrainChunk_1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/ProceduralTerrainPainter/_Demo/TerrainData/TerrainChunk_2.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/ProceduralTerrainPainter/_Demo/TerrainData/TerrainChunk_3.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Scenes/TerrainDemoScene/LightingData.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_0_8723fb12-db1c-4ba2-97c5-90e784c8adbf[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_0_8723fb12-db1c-4ba2-97c5-90e784c8adbf.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_1_e85387be-618a-4f11-a28f-1cbc224e6e94[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_1_e85387be-618a-4f11-a28f-1cbc224e6e94.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_2_5f735b10-59bc-418b-b24d-4385eb3a186d[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_2_5f735b10-59bc-418b-b24d-4385eb3a186d.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_3_f8883893-11fe-4631-8dfb-2d342383567b[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_0_3_f8883893-11fe-4631-8dfb-2d342383567b.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_0_548791b1-5119-4501-a6f8-e5b8e45c25d8[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_0_548791b1-5119-4501-a6f8-e5b8e45c25d8.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_1_4bf22c8f-eb55-436d-84e3-dedfa85665b1[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_1_4bf22c8f-eb55-436d-84e3-dedfa85665b1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_2_1694bb0f-cffe-402c-b6f9-cf47692fbb78[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_2_1694bb0f-cffe-402c-b6f9-cf47692fbb78.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_3_c8bbd3cb-768c-4918-85c9-b01968beea93[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_1_3_c8bbd3cb-768c-4918-85c9-b01968beea93.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_0_1170b034-efff-4ff0-8513-60d934e963db[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_0_1170b034-efff-4ff0-8513-60d934e963db.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_1_82fc4922-5564-4a18-858e-787f6d901556[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_1_82fc4922-5564-4a18-858e-787f6d901556.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_3_f3ed9c1f-cb52-413a-a7d7-8e03961f4d5b[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_2_3_f3ed9c1f-cb52-413a-a7d7-8e03961f4d5b.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_0_ae064d43-ab51-4240-a34a-6f1f5da8134d[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_0_ae064d43-ab51-4240-a34a-6f1f5da8134d.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_1_f87b3edd-12d5-4d51-aea4-88280910a3d8[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_1_f87b3edd-12d5-4d51-aea4-88280910a3d8.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_2_77e49ac9-7f8e-47c2-ae00-57296acecb1c[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_2_77e49ac9-7f8e-47c2-ae00-57296acecb1c.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_3_9b11d05b-b237-4de7-82ed-a402f9cedebd[[:space:]]1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/Data/Terrain_3_3_9b11d05b-b237-4de7-82ed-a402f9cedebd.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_0.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_1.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_10.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_11.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_12.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_13.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_14.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_15.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_16.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_17.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_18.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_19.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_2.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_20.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_21.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_3.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_4.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_5.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_6.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_7.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_8.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainDemoScene_URP/Terrain/DetailMaps/_Terrain_2_2_b6e03cf0-de91-4cae-b6af-0128d856ae43_9.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainSampleAssets/Prefabs/Lighting/MainLightProbes.prefab filter=lfs diff=lfs merge=lfs -text
+/Assets/TerrainSampleAssets/Prefabs/Trees/Conifer/Conifer.st filter=lfs diff=lfs merge=lfs -text
+/Assets/TextMesh[[:space:]]Pro/Fonts/InterBold.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TextMesh[[:space:]]Pro/Fonts/InterRegular.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/TextMesh[[:space:]]Pro/Examples[[:space:]]&[[:space:]]Extras/Resources/Fonts[[:space:]]&[[:space:]]Materials/Unity[[:space:]]SDF.asset filter=lfs diff=lfs merge=lfs -text
+/Assets/_Recovery/0.unity filter=lfs diff=lfs merge=lfs -text

@@ -225,28 +225,26 @@ namespace BattleSummoner.World
                     continue;
                 }
 
-                // Determine base elevation from terrace hierarchy:
-                // Tier 4: R <= 75m => 18m
-                // Tier 3: 75m < R <= 155m => 12m
-                // Tier 2: 155m < R <= 235m => 6m
-                // Tier 1: R > 235m => 0m
-                float baseElevationY = 0f;
-                if (finalRadius <= 75f) baseElevationY = 18f;
-                else if (finalRadius <= 155f) baseElevationY = 12f;
-                else if (finalRadius <= 235f) baseElevationY = 6f;
-                else baseElevationY = 0f;
+                // Determine base elevation from stepped terrace hierarchy:
+                // Tier 4: R <= 95m => 80.0m
+                // Tier 3: 95m < R <= 195m => 58.0m
+                // Tier 2: 195m < R <= 310m => 38.0m
+                // Tier 1: 310m < R <= 450m => 22.0m
+                float steppedTierY = (finalRadius <= 95f)  ? 80.0f :
+                                     (finalRadius <= 195f) ? 58.0f :
+                                     (finalRadius <= 310f) ? 38.0f : 22.0f;
 
                 Vector3 worldPos = new Vector3(
                     Mathf.Sin(centerAngleRad) * finalRadius,
-                    baseElevationY,
+                    steppedTierY,
                     Mathf.Cos(centerAngleRad) * finalRadius
                 );
 
-                // Ensure NO FLOATING BUILDINGS: Raycast snap to terrace surface collider
+                // Ensure NO FLOATING OR BURIED BUILDINGS: Raycast snap to terrace surface collider
                 if (snapToGroundSurface)
                 {
-                    Vector3 rayOrigin = new Vector3(worldPos.x, baseElevationY + 10f, worldPos.z);
-                    if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 25f, groundRaycastMask))
+                    Vector3 rayOrigin = new Vector3(worldPos.x, steppedTierY + 15f, worldPos.z);
+                    if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 30f, groundRaycastMask))
                     {
                         worldPos.y = hit.point.y;
                     }

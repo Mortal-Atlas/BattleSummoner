@@ -124,6 +124,17 @@ public class BattleSummonerAudioMaster : MonoBehaviour
         }
     }
 
+    public void SetMusicVolume(float vol)
+    {
+        if (ambientSource != null) ambientSource.volume = vol;
+    }
+
+    public void SetSFXVolume(float vol)
+    {
+        baseSfxVolume = vol;
+        if (sfxSource != null) sfxSource.volume = vol;
+    }
+
     #region Procedural Audio Buffer Synthesis
     private void GenerateProceduralAudioBuffers()
     {

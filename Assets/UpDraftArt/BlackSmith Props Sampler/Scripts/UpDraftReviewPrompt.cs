@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace UpDraftArt.EditorTools
 {
-    [InitializeOnLoad]
+    // [InitializeOnLoad] - Adware prompt disabled
     public class UpDraftReviewPrompt : EditorWindow
     {
         private const string PromptShownKey = "UpDraft_BlacksmithFree_PromptShown";
@@ -24,11 +24,7 @@ namespace UpDraftArt.EditorTools
 
         static UpDraftReviewPrompt()
         {
-            if (EditorPrefs.GetBool(DismissedKey, false))
-                return;
-
-            EditorApplication.hierarchyChanged += OnHierarchyChanged;
-            EditorApplication.update += OnEditorUpdate;
+            return;
         }
 
         private static void OnHierarchyChanged()

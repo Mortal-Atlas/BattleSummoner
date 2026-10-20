@@ -205,7 +205,7 @@ namespace BattleSummoner.EditorScripts
             Debug.Log($"🌾 [Idyllic Plants & Reeds] Populated {plantsSpawned} forest ferns and {reedsSpawned} riverbank reeds.");
 
             // Water Lilies in calm river inlets
-            int liliesSpawned = SpawnWaterLilies(plantRoot.transform, lilyPrefabs);
+            int liliesSpawned = SpawnWaterLilies(plantRoot.transform, lilyPrefabs, spatialHash);
             Debug.Log($"🪷 [Idyllic Water Lilies] Populated {liliesSpawned} floating lilypads & blossoms in calm waterways.");
 
             // Butterfly Spawn Areas over Flower Meadows
@@ -546,7 +546,7 @@ namespace BattleSummoner.EditorScripts
             return spawned;
         }
 
-        private static int SpawnWaterLilies(Transform parent, List<GameObject> lilyPool)
+        private static int SpawnWaterLilies(Transform parent, List<GameObject> lilyPool, TerrainSpatialHash spatialHash)
         {
             if (lilyPool == null || lilyPool.Count == 0) return 0;
 
@@ -554,20 +554,25 @@ namespace BattleSummoner.EditorScripts
             var lilyGroup = new GameObject("WaterLilies_RiverBays");
             lilyGroup.transform.SetParent(parent);
 
-            // Water surface is at Y = -0.75m in the moat and -0.10m in rivers
             float waterY = -0.20f;
 
-            for (int r = 0; r < 8; r++)
+            // Only place in rivers adjacent to green land sectors
+            int[] greenRiverAngles = new int[] { 0, 45, 90, 180, 225, 270 };
+
+            foreach (int angleDeg in greenRiverAngles)
             {
-                float baseAngleDeg = r * 45f;
-                for (float radius = 380f; radius <= 680f; radius += 45f)
+                float baseAngleDeg = angleDeg;
+                for (float radius = 380f; radius <= 680f; radius += 40f)
                 {
                     float rad = baseAngleDeg * Mathf.Deg2Rad;
-                    // Position inside the tranquil river edge (offset 6-12m from center)
-                    float sideOffset = UnityEngine.Random.Range(-12f, 12f);
+                    float sideOffset = UnityEngine.Random.Range(-10f, 10f);
                     Vector3 center = new Vector3(Mathf.Cos(rad) * radius, waterY, Mathf.Sin(rad) * radius);
                     Vector3 perp = new Vector3(-Mathf.Sin(rad), 0f, Mathf.Cos(rad)) * sideOffset;
                     Vector3 lilyPos = center + perp;
+
+                    // Ensure river water location is surrounded by green biomes
+                    Color nearbyLandCol = spatialHash.QueryColor(lilyPos.x, lilyPos.z);
+                    if (nearbyLandCol.g > 0.15f || nearbyLandCol.b > 0.15f) continue;
 
                     var prefab = lilyPool[UnityEngine.Random.Range(0, lilyPool.Count)];
                     var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, lilyGroup.transform);
@@ -575,7 +580,7 @@ namespace BattleSummoner.EditorScripts
 
                     inst.transform.position = lilyPos;
                     inst.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                    inst.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.8f, 1.5f);
+                    inst.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.85f, 1.4f);
 
                     inst.isStatic = true;
                     spawned++;

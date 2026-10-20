@@ -176,7 +176,13 @@ public class ModularEquipmentManager : MonoBehaviour
                     Unequip(EquipmentSlot.OffHandWeapon);
                 }
                 var rHand = transform.Find("Character_Armature/Hips/Spine/Chest/UpperChest/RightShoulder/RightArm/RightForeArm/RightHand");
-                AttachEquipment(ref activeMainWeaponInstance, item.prefab, rightHandSocket != null ? rightHandSocket : rHand, Vector3.zero, Quaternion.identity);
+                Vector3 wOffset = Vector3.zero;
+                Quaternion wRot = Quaternion.identity;
+                if (!string.IsNullOrEmpty(item.itemId) && item.itemId.ToLower().Contains("sword"))
+                {
+                    wOffset = new Vector3(-0.015f, -0.64f, -0.01f);
+                }
+                AttachEquipment(ref activeMainWeaponInstance, item.prefab, rightHandSocket != null ? rightHandSocket : rHand, wOffset, wRot);
                 currentMainWeapon = item;
                 break;
 

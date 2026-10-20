@@ -12,9 +12,10 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _NORMALMAP
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -29,14 +30,22 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BC_rgb_smoothness_a:
-        m_Texture: {fileID: 2800000, guid: 2d52b7d5e3fbc5245832e36d2358f06a, type: 3}
+        m_Texture: {fileID: 2800000, guid: cc09aef866325b64dbf8f4268c842957, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 2d52b7d5e3fbc5245832e36d2358f06a, type: 3}
+        m_Texture: {fileID: 2800000, guid: cc09aef866325b64dbf8f4268c842957, type: 3}
         m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 1dec7c9ee10e8f648ad12b4586e6cfe7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CobbleNormal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CobbleTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -56,8 +65,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _GrassNormal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GrassTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 2d52b7d5e3fbc5245832e36d2358f06a, type: 3}
+        m_Texture: {fileID: 2800000, guid: cc09aef866325b64dbf8f4268c842957, type: 3}
         m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -69,6 +86,22 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RockNormal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RockTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SandNormal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SandTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -98,6 +131,9 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
+    - _CliffBlendSmoothness: 0.15
+    - _CliffSlopeThreshold: 0.62
+    - _CobbleTiling: 0.12
     - _Cull: 0
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -108,6 +144,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GrassTiling: 0.08
     - _Metalic: 0.05
     - _Metallic: 0.05
     - _OcclusionStrength: 1
@@ -115,28 +152,37 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.35
+    - _RockTiling: 0.04
+    - _SandTiling: 0.06
+    - _Smoothness: 0.15
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _StrokeBlendingNoiseScale: 8
-    - _StrokeBlendingNoiseStrength: 0.28
+    - _StrokeBlendingNoiseScale: 12
+    - _StrokeBlendingNoiseStrength: 0.35
     - _StrokeRandomness: 0.75
-    - _StrokeScale: 18
+    - _StrokeScale: 4.5
     - _Surface: 0
     - _UseBlendingNoise: 1
-    - _Variation: 0.14
+    - _Variation: 0.15
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.54999995, g: 0.52, b: 0.47999996, a: 1}
-    - _Color: {r: 0.54999995, g: 0.52, b: 0.47999996, a: 1}
+    - _BaseColor: {r: 0.85, g: 0.83, b: 0.8, a: 1}
+    - _Color: {r: 0.92, g: 0.9, b: 0.88, a: 1}
+    - _ColorCobble: {r: 0.78, g: 0.76, b: 0.72, a: 1}
+    - _ColorGrass: {r: 0.19999996, g: 0.45999992, b: 0.15999997, a: 1}
+    - _ColorGrassHighland: {r: 0.37999994, g: 0.5, b: 0.19999996, a: 1}
+    - _ColorRock: {r: 0.25999996, g: 0.24999997, b: 0.23999995, a: 1}
+    - _ColorSand: {r: 0.8399999, g: 0.68, b: 0.39999998, a: 1}
+    - _ColorSandDark: {r: 0.7, g: 0.52, b: 0.29999998, a: 1}
+    - _ColorSnow: {r: 0.94, g: 0.96, b: 0.98999995, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _VariationColorA: {r: 1.05, g: 0.98, b: 0.92, a: 1}
-    - _VariationColorB: {r: 0.92, g: 0.96, b: 1.05, a: 1}
+    - _VariationColorB: {r: 0.92, g: 0.95, b: 1.05, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4354948444776358200

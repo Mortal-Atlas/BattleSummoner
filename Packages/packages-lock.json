@@ -31,7 +31,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.navigation": {
-      "version": "2.0.13",
+      "version": "2.0.16",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -73,7 +73,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collab-proxy": {
-      "version": "2.12.4",
+      "version": "2.13.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -102,6 +102,13 @@
         "com.unity.modules.uielements": "1.0.0",
         "com.unity.modules.screencapture": "1.0.0"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.editorcoroutines": {
+      "version": "1.1.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.ext.nunit": {
@@ -222,7 +229,7 @@
     },
     "com.unity.searcher": {
       "version": "4.9.4",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -236,7 +243,7 @@
     },
     "com.unity.shadergraph": {
       "version": "17.3.0",
-      "depth": 1,
+      "depth": 0,
       "source": "builtin",
       "dependencies": {
         "com.unity.render-pipelines.core": "17.3.0",
@@ -251,6 +258,16 @@
         "com.unity.mathematics": "1.2.1",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.settings-manager": "1.0.3"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.terrain-tools": {
+      "version": "5.3.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.terrain": "1.0.0",
+        "com.unity.modules.terrainphysics": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
@@ -287,7 +304,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.toonshader": {
-      "version": "0.11.0-preview",
+      "version": "0.11.1-preview",
       "depth": 0,
       "source": "registry",
       "dependencies": {

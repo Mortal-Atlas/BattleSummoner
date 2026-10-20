@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be4def07ea272974b9312b6e17e82fd3, type: 3}
+  m_Name: TropicalIsland_BiomeTemplate
+  m_EditorClassIdentifier: 
+  m_biomePrefab: {fileID: 5127525375697133221, guid: ef337fc52fc509f47b6bde752bfce4bd, type: 3}
+  m_info:
+    m_title: Tropical Island
+    m_description: Shape a lush tropical island with an art-directed coastline, sandy
+      beaches, forested highlands, and a surrounding seabed.
+    m_usageGuide: 'Unlike a generic mountain shape, the island follows the detailed
+      contour of its biome mask. Move the biome and edit its anchor points to shape
+      the coastline, creating bays, headlands, or a completely different island silhouette.
+
+      The
+      included sea-floor biome fills the surrounding area, while the island transitions
+      from shallow sandy shores to rugged, forested highlands.
+
+      A strong starting
+      point for tropical islands, coastal environments, or archipelagos where you
+      want direct control over the landmass from the start.'
+    m_screenshot: {fileID: 2800000, guid: 145ecb527d9d3b44bb5d967bc90ae8a4, type: 3}
+    m_documentationUrl: 
+  m_sortingNumber: 5

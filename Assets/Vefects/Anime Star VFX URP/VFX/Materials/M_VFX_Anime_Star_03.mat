@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_VFX_Anime_Star_03
-  m_Shader: {fileID: 4800000, guid: 94211c2260e71384e82c132c09545f07, type: 3}
+  m_Shader: {fileID: 4800000, guid: 2aec21a6310f30147ac83b3501d88379, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -66,6 +66,15 @@ Material:
     - _EllipseScale: 1
     - _EmissiveMult: 1
     - _ErosionSmoothness: 0.001
+    - _FlickerIntensity01: 1
+    - _FlickerIntensity02: 1
+    - _FlickerIntensity03: 1
+    - _FlickerMax: 1
+    - _FlickerMin: 0.5
+    - _FlickerSpeed01: 7.731
+    - _FlickerSpeed02: 3.137
+    - _FlickerSpeed03: 0.373
+    - _FlickerSpeedOverall: 3.333
     - _HueShift: 0
     - _HueShiftSpeed: 0
     - _IsAdditive: 1

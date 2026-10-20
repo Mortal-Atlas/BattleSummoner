@@ -179,8 +179,8 @@ public class DevClassLoadoutManager : MonoBehaviour
             CycleNextClass();
         }
 
-        // Desktop Dev Action Key (Space / Right-Click / E)
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.E))
+        // Desktop Dev Action Key (Space / X)
+        if (Input.GetKeyDown(KeyCode.X))
         {
             ExecuteQuickDevAction();
         }
@@ -1139,6 +1139,12 @@ public class DevClassLoadoutManager : MonoBehaviour
 
     public void ShowToast(string message)
     {
+        if (BattleSummoner.Core.QualityOfLifeMasterController.Instance != null)
+        {
+            BattleSummoner.Core.QualityOfLifeMasterController.Instance.ShowToast(message, 3.5f);
+            return;
+        }
+
         if (activeClassToastTMP == null) return;
         activeClassToastTMP.text = message;
 

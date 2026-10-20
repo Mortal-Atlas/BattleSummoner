@@ -66,7 +66,7 @@ QualitySettings:
     shadows: 2
     shadowResolution: 3
     shadowProjection: 1
-    shadowCascades: 4
+    shadowCascades: 2
     shadowDistance: 50
     shadowNearPlaneOffset: 3
     shadowCascade2Split: 0.33333334
@@ -91,7 +91,7 @@ QualitySettings:
     meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
-    streamingMipmapsActive: 1
+    streamingMipmapsActive: 0
     streamingMipmapsAddAllCameras: 1
     streamingMipmapsMemoryBudget: 512
     streamingMipmapsRenderersPerFrame: 512

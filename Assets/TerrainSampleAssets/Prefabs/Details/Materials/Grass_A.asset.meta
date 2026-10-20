@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5debde1690908f94abf9bb06582f7c75
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213197
+  packageName: Unity URP Terrain | Terrain Sample Project
+  packageVersion: 1.0.3
+  assetPath: Assets/TerrainSampleAssets/Prefabs/Details/Materials/Grass_A.asset
+  uploadId: 996076

@@ -108,14 +108,10 @@ public class SettingsMenuUI : MonoBehaviour
 
     private void Update()
     {
-        // Desktop shortcut: 'O' or 'Escape' (if open)
-        if (Input.GetKeyDown(KeyCode.O))
+        // Desktop shortcut: 'O' or 'Escape'
+        if (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Escape))
         {
             ToggleSettings();
-        }
-        else if (IsOpen && Input.GetKeyDown(KeyCode.Escape))
-        {
-            SetVisible(false);
         }
     }
 

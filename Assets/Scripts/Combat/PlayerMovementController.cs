@@ -30,21 +30,33 @@ public class PlayerMovementController : MonoBehaviour
 
     public bool IsSprinting => isSprinting;
     public bool IsDashing => isDashing;
+    public bool IsAutoRunning => isAutoRunning;
     public bool IsGrounded => controller != null && (controller.isGrounded || coyoteTimer > 0f);
 
     public static event System.Action OnPlayerJump;
     public static event System.Action<Vector3> OnPlayerDash;
+    public static event System.Action<bool> OnAutoRunChanged;
 
     private CharacterController controller;
     private Vector3 verticalVelocity = Vector3.zero;
     private Vector3 currentPlanarVelocity = Vector3.zero;
     private bool isDashing = false;
     private bool isSprinting = false;
+    private bool isAutoRunning = false;
     private float dashTimer = 0f;
     private float dashCooldownTimer = 0f;
     private float coyoteTimer = 0f;
     private float jumpBufferTimer = 0f;
     private Vector3 dashDirection = Vector3.forward;
+
+    public void SetAutoRun(bool enable)
+    {
+        if (isAutoRunning != enable)
+        {
+            isAutoRunning = enable;
+            OnAutoRunChanged?.Invoke(isAutoRunning);
+        }
+    }
 
     private void Awake()
     {
@@ -83,7 +95,7 @@ public class PlayerMovementController : MonoBehaviour
     {
         Debug.LogWarning("[PlayerMovementController] Player fell below overworld bounds! Teleporting to Citadel Plaza safe ground...");
         if (controller != null) controller.enabled = false;
-        transform.position = new Vector3(0f, 18.05f, -10f);
+        transform.position = new Vector3(0f, 82.05f, -55f);
         if (controller != null) controller.enabled = true;
         verticalVelocity = Vector3.zero;
         SnapToGroundFloor();
@@ -153,6 +165,12 @@ public class PlayerMovementController : MonoBehaviour
             return;
         }
 
+        // Auto-run toggle [R] or [NumLock]
+        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Numlock))
+        {
+            SetAutoRun(!isAutoRunning);
+        }
+
         // 1. Gather Input
         Vector2 input = Vector2.zero;
         if (virtualStick != null)
@@ -160,12 +178,26 @@ public class PlayerMovementController : MonoBehaviour
             input = virtualStick.MoveInput;
         }
 
-        // Editor fallback: WASD / Arrow keys
+        // Keyboard WASD / Arrow keys
         if (input.sqrMagnitude < 0.01f)
         {
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
-            input = new Vector2(h, v).normalized;
+            input = new Vector2(h, v);
+            if (input.sqrMagnitude > 1f) input.Normalize();
+        }
+
+        // Auto-run evaluation: cancelled when user gives explicit movement
+        if (isAutoRunning)
+        {
+            if (Mathf.Abs(input.y) > 0.1f || Mathf.Abs(input.x) > 0.5f)
+            {
+                SetAutoRun(false);
+            }
+            else
+            {
+                input = Vector2.up; // Synthesize constant forward run
+            }
         }
 
         // Swimming System Integration (Section 12 Master Spec)
@@ -173,7 +205,7 @@ public class PlayerMovementController : MonoBehaviour
         if (swimController != null && swimController.currentSwimState != BattleSummoner.Core.SwimState.DryGrounded)
         {
             float verticalDive = 0f;
-            if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.E)) verticalDive += 1f;
+            if (Input.GetKey(KeyCode.Space)) verticalDive += 1f;
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.Q)) verticalDive -= 1f;
             swimController.ExecuteSwimMovement(input, verticalDive);
             return;
@@ -232,8 +264,8 @@ public class PlayerMovementController : MonoBehaviour
         bool wantSprint = !isADS && ((virtualStick != null && virtualStick.IsAtFarEdge) || Input.GetKey(KeyCode.LeftShift));
         isSprinting = wantSprint && desiredDirection.sqrMagnitude > 0.01f;
 
-        // Editor shortcut for dash
-        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.E))
+        // Keyboard shortcut for dash (LeftControl or LeftAlt)
+        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftAlt))
         {
             TriggerDash(input.sqrMagnitude > 0.01f ? input : Vector2.up);
         }

@@ -59,7 +59,7 @@ public class BuildingEntranceTrigger : MonoBehaviour
 
     private void Update()
     {
-        if (playerInside && !triggerOnTouch && Input.GetKeyDown(interactKey))
+        if (playerInside && !triggerOnTouch && (Input.GetKeyDown(interactKey) || Input.GetKeyDown(KeyCode.F)))
         {
             TriggerEntranceTransition();
         }

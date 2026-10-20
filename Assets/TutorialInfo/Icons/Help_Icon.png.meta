@@ -126,3 +126,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 213197
+  packageName: Unity URP Terrain | Terrain Sample Project
+  packageVersion: 1.0.3
+  assetPath: Assets/TutorialInfo/Icons/Help_Icon.png
+  uploadId: 996076

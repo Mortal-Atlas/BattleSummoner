@@ -89,7 +89,8 @@ ModelImporter:
       - time: 0.9958678
         functionName: AnimationEnded
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 7b2d1c42e3127af4085a6e78ce29e663, type: 3}
+        objectReferenceParameter: {fileID: 11500000, guid: 7b2d1c42e3127af4085a6e78ce29e663,
+          type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
@@ -125,7 +126,8 @@ ModelImporter:
       - time: 0.9917355
         functionName: AnimationEnded
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 7b2d1c42e3127af4085a6e78ce29e663, type: 3}
+        objectReferenceParameter: {fileID: 11500000, guid: 7b2d1c42e3127af4085a6e78ce29e663,
+          type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
@@ -161,7 +163,8 @@ ModelImporter:
       - time: 0.9917355
         functionName: AnimationEnded
         data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 7b2d1c42e3127af4085a6e78ce29e663, type: 3}
+        objectReferenceParameter: {fileID: 11500000, guid: 7b2d1c42e3127af4085a6e78ce29e663,
+          type: 3}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
@@ -241,3 +244,10 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 260042
+  packageName: Idyllic Fantasy Nature
+  packageVersion: 1.0
+  assetPath: Assets/Idyllic Fantasy Nature/Models/Butterfly/Butterfly.fbx
+  uploadId: 617545

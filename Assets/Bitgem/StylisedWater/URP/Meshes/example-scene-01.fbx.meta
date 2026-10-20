@@ -100,3 +100,10 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 187485
+  packageName: URP Stylized Water Shader - Proto Series
+  packageVersion: 1.0
+  assetPath: Assets/Bitgem/StylisedWater/URP/Meshes/example-scene-01.fbx
+  uploadId: 412673

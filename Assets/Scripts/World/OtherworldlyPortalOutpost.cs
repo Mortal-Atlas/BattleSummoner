@@ -71,10 +71,10 @@ namespace BattleSummoner.World
 
             CheckPlayerProximity();
 
-            // Interact key [F] or enter
+            // Interact key [E] or [F]
             if (isPlayerInRange && !isWarping)
             {
-                if (Input.GetKeyDown(KeyCode.F))
+                if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.F))
                 {
                     EnterDungeonDimension();
                 }
@@ -111,7 +111,7 @@ namespace BattleSummoner.World
                     promptCanvasObj.SetActive(isPlayerInRange);
                     if (promptTMP != null)
                     {
-                        promptTMP.text = "<color=#FFEE44><b>[F] / TAP</b></color> // <color=#40EBFF>ENTER DUNGEON DIMENSION</color>\n<size=75%><color=#D0A0FF>Risk of Rain Scaler Active • Area Boons Await</color></size>";
+                        promptTMP.text = "<color=#FFEE44><b>[E] / [F]</b></color> // <color=#40EBFF>ENTER DUNGEON DIMENSION</color>\n<size=75%><color=#D0A0FF>Risk of Rain Scaler Active • Area Boons Await</color></size>";
                     }
                 }
             }

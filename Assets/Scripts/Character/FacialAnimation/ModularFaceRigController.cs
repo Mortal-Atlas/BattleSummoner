@@ -28,8 +28,11 @@ namespace BattleSummoner.Character.FacialAnimation
         public SpriteRenderer mouthRenderer;
 
         [Header("Spatial Calibration (Normalized to Featureless Base Head)")]
-        public Vector3 upperFaceLocalOffset = new Vector3(0f, 0.045f, -0.005f);
-        public Vector3 lowerFaceLocalOffset = new Vector3(0f, -0.115f, -0.005f);
+        public Vector3 faceRigGroupOffset = new Vector3(0f, 0f, 0.088f);
+        public Vector3 upperFaceLocalOffset = new Vector3(0f, 0.142f, 0f);
+        public Vector3 lowerFaceLocalOffset = new Vector3(0f, 0.075f, 0.001f);
+        public Vector3 upperFaceLocalScale = new Vector3(0.12f, 0.12f, 0.12f);
+        public Vector3 lowerFaceLocalScale = new Vector3(0.06f, 0.06f, 0.06f);
         public Vector3 faceNodesLocalScale = Vector3.one;
 
         [Header("3D Head Mesh Renderer (Optional UV Atlas Mode)")]
@@ -100,16 +103,35 @@ namespace BattleSummoner.Character.FacialAnimation
         [ContextMenu("Snap Face Nodes to Calibrated Head Offsets")]
         public void ApplySpatialAnchors()
         {
+            if (faceSortingGroup == null)
+            {
+                if (headAnchorTransform != null)
+                {
+                    faceSortingGroup = headAnchorTransform.GetComponentInChildren<SortingGroup>(true);
+                }
+                else if (eyesAndBrowsRenderer != null && eyesAndBrowsRenderer.transform.parent != null)
+                {
+                    faceSortingGroup = eyesAndBrowsRenderer.transform.parent.GetComponent<SortingGroup>();
+                }
+            }
+
+            if (faceSortingGroup != null)
+            {
+                faceSortingGroup.transform.localPosition = faceRigGroupOffset;
+            }
+
             if (eyesAndBrowsRenderer != null)
             {
                 eyesAndBrowsRenderer.transform.localPosition = upperFaceLocalOffset;
-                eyesAndBrowsRenderer.transform.localScale = faceNodesLocalScale;
+                Vector3 baseScale = upperFaceLocalScale != Vector3.zero ? upperFaceLocalScale : new Vector3(0.12f, 0.12f, 0.12f);
+                eyesAndBrowsRenderer.transform.localScale = Vector3.Scale(baseScale, faceNodesLocalScale);
             }
 
             if (mouthRenderer != null)
             {
                 mouthRenderer.transform.localPosition = lowerFaceLocalOffset;
-                mouthRenderer.transform.localScale = faceNodesLocalScale;
+                Vector3 baseScale = lowerFaceLocalScale != Vector3.zero ? lowerFaceLocalScale : new Vector3(0.06f, 0.06f, 0.06f);
+                mouthRenderer.transform.localScale = Vector3.Scale(baseScale, faceNodesLocalScale);
             }
         }
 

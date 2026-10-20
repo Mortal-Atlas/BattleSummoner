@@ -1,3 +1,5 @@
+// Disabled UpDraftArt SceneView adware banner
+/*
 using UnityEditor;
 using UnityEngine;
 
@@ -32,3 +34,4 @@ namespace UpDraftArt.EditorTools
         }
     }
 }
+*/

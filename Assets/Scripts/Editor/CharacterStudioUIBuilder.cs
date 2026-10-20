@@ -472,6 +472,21 @@ public static class CharacterStudioUIBuilder
         bH3.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
         bH3.onClick.AddListener(() => ui.SetPortraitHair(3));
 
+        // Hair Dye Swatches Row
+        var rowHairDye = CreateUIObject("Row_HairDye", portraitPanel);
+        rowHairDye.sizeDelta = new Vector2(390, 26);
+        string[] hairDyeNames = new[] { "BLK", "BRN", "BLD", "WHT", "RED", "BLU", "VIO", "GRN" };
+        for (int i = 0; i < SimsCharacterCreatorUI.HairColorPresets.Length; i++)
+        {
+            int hdIdx = i;
+            var hdBtn = CreateButton($"Btn_HairDye_{hdIdx}", rowHairDye, hairDyeNames[i], SimsCharacterCreatorUI.HairColorPresets[i], Color.white);
+            var hdRt = hdBtn.GetComponent<RectTransform>();
+            hdRt.anchorMin = new Vector2(i * (1f / 8f) + 0.003f, 0f);
+            hdRt.anchorMax = new Vector2((i + 1) * (1f / 8f) - 0.003f, 1f);
+            hdRt.sizeDelta = Vector2.zero;
+            hdBtn.onClick.AddListener(() => ui.SetHairColor(hdIdx));
+        }
+
         // Face & Expression Section
         var pSecFace = CreateTMP("Sec_Face", portraitPanel, "CUSTOMIZABLE: FACE & NOSE", 11f, new Color(0.70f, 0.80f, 0.95f));
         pSecFace.rectTransform.sizeDelta = new Vector2(390, 16);
