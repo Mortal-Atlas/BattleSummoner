@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Custom_URP_Genshin_Grass_Unity6
-  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
+  m_Shader: {fileID: 4800000, guid: 35178c3bcf13a91419d2008c08f86656, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,43 +23,22 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 275aea95076f5d747969e24f25a85318, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _RampTex:
-        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _BendDownStrength: 0.413
     - _BladeHeight: 0.75
-    - _CelSoftness: 0.15
-    - _CelThreshold: 0.46
     - _Cutoff: 0.803
-    - _FadeEndDist: 152.4
-    - _FadeStartDist: 122
     - _FalloffSoftness: 2
     - _FlattenNormals: 1
-    - _GroundingHeight: 3.5
-    - _GroundingStrength: 0.35
     - _PushStrength: 2
-    - _RimPower: 4
-    - _RimStrength: 0.25
-    - _UseRampTex: 1
     - _WindSpeed: 2.5
     - _WindStrength: 0.47
     m_Colors:
-    - _BaseColor: {r: 1, g: 0.97999996, b: 0.94, a: 1}
     - _BottomColor: {r: 0, g: 0.4, b: 0.114839554, a: 1}
-    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
-    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
-    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _ShadowTint: {r: 0, g: 0.19999996, b: 0.19999996, a: 1}
     - _TopColor: {r: 0.76895994, g: 0.9245283, b: 0.039248828, a: 1}
   m_BuildTextureStacks: []

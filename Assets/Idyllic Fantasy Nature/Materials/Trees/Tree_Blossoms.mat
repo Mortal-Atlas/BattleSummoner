@@ -8,24 +8,25 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Tree_Blossoms
-  m_Shader: {fileID: 4800000, guid: 3a929801ed2eef14d98975ce2196a61a, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 3230f6c5d09dd114c82b2287fcc7e15b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ALPHATEST_ON
+  - _COLOR_OVERLAY_UV
+  - _SPECULAR_SETUP
   m_InvalidKeywords:
   - _BEND_WIND_OVERLAY_VERTEX_POSITION
   - _CAST_SHADOWS
   - _CAST_SHADOWS_OFF
-  - _COLOR_OVERLAY_UV
   - _OVERLAY_UV
-  - _SPECULAR_SETUP
   - _WIND_OVERLAY_UV
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2450
+  stringTagMap:
+    RenderType: TransparentCutout
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -33,7 +34,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 784a7d92b2777344aaf5b3ff02ebc768, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -151,7 +152,6 @@ Material:
     - _Value: 0
     - _WIND_OVERLAY: 1
     - _Wave_Scale: 1
-    - _WindAmplitude: 0.08
     - _WindSpeed: 0.5
     - _WindStrength: 1
     - _Wind_Direction: 0
@@ -165,15 +165,12 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BottomCanopyColor: {r: 0.82, g: 0.48, b: 0.66, a: 1}
     - _BottomColor: {r: 0.86401826, g: 0.4198113, b: 1, a: 0}
     - _Bottom_Color: {r: 1, g: 0.5990566, b: 0.7399288, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Player_Position: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    - _SubsurfaceColor: {r: 1, g: 0.9, b: 0.75, a: 1}
-    - _TopCanopyColor: {r: 1, g: 0.76, b: 0.86, a: 1}
     - _TopColor: {r: 1, g: 0.4292453, b: 0.4292453, a: 0}
     - _Top_Color: {r: 1, g: 0.495283, b: 0.7867392, a: 1}
     - _WindDirection: {r: 0.1, g: 0.1, b: 0, a: 0}
