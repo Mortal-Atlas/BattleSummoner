@@ -1,7 +1,14 @@
 fileFormatVersion: 2
 guid: 4d73191013e1e46f291948a8846cf812
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371198
+  packageName: Free Stylized Blacksmith Props - Starter Kit
+  packageVersion: 1.0
+  assetPath: Assets/UpDraftArt/BlackSmith Props Sampler/Models/UD_SAF_Flat_Tongs.fbx
+  uploadId: 925878
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 24300
   internalIDToNameTable: []
   externalObjects: {}
   materials:
@@ -9,6 +16,7 @@ ModelImporter:
     materialName: 0
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -30,7 +38,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
@@ -108,10 +116,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 371198
-  packageName: Free Stylized Blacksmith Props - Starter Kit
-  packageVersion: 1.0
-  assetPath: Assets/UpDraftArt/BlackSmith Props Sampler/Models/UD_SAF_Flat_Tongs.fbx
-  uploadId: 925878

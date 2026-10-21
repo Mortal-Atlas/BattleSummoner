@@ -395,6 +395,9 @@ namespace BattleSummoner.VisualPolish.Editor
 
         private static void PopulatePlazaWithMeshyPropsAndFallbackPlanter()
         {
+            // Auto-scale and normalize any Meshy props on import to realistic game dimensions
+            MeshyPropImportScaler.AutoScaleAllMeshyProps(MeshyPropDir);
+
             Shader envShader = Shader.Find("BattleSummoner/Painterly/GenshinPainterlyEnvironment");
 
             // Relocate the two foreground black cauldrons blocking the bottom of image_178b4a.jpg
@@ -463,6 +466,20 @@ namespace BattleSummoner.VisualPolish.Editor
             inst.name = instanceName;
             inst.transform.position = spawnPos;
             inst.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+
+            // Double safeguard: ensure placed instance never exceeds realistic prop scale
+            Renderer[] renderers = inst.GetComponentsInChildren<Renderer>();
+            if (renderers.Length > 0)
+            {
+                Bounds b = renderers[0].bounds;
+                for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
+                float maxDim = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
+                if (maxDim > 6.0f)
+                {
+                    float scaleRatio = 3.5f / maxDim;
+                    inst.transform.localScale = Vector3.one * scaleRatio;
+                }
+            }
         }
     }
 }
