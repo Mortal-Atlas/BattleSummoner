@@ -540,14 +540,20 @@ namespace BattleSummoner.EditorScripts
                 float rDist = (1f - t) * length - (length * 0.5f);
                 float y = yBottom + i * stepHeight + (stepHeight * 0.5f);
 
-                // Deep foundation cube: top is at step Y, bottom extends deep into terrain
-                Vector3 stepPos = center + forward * rDist + Vector3.up * (y - deepSkirt * 0.5f);
+                // Deep solid foundation cube: top is at step Y, bottom extends all the way down to lower ground (yBottom)
+                float topY = yBottom + (i + 1) * stepHeight;
+                float targetBottomY = yBottom - 1.0f;
+                float fullHeight = topY - targetBottomY;
+                float stepCenterY = (topY + targetBottomY) * 0.5f;
+
+                Vector3 stepPos = center + forward * rDist;
+                stepPos.y = stepCenterY;
                 GameObject step = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 step.name = $"Step_{i}";
                 step.transform.SetParent(stairsGroup.transform, false);
                 step.transform.position = stepPos;
                 step.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-                step.transform.localScale = new Vector3(width, stepHeight + deepSkirt, stepLength * 1.15f);
+                step.transform.localScale = new Vector3(width, fullHeight, stepLength * 1.15f);
                 step.GetComponent<MeshRenderer>().sharedMaterial = mat;
             }
 

@@ -91,6 +91,31 @@ namespace BattleSummoner.Character
             activeVisualInstance.transform.localRotation = Quaternion.identity;
             activeVisualInstance.transform.localScale = Vector3.one;
 
+            // Apply character cel shader and preserve the 2048x2048 GLB texture
+            Shader charShader = Shader.Find("BattleSummoner/Painterly/GenshinPainterlyCharacter");
+            Texture prefabTex = null;
+            var pm = targetPrefab.GetComponentInChildren<Renderer>()?.sharedMaterial;
+            if (pm != null)
+            {
+                if (pm.HasProperty("baseColorTexture")) prefabTex = pm.GetTexture("baseColorTexture");
+                if (prefabTex == null) prefabTex = pm.mainTexture;
+                if (prefabTex == null && pm.HasProperty("_BaseMap")) prefabTex = pm.GetTexture("_BaseMap");
+                if (prefabTex == null && pm.HasProperty("_MainTex")) prefabTex = pm.GetTexture("_MainTex");
+            }
+
+            if (charShader != null && prefabTex != null)
+            {
+                foreach (var r in activeVisualInstance.GetComponentsInChildren<Renderer>(true))
+                {
+                    Material m = new Material(charShader);
+                    m.SetTexture("_BaseMap", prefabTex);
+                    m.SetColor("_BaseColor", Color.white);
+                    m.SetColor("_ShadowTint", new Color(0.68f, 0.64f, 0.78f, 1.0f));
+                    m.SetFloat("_MinBrightnessFloor", 0.22f);
+                    r.sharedMaterial = m;
+                }
+            }
+
             // Rebind Animator avatar if main Animator sits on Player_Hero root
             Animator rootAnim = GetComponent<Animator>();
             Animator childAnim = activeVisualInstance.GetComponentInChildren<Animator>();

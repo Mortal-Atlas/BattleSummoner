@@ -101,9 +101,16 @@ Shader "BattleSummoner/Painterly/GenshinPainterlyFoliage"
                 half halfLambert = saturate(dot(N, L) * 0.5 + 0.5);
                 half celStep = smoothstep(0.32, 0.58, halfLambert * mainLight.shadowAttenuation);
 
+                half3 shAmbient = SampleSH(N);
+                half3 safeAmbient = max(shAmbient, half3(0.24, 0.28, 0.36));
+
                 half3 canopyGrad = lerp(_BottomCanopyColor.rgb, _TopCanopyColor.rgb, saturate(celStep * 0.7 + IN.heightOS * 0.3));
                 half sss = pow(saturate(dot(V, -L)), 3.0) * 0.45;
-                half3 finalRGB = (canopyGrad + _SubsurfaceColor.rgb * sss) * mainLight.color;
+
+                // Modulate canopy color with texture albedo if present
+                half3 baseAlbedo = (tex.r > 0.02 || tex.g > 0.02 || tex.b > 0.02) ? tex.rgb : half3(1, 1, 1);
+                half3 finalLighting = (mainLight.color * (mainLight.shadowAttenuation * 0.7 + 0.3)) + safeAmbient;
+                half3 finalRGB = (canopyGrad * baseAlbedo + _SubsurfaceColor.rgb * sss) * finalLighting;
 
                 finalRGB = MixFog(finalRGB, IN.fogFactor);
                 return half4(finalRGB, 1.0);

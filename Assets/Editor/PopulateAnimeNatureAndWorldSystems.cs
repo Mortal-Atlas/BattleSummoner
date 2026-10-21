@@ -38,6 +38,7 @@ namespace BattleSummoner.EditorScripts
             public Vector3 GateCenter;
             public Vector3 Direction;
             public Quaternion Rotation;
+            public int Spans;
         }
 
         [MenuItem("BattleSummoner/Populate Anime Nature and Complete World Systems", false, 1)]
@@ -82,8 +83,8 @@ namespace BattleSummoner.EditorScripts
                 return;
             }
 
-            // 5. Build 4 Noble Cardinal Moat Bridges (replaces weird intersecting ribbons)
-            BuildNobleCardinalMoatBridges();
+            // 5. Build 4 Noble Ordinal Moat Bridges (connecting directly to the 4 mainlands)
+            BuildNobleOrdinalMoatBridges();
 
             // 6. Overhaul Sky Clouds & Floating Islands (3 variations each with flat top plateau)
             OverhaulSkyCloudsAndFloatingIslands();
@@ -255,12 +256,18 @@ namespace BattleSummoner.EditorScripts
         }
 
         // =========================================================================
-        // NOBLE CARDINAL MOAT BRIDGES
+        // NOBLE ORDINAL MOAT BRIDGES (Connecting Kingdom to the 4 Mainlands)
         // =========================================================================
 
-        private static void BuildNobleCardinalMoatBridges()
+        private static void BuildNobleOrdinalMoatBridges()
         {
-            GameObject bridgesRoot = new GameObject("--- NOBLE CARDINAL MOAT BRIDGES ---");
+            var oldCardinal = GameObject.Find("--- NOBLE CARDINAL MOAT BRIDGES ---");
+            if (oldCardinal != null) UnityEngine.Object.DestroyImmediate(oldCardinal);
+
+            var oldOrdinal = GameObject.Find("--- NOBLE ORDINAL MOAT BRIDGES ---");
+            if (oldOrdinal != null) UnityEngine.Object.DestroyImmediate(oldOrdinal);
+
+            GameObject bridgesRoot = new GameObject("--- NOBLE ORDINAL MOAT BRIDGES ---");
 
             GameObject bridgeModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Models/Environment/FantasyStoneArchBridge.fbx");
             Material deckMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Environment/Mat_ArchBridge_Deck.mat");
@@ -274,27 +281,31 @@ namespace BattleSummoner.EditorScripts
                 return;
             }
 
-            // 4 Cardinal Gates: span across moat from R ~ 460m to R ~ 545m
-            // Bridge modules length is ~17.2m. We place 5 chained spans for each gate.
+            // 4 Ordinal Gates: span across moat to the 4 continental mainlands (NE, SE, SW, NW)
+            float startRadius = 462.0f;
+            Vector3 neDir = new Vector3(1f, 0f, 1f).normalized;
+            Vector3 seDir = new Vector3(1f, 0f, -1f).normalized;
+            Vector3 swDir = new Vector3(-1f, 0f, -1f).normalized;
+            Vector3 nwDir = new Vector3(-1f, 0f, 1f).normalized;
+
             GateConfig[] gates = new GateConfig[]
             {
-                new GateConfig { Name = "North", GateCenter = new Vector3(0f, 22.0f, 462f), Direction = new Vector3(0f, 0f, 1f), Rotation = Quaternion.Euler(0f, 90f, 0f) },
-                new GateConfig { Name = "South", GateCenter = new Vector3(0f, 22.0f, -462f), Direction = new Vector3(0f, 0f, -1f), Rotation = Quaternion.Euler(0f, -90f, 0f) },
-                new GateConfig { Name = "East",  GateCenter = new Vector3(462f, 22.0f, 0f), Direction = new Vector3(1f, 0f, 0f), Rotation = Quaternion.Euler(0f, 0f, 0f) },
-                new GateConfig { Name = "West",  GateCenter = new Vector3(-462f, 22.0f, 0f), Direction = new Vector3(-1f, 0f, 0f), Rotation = Quaternion.Euler(0f, 180f, 0f) }
+                new GateConfig { Name = "NorthEast", GateCenter = neDir * startRadius, Direction = neDir, Rotation = Quaternion.Euler(0f, 315f, 0f), Spans = 5 },
+                new GateConfig { Name = "SouthEast", GateCenter = seDir * startRadius, Direction = seDir, Rotation = Quaternion.Euler(0f, 45f, 0f),  Spans = 8 },
+                new GateConfig { Name = "SouthWest", GateCenter = swDir * startRadius, Direction = swDir, Rotation = Quaternion.Euler(0f, 135f, 0f), Spans = 5 },
+                new GateConfig { Name = "NorthWest", GateCenter = nwDir * startRadius, Direction = nwDir, Rotation = Quaternion.Euler(0f, 225f, 0f), Spans = 8 }
             };
 
             float moduleLength = 17.0f;
-            int spansPerGate = 5;
 
             foreach (var g in gates)
             {
                 GameObject gateBridgeRoot = new GameObject($"MoatBridge_{g.Name}Gate");
                 gateBridgeRoot.transform.SetParent(bridgesRoot.transform);
 
-                for (int s = 0; s < spansPerGate; s++)
+                for (int s = 0; s < g.Spans; s++)
                 {
-                    Vector3 spanPos = g.GateCenter + g.Direction * (s * moduleLength + moduleLength * 0.5f);
+                    Vector3 spanPos = new Vector3(g.GateCenter.x, 22.0f, g.GateCenter.z) + g.Direction * (s * moduleLength + moduleLength * 0.5f);
                     var span = UnityEngine.Object.Instantiate(bridgeModel, gateBridgeRoot.transform);
                     span.name = $"Span_{s + 1}";
                     span.transform.position = spanPos;
@@ -325,9 +336,26 @@ namespace BattleSummoner.EditorScripts
                         }
                     }
                 }
+
+                // Add stone landfall abutment ramp connecting the bridge deck to the mainland ground
+                float endRadius = startRadius + g.Spans * moduleLength;
+                Vector3 abutmentPos = g.Direction * (endRadius + 4.0f);
+                abutmentPos.y = 21.6f;
+
+                GameObject abutment = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                abutment.name = $"Landfall_Abutment_{g.Name}";
+                abutment.transform.SetParent(gateBridgeRoot.transform);
+                abutment.transform.position = abutmentPos;
+                abutment.transform.rotation = g.Rotation;
+                abutment.transform.localScale = new Vector3(8.0f, 1.5f, 11.5f);
+                var abutmentRenderer = abutment.GetComponent<MeshRenderer>();
+                if (abutmentRenderer != null && deckMat != null)
+                {
+                    abutmentRenderer.sharedMaterial = deckMat;
+                }
             }
 
-            Debug.Log("🏰 Constructed 4 noble stone arch causeways at North, South, East, and West gates.");
+            Debug.Log("🏰 Constructed 4 noble stone arch causeways connecting the kingdom to the 4 continental mainlands (NE, SE, SW, NW).");
         }
 
         // =========================================================================

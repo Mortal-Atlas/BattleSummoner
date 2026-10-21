@@ -227,16 +227,21 @@ namespace BattleSummoner.VisualPolish.Editor
                 {
                     if (mats[i] == null) continue;
                     Material newMat = new Material(mats[i]);
-                    Texture mainTex = mats[i].HasProperty("_BaseMap") ? mats[i].GetTexture("_BaseMap") :
-                                      (mats[i].HasProperty("_MainTex") ? mats[i].GetTexture("_MainTex") : null);
+                    Texture mainTex = null;
+                    if (mats[i].HasProperty("baseColorTexture")) mainTex = mats[i].GetTexture("baseColorTexture");
+                    if (mainTex == null) mainTex = mats[i].mainTexture;
+                    if (mainTex == null && mats[i].HasProperty("_BaseMap")) mainTex = mats[i].GetTexture("_BaseMap");
+                    if (mainTex == null && mats[i].HasProperty("_MainTex")) mainTex = mats[i].GetTexture("_MainTex");
+
                     Color baseCol = mats[i].HasProperty("_BaseColor") ? mats[i].GetColor("_BaseColor") :
                                     (mats[i].HasProperty("_Color") ? mats[i].GetColor("_Color") : Color.white);
+                    if (baseCol.a < 0.01f || (baseCol.r == 0 && baseCol.g == 0 && baseCol.b == 0)) baseCol = Color.white;
 
                     newMat.shader = charShader;
                     if (mainTex != null) newMat.SetTexture("_BaseMap", mainTex);
                     newMat.SetColor("_BaseColor", baseCol);
                     newMat.SetColor("_ShadowTint", new Color(0.68f, 0.64f, 0.78f, 1.0f));
-                    newMat.SetFloat("_MinBrightnessFloor", 0.16f);
+                    newMat.SetFloat("_MinBrightnessFloor", 0.22f);
                     mats[i] = newMat;
                 }
                 r.sharedMaterials = mats;
@@ -271,24 +276,25 @@ namespace BattleSummoner.VisualPolish.Editor
             Light sun = RenderSettings.sun != null ? RenderSettings.sun : Object.FindFirstObjectByType<Light>();
             if (sun != null)
             {
+                sun.enabled = true;
                 sun.type = LightType.Directional;
-                sun.color = new Color(1.0f, 0.95f, 0.84f, 1.0f);
-                sun.intensity = 1.6f;
-                sun.transform.rotation = Quaternion.Euler(44f, -38f, 0f);
+                sun.color = new Color(1.0f, 0.96f, 0.88f, 1.0f);
+                sun.intensity = 1.45f;
+                sun.transform.rotation = Quaternion.Euler(46f, -32f, 0f);
                 sun.shadows = LightShadows.Soft;
-                sun.shadowStrength = 0.82f;
+                sun.shadowStrength = 0.80f;
             }
 
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor     = new Color(0.42f, 0.56f, 0.85f);
-            RenderSettings.ambientEquatorColor = new Color(0.68f, 0.74f, 0.88f);
-            RenderSettings.ambientGroundColor  = new Color(0.48f, 0.43f, 0.46f);
+            RenderSettings.ambientSkyColor     = new Color(0.68f, 0.80f, 0.98f);
+            RenderSettings.ambientEquatorColor = new Color(0.82f, 0.84f, 0.88f);
+            RenderSettings.ambientGroundColor  = new Color(0.38f, 0.46f, 0.36f);
 
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = new Color(0.74f, 0.85f, 0.98f, 1.0f);
-            RenderSettings.fogStartDistance = 45f;
-            RenderSettings.fogEndDistance = 260f;
+            RenderSettings.fogStartDistance = 250f;
+            RenderSettings.fogEndDistance = 2400f;
         }
 
         private static void FixMirroredNpcNameplates()
@@ -325,21 +331,28 @@ namespace BattleSummoner.VisualPolish.Editor
             Shader envShader  = Shader.Find("BattleSummoner/Painterly/GenshinPainterlyEnvironment");
             Shader folShader  = Shader.Find("BattleSummoner/Painterly/GenshinPainterlyFoliage");
             Shader charShader = Shader.Find("BattleSummoner/Painterly/GenshinPainterlyCharacter");
-            if (envShader == null || folShader == null) return;
+            if (envShader == null) return;
 
             Texture2D cobbleTex  = AssetDatabase.LoadAssetAtPath<Texture2D>(TextureDir + "T_Genshin_PlazaCobblestone_Seamless.png");
             Texture2D stoneTex   = AssetDatabase.LoadAssetAtPath<Texture2D>(TextureDir + "T_Genshin_CathedralStone_TrimSheet.png");
             Texture2D awningTex  = AssetDatabase.LoadAssetAtPath<Texture2D>(TextureDir + "T_Genshin_MarketAwning_StripedCloth.png");
             Texture2D sakuraCard = AssetDatabase.LoadAssetAtPath<Texture2D>(TextureDir + "T_Genshin_SakuraBranch_AlphaCard.png");
-            Texture2D rampTex    = AssetDatabase.LoadAssetAtPath<Texture2D>(TextureDir + "T_Genshin_CelShadingRamp_1D.png");
 
             Renderer[] allRenderers = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
             foreach (Renderer r in allRenderers)
             {
-                if (r is ParticleSystemRenderer || r is SpriteRenderer) continue;
+                if (r == null || r is ParticleSystemRenderer || r is SpriteRenderer) continue;
                 string objName = r.gameObject.name.ToLowerInvariant();
 
-                // Characters & NPCs use GenshinPainterlyCharacter shader
+                // 1. Never overwrite the island macro terrain or mountain
+                if (objName.Contains("continent") || objName.Contains("terrain") || objName.Contains("caldera") || objName.Contains("mountain_traversal"))
+                    continue;
+
+                // 2. Never overwrite water surfaces (Moat, Ocean, Cascades)
+                if (objName.Contains("water") || objName.Contains("ocean") || objName.Contains("moat") || objName.Contains("river"))
+                    continue;
+
+                // 3. Characters & NPCs use GenshinPainterlyCharacter shader
                 if (objName.Contains("player") || objName.Contains("npc") || objName.Contains("citizen") ||
                     objName.Contains("catherine") || objName.Contains("starter") || objName.Contains("manbase") ||
                     objName.Contains("womanbase") || r is SkinnedMeshRenderer)
@@ -348,46 +361,58 @@ namespace BattleSummoner.VisualPolish.Editor
                     continue;
                 }
 
-                foreach (Material mat in r.sharedMaterials)
+                // 4. All Nature Assets (Trees, Rocks, Cliffs, Foliage, Flowers, Grass, Bushes) PRESERVE their authentic shaders & textures
+                if (objName.Contains("animtree") || objName.Contains("willow") || objName.Contains("blossom") ||
+                    objName.Contains("cherry") || objName.Contains("broadleaf") || objName.Contains("fir") ||
+                    objName.Contains("pine") || objName.Contains("oak") || objName.Contains("bush") ||
+                    objName.Contains("flower") || objName.Contains("grass") || objName.Contains("plant") ||
+                    objName.Contains("rock") || objName.Contains("cliff") || objName.Contains("boulder") ||
+                    objName.Contains("stone_big") || objName.Contains("stone_medium") || objName.Contains("stone_small"))
                 {
-                    if (mat == null) continue;
-                    string matName = mat.name.ToLowerInvariant();
+                    continue;
+                }
 
-                    if ((matName.Contains("leaf") || matName.Contains("leaves") || matName.Contains("sakura") ||
-                         matName.Contains("blossom") || objName.Contains("cherry") || objName.Contains("tree")) &&
-                        !matName.Contains("trunk") && !matName.Contains("bark"))
+                // 5. Selective Nano Banana Painterly application to Plaza, Cathedral, and Market props
+                if (objName.Contains("plaza") || objName.Contains("cobble") || (objName.Contains("floor") && objName.Contains("town")))
+                {
+                    foreach (Material mat in r.sharedMaterials)
                     {
-                        mat.shader = folShader;
-                        mat.SetColor("_TopCanopyColor", new Color(1.0f, 0.76f, 0.86f));
-                        mat.SetColor("_BottomCanopyColor", new Color(0.82f, 0.48f, 0.66f));
-                        mat.SetColor("_SubsurfaceColor", new Color(1.0f, 0.90f, 0.75f));
-                        if (sakuraCard != null) mat.SetTexture("_BaseMap", sakuraCard);
-                        continue;
+                        if (mat == null) continue;
+                        mat.shader = envShader;
+                        if (cobbleTex != null)
+                        {
+                            mat.SetTexture("_BaseMap", cobbleTex);
+                            mat.SetTextureScale("_BaseMap", new Vector2(24f, 24f));
+                        }
                     }
-
-                    mat.shader = envShader;
-                    mat.SetColor("_ShadowColor", new Color(0.56f, 0.62f, 0.78f));
-                    mat.SetFloat("_CelThreshold", 0.46f);
-                    mat.SetFloat("_CelSoftness", 0.15f);
-
-                    if (rampTex != null)
+                }
+                else if (objName.Contains("cathedral") || objName.Contains("church"))
+                {
+                    foreach (Material mat in r.sharedMaterials)
                     {
-                        mat.SetTexture("_RampTex", rampTex);
-                        mat.SetFloat("_UseRampTex", 1.0f);
+                        if (mat == null) continue;
+                        string mn = mat.name.ToLowerInvariant();
+                        if (mn.Contains("glass") || mn.Contains("glow") || mn.Contains("gold")) continue;
+                        mat.shader = envShader;
+                        if (stoneTex != null) mat.SetTexture("_BaseMap", stoneTex);
                     }
-
-                    if ((objName.Contains("floor") || objName.Contains("ground") || objName.Contains("plaza") || objName.Contains("tile") || matName.Contains("floor")) && cobbleTex != null)
+                }
+                else if (objName.Contains("awning") || objName.Contains("market_stall") || objName.Contains("bazaar_tent"))
+                {
+                    foreach (Material mat in r.sharedMaterials)
                     {
-                        mat.SetTexture("_BaseMap", cobbleTex);
-                        mat.SetTextureScale("_BaseMap", new Vector2(24f, 24f));
+                        if (mat == null) continue;
+                        mat.shader = envShader;
+                        if (awningTex != null) mat.SetTexture("_BaseMap", awningTex);
                     }
-                    else if ((objName.Contains("stall") || objName.Contains("awning") || objName.Contains("tent") || matName.Contains("awning")) && awningTex != null)
+                }
+                else if (objName.StartsWith("meshy_"))
+                {
+                    // Newly imported Meshy props get painterly environment shading
+                    foreach (Material mat in r.sharedMaterials)
                     {
-                        mat.SetTexture("_BaseMap", awningTex);
-                    }
-                    else if ((objName.Contains("cathedral") || objName.Contains("church") || objName.Contains("wall") || objName.Contains("arch")) && stoneTex != null)
-                    {
-                        mat.SetTexture("_BaseMap", stoneTex);
+                        if (mat == null) continue;
+                        mat.shader = envShader;
                     }
                 }
             }
@@ -418,7 +443,9 @@ namespace BattleSummoner.VisualPolish.Editor
             foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
             {
                 string n = go.name.ToLowerInvariant();
-                if ((n.Contains("cherry") || n.Contains("sakura") || n.Contains("tree")) && go.transform.position.magnitude < 120f)
+                // Ensure we only match true trees, NOT "street"
+                bool isTree = (n.Contains("cherry") || n.Contains("sakura") || (n.Contains("tree") && !n.Contains("street")));
+                if (isTree && go.transform.position.magnitude < 120f)
                 {
                     if (planterPrefab != null && go.transform.Find("Meshy_SakuraPlanter") == null)
                     {
@@ -465,13 +492,24 @@ namespace BattleSummoner.VisualPolish.Editor
             GameObject inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
             inst.name = instanceName;
             inst.transform.position = spawnPos;
-            inst.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-            // Double safeguard: ensure placed instance never exceeds realistic prop scale
+            // Detect if model was exported Z-up (e.g. lamp lying on ground with size.z > size.y)
             Renderer[] renderers = inst.GetComponentsInChildren<Renderer>();
             if (renderers.Length > 0)
             {
                 Bounds b = renderers[0].bounds;
+                for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
+                if (instanceName.ToLowerInvariant().Contains("lamp") && b.size.z > b.size.y)
+                {
+                    inst.transform.rotation = Quaternion.Euler(-90f, yaw, 0f);
+                }
+                else
+                {
+                    inst.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+                }
+
+                // Re-evaluate bounds and normalize scale if necessary
+                b = renderers[0].bounds;
                 for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
                 float maxDim = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
                 if (maxDim > 6.0f)
