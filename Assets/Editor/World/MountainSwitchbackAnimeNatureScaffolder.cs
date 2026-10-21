@@ -72,6 +72,7 @@ namespace BattleSummoner.World.Editor
                         Vector3 rockOrigin = new Vector3(wx + perp.x * side * rockDist, 600f, wz + perp.y * side * rockDist);
                         if (Physics.Raycast(rockOrigin, Vector3.down, out RaycastHit rHit, 800f))
                         {
+                            if (rHit.point.y < 19.5f) continue; // STRICT DRY LAND CHECK: water level is 18.0m
                             GameObject overhang = InstantiateOrFallbackRock(rockPrefabs, root.transform, cliffMat);
                             overhang.name = $"Switchback_CliffOverhang_{i:03d}_{(side < 0 ? "L" : "R")}";
                             overhang.transform.position = rHit.point + Vector3.up * Random.Range(2.2f, 5.0f);
@@ -140,6 +141,7 @@ namespace BattleSummoner.World.Editor
 
                     if (Physics.Raycast(bankRay, Vector3.down, out RaycastHit bHit, 800f))
                     {
+                        if (bHit.point.y < 19.5f) continue; // STRICT DRY LAND CHECK: water level is 18.0m
                         // Gorge Bank Boulder
                         GameObject gorgeRock = InstantiateOrFallbackRock(rockPrefabs, root.transform, cliffMat);
                         gorgeRock.name = $"RiverGorge_BankBoulder_{rIdx:03d}_{(side < 0 ? "L" : "R")}";

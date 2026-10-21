@@ -721,6 +721,13 @@ namespace BattleSummoner.EditorScripts
                 }
             }
 
+            // STRICT WATER EXCLUSION: Water level is Y=18.0m. Skip any NPC spawning in or below water!
+            if (targetPos.y < 19.0f)
+            {
+                Debug.LogWarning($"[NPC] Skipping {name} as target position Y={targetPos.y:F2} is in or below water level (18.0m).");
+                return null;
+            }
+
             GameObject root = new GameObject(name);
             root.transform.SetParent(parent, false);
             root.transform.position = targetPos;

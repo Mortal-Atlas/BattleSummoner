@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2cb6de7c64cb07a4da646d03551bf82d
+guid: 9122da7abf15c1844a473f1c57a94be7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Night_01.tga
+  uploadId: 847048

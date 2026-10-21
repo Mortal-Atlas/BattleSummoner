@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 92840586c6a385f4db9f9dc13a132fc8
+guid: 2ca64d4455522a0449fda0b41b9cb343
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Nature_01.tga
+  uploadId: 847048

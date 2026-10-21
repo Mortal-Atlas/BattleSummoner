@@ -371,7 +371,7 @@ namespace BattleSummoner.EditorScripts
                 Ray ray = new Ray(new Vector3(seed.x, 300f, seed.z), Vector3.down);
                 if (!terrainCollider.Raycast(ray, out RaycastHit hit, 400f)) continue;
 
-                if (hit.point.y < 0.8f || hit.normal.y < 0.72f) continue;
+                if (hit.point.y < 19.5f || hit.normal.y < 0.72f) continue;
                 Color col = spatialHash.QueryColor(hit.point.x, hit.point.z);
                 if (col.r < 0.60f || col.g > 0.15f || col.b > 0.15f || col.a > 0.35f) continue;
 
@@ -440,7 +440,7 @@ namespace BattleSummoner.EditorScripts
                 Ray ray = new Ray(new Vector3(centerSeed.x, 300f, centerSeed.z), Vector3.down);
                 if (!terrainCollider.Raycast(ray, out RaycastHit centerHit, 400f)) continue;
 
-                if (centerHit.point.y < 0.6f || centerHit.normal.y < 0.72f) continue;
+                if (centerHit.point.y < 19.5f || centerHit.normal.y < 0.72f) continue;
                 Color centerCol = spatialHash.QueryColor(centerHit.point.x, centerHit.point.z);
                 if (centerCol.r < 0.60f || centerCol.g > 0.15f || centerCol.b > 0.15f || centerCol.a > 0.35f) continue;
 
@@ -464,7 +464,7 @@ namespace BattleSummoner.EditorScripts
                     Ray pRay = new Ray(new Vector3(cand.x, 300f, cand.z), Vector3.down);
                     if (!terrainCollider.Raycast(pRay, out RaycastHit hit, 400f)) continue;
 
-                    if (hit.point.y < 0.5f || hit.normal.y < 0.70f) continue;
+                    if (hit.point.y < 19.5f || hit.normal.y < 0.70f) continue;
                     Color pCol = spatialHash.QueryColor(hit.point.x, hit.point.z);
                     if (pCol.r < 0.58f || pCol.g > 0.15f || pCol.b > 0.15f || pCol.a > 0.35f) continue;
 
@@ -527,7 +527,7 @@ namespace BattleSummoner.EditorScripts
                         Ray ray = new Ray(new Vector3(pos.x, 300f, pos.z), Vector3.down);
                         if (!terrainCollider.Raycast(ray, out RaycastHit hit, 400f)) continue;
 
-                        if (hit.point.y < 0.3f || hit.point.y > 6.0f) continue; // Close to water level
+                        if (hit.point.y < 19.5f) continue; // STRICT DRY LAND CHECK: water level is 18.0m
 
                         var prefab = reedPool[UnityEngine.Random.Range(0, reedPool.Count)];
                         var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, reedGroup.transform);
@@ -548,46 +548,8 @@ namespace BattleSummoner.EditorScripts
 
         private static int SpawnWaterLilies(Transform parent, List<GameObject> lilyPool, TerrainSpatialHash spatialHash)
         {
-            if (lilyPool == null || lilyPool.Count == 0) return 0;
-
-            int spawned = 0;
-            var lilyGroup = new GameObject("WaterLilies_RiverBays");
-            lilyGroup.transform.SetParent(parent);
-
-            float waterY = -0.20f;
-
-            // Only place in rivers adjacent to green land sectors
-            int[] greenRiverAngles = new int[] { 0, 45, 90, 180, 225, 270 };
-
-            foreach (int angleDeg in greenRiverAngles)
-            {
-                float baseAngleDeg = angleDeg;
-                for (float radius = 380f; radius <= 680f; radius += 40f)
-                {
-                    float rad = baseAngleDeg * Mathf.Deg2Rad;
-                    float sideOffset = UnityEngine.Random.Range(-10f, 10f);
-                    Vector3 center = new Vector3(Mathf.Cos(rad) * radius, waterY, Mathf.Sin(rad) * radius);
-                    Vector3 perp = new Vector3(-Mathf.Sin(rad), 0f, Mathf.Cos(rad)) * sideOffset;
-                    Vector3 lilyPos = center + perp;
-
-                    // Ensure river water location is surrounded by green biomes
-                    Color nearbyLandCol = spatialHash.QueryColor(lilyPos.x, lilyPos.z);
-                    if (nearbyLandCol.g > 0.15f || nearbyLandCol.b > 0.15f) continue;
-
-                    var prefab = lilyPool[UnityEngine.Random.Range(0, lilyPool.Count)];
-                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, lilyGroup.transform);
-                    if (inst == null) inst = UnityEngine.Object.Instantiate(prefab, lilyGroup.transform);
-
-                    inst.transform.position = lilyPos;
-                    inst.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                    inst.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.85f, 1.4f);
-
-                    inst.isStatic = true;
-                    spawned++;
-                }
-            }
-
-            return spawned;
+            // DEFERRED per user request: "we will implement water props and other wild life there in a future update when im ready to tackle it"
+            return 0;
         }
 
         private static void SpawnButterflies(Transform parent)

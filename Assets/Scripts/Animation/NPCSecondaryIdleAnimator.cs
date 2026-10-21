@@ -27,9 +27,9 @@ namespace BattleSummoner.Animation
 
         [Header("Breathing & Sway Parameters")]
         public float breathingSpeed = 1.4f;
-        public float breathingHeightAmplitude = 0.015f;
-        public float breathingChestScaleAmplitude = 0.02f;
-        public float idleSwayAngle = 2.2f;
+        public float breathingHeightAmplitude = 0f;
+        public float breathingChestScaleAmplitude = 0.04f;
+        public float idleSwayAngle = 1.5f;
         public float idleSwaySpeed = 0.8f;
 
         [Header("Animator Linkage")]
@@ -38,9 +38,15 @@ namespace BattleSummoner.Animation
 
         private Vector3 initialLocalPos;
         private Quaternion initialLocalRot;
-        private Vector3 initialScale;
+        private Vector3 initialScale = Vector3.one;
         private float randomOffset;
         private OverworldNPCInteractable _interactable;
+
+        // Chest / Breast bone isolation
+        private Transform chestBone;
+        private Vector3 initialChestScale = Vector3.one;
+        private Transform[] chestChildren;
+        private Vector3[] initialChestChildrenScales;
 
         // Animator Hashes
         private static readonly int HashCraftingAction = Animator.StringToHash("CraftingAction");
@@ -52,19 +58,93 @@ namespace BattleSummoner.Animation
             initialLocalPos = transform.localPosition;
             initialLocalRot = transform.localRotation;
             initialScale = transform.localScale;
+            if (initialScale == Vector3.zero) initialScale = Vector3.one;
             randomOffset = Random.Range(0f, 100f);
 
             _interactable = GetComponent<OverworldNPCInteractable>();
             AutoDetectBehavior();
             ResolveAnimator();
+            FindChestBone();
         }
 
         private void OnEnable()
         {
             if (initialScale == Vector3.zero) initialScale = transform.localScale;
+            if (initialScale == Vector3.zero) initialScale = Vector3.one;
             _interactable = GetComponent<OverworldNPCInteractable>();
             AutoDetectBehavior();
             ResolveAnimator();
+            FindChestBone();
+        }
+
+        private void OnDisable()
+        {
+            // Restore exact root transform so editor/play mode transitions never leave NPCs distorted
+            transform.localScale = initialScale;
+            transform.localPosition = initialLocalPos;
+            transform.localRotation = initialLocalRot;
+
+            if (chestBone != null)
+            {
+                chestBone.localScale = initialChestScale;
+                if (chestChildren != null && initialChestChildrenScales != null)
+                {
+                    for (int i = 0; i < chestChildren.Length; i++)
+                    {
+                        if (chestChildren[i] != null && i < initialChestChildrenScales.Length)
+                        {
+                            chestChildren[i].localScale = initialChestChildrenScales[i];
+                        }
+                    }
+                }
+            }
+        }
+
+        public void FindChestBone()
+        {
+            if (chestBone != null) return;
+
+            // 1. Try animator humanoid binding
+            if (animator != null && animator.isHuman)
+            {
+                chestBone = animator.GetBoneTransform(HumanBodyBones.Chest);
+                if (chestBone == null) chestBone = animator.GetBoneTransform(HumanBodyBones.UpperChest);
+            }
+
+            // 2. Search hierarchy for Chest or Breast bone
+            if (chestBone == null)
+            {
+                chestBone = FindDeepChild(transform, "Chest") ??
+                            FindDeepChild(transform, "breast") ??
+                            FindDeepChild(transform, "Spine");
+            }
+
+            if (chestBone != null)
+            {
+                initialChestScale = chestBone.localScale;
+                if (initialChestScale == Vector3.zero) initialChestScale = Vector3.one;
+
+                int childCount = chestBone.childCount;
+                chestChildren = new Transform[childCount];
+                initialChestChildrenScales = new Vector3[childCount];
+                for (int i = 0; i < childCount; i++)
+                {
+                    chestChildren[i] = chestBone.GetChild(i);
+                    initialChestChildrenScales[i] = chestChildren[i].localScale;
+                    if (initialChestChildrenScales[i] == Vector3.zero) initialChestChildrenScales[i] = Vector3.one;
+                }
+            }
+        }
+
+        private Transform FindDeepChild(Transform parent, string targetName)
+        {
+            if (parent.name.Equals(targetName, System.StringComparison.OrdinalIgnoreCase)) return parent;
+            foreach (Transform child in parent)
+            {
+                Transform found = FindDeepChild(child, targetName);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         public void AutoDetectBehavior()
@@ -175,21 +255,55 @@ namespace BattleSummoner.Animation
 
         private void UpdateDefaultBreathing(float t)
         {
-            // 1. Procedural breathing chest/height pulsation
+            // 1. Procedural breathing chest/height pulsation - KEEP ROOT SCALE STATIC!
             float breath = Mathf.Sin(t * breathingSpeed);
-            Vector3 targetPos = initialLocalPos + Vector3.up * (breath * breathingHeightAmplitude);
-            transform.localPosition = targetPos;
+
+            // Keep root local scale strictly constant so the character never grows and shrinks
+            transform.localScale = initialScale;
+
+            // Subtle vertical translation if configured (default 0 keeps feet firmly grounded)
+            if (breathingHeightAmplitude > 0.0001f)
+            {
+                Vector3 targetPos = initialLocalPos + Vector3.up * (breath * breathingHeightAmplitude);
+                transform.localPosition = targetPos;
+            }
 
             // 2. Procedural idle sway (gentle breathing tilt)
             float sway = Mathf.Sin(t * idleSwaySpeed) * idleSwayAngle;
             transform.localRotation = initialLocalRot * Quaternion.Euler(0f, sway * 0.5f, sway * 0.3f);
 
-            // 3. Subtle chest expansion
-            transform.localScale = new Vector3(
-                initialScale.x * (1f + breath * breathingChestScaleAmplitude * 0.5f),
-                initialScale.y * (1f + breath * breathingChestScaleAmplitude),
-                initialScale.z * (1f + breath * breathingChestScaleAmplitude * 0.5f)
-            );
+            // 3. Isolated chest / breast piece expansion ONLY
+            if (chestBone == null) FindChestBone();
+
+            if (chestBone != null)
+            {
+                // Inhale expands ribcage primarily forward (Z) and laterally (X)
+                float expandX = 1f + breath * (breathingChestScaleAmplitude * 0.7f);
+                float expandY = 1f + breath * (breathingChestScaleAmplitude * 0.3f);
+                float expandZ = 1f + breath * (breathingChestScaleAmplitude * 1.1f);
+
+                chestBone.localScale = new Vector3(
+                    initialChestScale.x * expandX,
+                    initialChestScale.y * expandY,
+                    initialChestScale.z * expandZ
+                );
+
+                // Counter-scale children (shoulders, neck, head) so ONLY the breast/chest piece expands and contracts!
+                if (chestChildren != null && initialChestChildrenScales != null)
+                {
+                    for (int i = 0; i < chestChildren.Length; i++)
+                    {
+                        if (chestChildren[i] != null && i < initialChestChildrenScales.Length)
+                        {
+                            chestChildren[i].localScale = new Vector3(
+                                initialChestChildrenScales[i].x / expandX,
+                                initialChestChildrenScales[i].y / expandY,
+                                initialChestChildrenScales[i].z / expandZ
+                            );
+                        }
+                    }
+                }
+            }
         }
 
         private void UpdateBlacksmithHammering(float t)

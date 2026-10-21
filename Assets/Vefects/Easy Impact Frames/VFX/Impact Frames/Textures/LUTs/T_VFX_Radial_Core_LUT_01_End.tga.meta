@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e927ca9d18dd2dc4e9b99f8a46003328
+guid: 5d854fd5fdd884c4996fe18d62ecbaba
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_Radial_Core_LUT_01_End.tga
+  uploadId: 847048

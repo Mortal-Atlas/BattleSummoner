@@ -82,23 +82,50 @@ namespace BattleSummoner.EditorScripts
             }
             avatarRoot.gameObject.SetActive(true);
 
-            // C. Clean up old placeholder meshes inside AvatarRigRoot
-            var oldStarter = avatarRoot.Find("Starter_Female_Rigged_Instance");
-            if (oldStarter != null) UnityEngine.Object.DestroyImmediate(oldStarter.gameObject);
-
-            // D. Instantiate newly rigged Starter_Female_Rigged.fbx
-            string femaleFbxPath = "Assets/Models/Characters/Starter/Starter_Female_Rigged.fbx";
-            var femaleFbx = AssetDatabase.LoadAssetAtPath<GameObject>(femaleFbxPath);
-            if (femaleFbx != null)
+            // C. Completely delete all legacy modular armor parts and previous starter instances
+            for (int i = avatarRoot.childCount - 1; i >= 0; i--)
             {
-                var starterInstance = (GameObject)PrefabUtility.InstantiatePrefab(femaleFbx, avatarRoot);
-                starterInstance.name = "Starter_Female_Rigged_Instance";
+                var child = avatarRoot.GetChild(i);
+                UnityEngine.Object.DestroyImmediate(child.gameObject);
+            }
+
+            // Clean up loose unrigged visual models on hero root
+            for (int i = hero.transform.childCount - 1; i >= 0; i--)
+            {
+                var child = hero.transform.GetChild(i);
+                if (child.name.StartsWith("Visual_") || child.name == "StarterVisualRoot")
+                {
+                    UnityEngine.Object.DestroyImmediate(child.gameObject);
+                }
+            }
+
+            // Remove modular armor customization component and static GLB model selector
+            var modAppearance = hero.GetComponent<BattleSummoner.Customization.ModularCharacterAppearance>();
+            if (modAppearance != null) UnityEngine.Object.DestroyImmediate(modAppearance);
+
+            var modelSelector = hero.GetComponent<BattleSummoner.Character.PlayerHeroModelSelector>();
+            if (modelSelector != null) UnityEngine.Object.DestroyImmediate(modelSelector);
+
+            // Reset hero root scale to clean 1, 1, 1
+            hero.transform.localScale = Vector3.one;
+
+            // D. Instantiate newly rigged Starter_Male_Rigged.fbx
+            string maleFbxPath = "Assets/Models/Characters/Starter/Starter_Male_Rigged.fbx";
+            var maleFbx = AssetDatabase.LoadAssetAtPath<GameObject>(maleFbxPath);
+            if (maleFbx != null)
+            {
+                var starterInstance = (GameObject)PrefabUtility.InstantiatePrefab(maleFbx, avatarRoot);
+                starterInstance.name = "Starter_Male_Rigged_Instance";
                 starterInstance.transform.localPosition = Vector3.zero;
                 starterInstance.transform.localRotation = Quaternion.identity;
                 starterInstance.transform.localScale = Vector3.one;
 
-                // Assign PBR material
-                var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Characters/M_Starter_Female_Hero.mat");
+                // Remove duplicate child Animator on the FBX instance so AvatarRigRoot is the single driving Animator
+                var childAnim = starterInstance.GetComponent<Animator>();
+                if (childAnim != null) UnityEngine.Object.DestroyImmediate(childAnim);
+
+                // Assign Starter Male PBR / Painterly material
+                var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Characters/M_Starter_Male_Hero.mat");
                 var smr = starterInstance.GetComponentInChildren<SkinnedMeshRenderer>();
                 if (smr != null && mat != null)
                 {
@@ -108,27 +135,19 @@ namespace BattleSummoner.EditorScripts
 
             // E. Configure Animator on AvatarRigRoot
             var animator = avatarRoot.GetComponent<Animator>() ?? avatarRoot.gameObject.AddComponent<Animator>();
-            var femaleAvatar = AssetDatabase.LoadAssetAtPath<Avatar>(femaleFbxPath);
-            if (femaleAvatar != null) animator.avatar = femaleAvatar;
+            var maleAvatar = AssetDatabase.LoadAssetAtPath<Avatar>(maleFbxPath);
+            if (maleAvatar != null) animator.avatar = maleAvatar;
 
             var ctrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Animators/PlayerHeroAnimator.controller");
             if (ctrl != null) animator.runtimeAnimatorController = ctrl;
+            animator.applyRootMotion = false;
 
             // F. Refresh HumanoidAnimationController
             var animCtrl = hero.GetComponent<HumanoidAnimationController>() ?? hero.AddComponent<HumanoidAnimationController>();
             animCtrl.ResolveAnimator();
 
-            // Hide old modular placeholder armor parts
-            for (int i = 0; i < avatarRoot.childCount; i++)
-            {
-                var child = avatarRoot.GetChild(i);
-                if (child.name.StartsWith("Modular_") && child.name != "Starter_Female_Rigged_Instance")
-                {
-                    child.gameObject.SetActive(false);
-                }
-            }
-
-            Debug.Log("🛡️ [Hero Setup] Player_Hero successfully bound to Starter_Female_Rigged FBX with Humanoid Avatar & PBR material!");
+            EditorUtility.SetDirty(hero);
+            Debug.Log("🛡️ [Hero Setup] Player_Hero successfully bound to Starter_Male_Rigged FBX with Humanoid Avatar & M_Starter_Male_Hero material! Modular armor purged.");
         }
 
         // =========================================================================

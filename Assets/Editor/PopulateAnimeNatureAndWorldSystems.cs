@@ -391,28 +391,8 @@ namespace BattleSummoner.EditorScripts
                 oldCloudsGroup.transform.SetParent(skyArch.transform);
             }
 
-            // Spawn 45 picturesque anime clouds around the sky (mixture of Small, Medium, Large)
-            GameObject[] cloudPrefabs = { cloudSmall, cloudMed, cloudLarge };
-            if (cloudSmall != null && cloudMed != null && cloudLarge != null)
-            {
-                int cloudIndex = 1;
-                for (float angle = 0f; angle < 360f; angle += 16f)
-                {
-                    float rad = angle * Mathf.Deg2Rad;
-                    float dist = UnityEngine.Random.Range(700f, 3200f);
-                    float height = UnityEngine.Random.Range(320f, 680f);
-                    Vector3 pos = new Vector3(Mathf.Cos(rad) * dist, height, Mathf.Sin(rad) * dist);
-
-                    int sizePick = UnityEngine.Random.Range(0, 3);
-                    var cloudGo = (GameObject)PrefabUtility.InstantiatePrefab(cloudPrefabs[sizePick], oldCloudsGroup.transform);
-                    cloudGo.name = $"StylizedCloud_{cloudIndex:D2}_{cloudPrefabs[sizePick].name.Replace("PFB_", "")}";
-                    cloudGo.transform.position = pos;
-                    cloudGo.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                    float sFactor = UnityEngine.Random.Range(0.85f, 1.35f);
-                    cloudGo.transform.localScale = Vector3.one * sFactor;
-                    cloudIndex++;
-                }
-            }
+            // Spawn multi-tiered stretched, pulled, and drifting anime clouds across 5 archetypes
+            AnimeSkyCloudMasterOverhaul.OverhaulAllSkyCloudsInScene();
 
             // 2. Clear old stepping stone spheres in Sky_Layer_Aetherion & Sky_Islands_Group
             var aetherionRoot = GameObject.Find("Sky_Layer_Aetherion");
@@ -565,7 +545,7 @@ namespace BattleSummoner.EditorScripts
 
                     // Raycast to terrain
                     if (!terrainCollider.Raycast(new Ray(new Vector3(cx, 1500f, cz), Vector3.down), out RaycastHit hit, 2000f)) continue;
-                    if (hit.point.y < 17.5f) continue; // Keep above sea bottom
+                    if (hit.point.y < 19.5f) continue; // STRICT DRY LAND CHECK: Ocean surface is at Y=18.0m, keep well above water
 
                     // Organic probability noise
                     float rNoise = Mathf.PerlinNoise((cx + 12891f) * 0.0035f, (cz + 83719f) * 0.0035f);
@@ -589,6 +569,7 @@ namespace BattleSummoner.EditorScripts
 
                         if (terrainCollider.Raycast(new Ray(rPos + Vector3.up * 40f, Vector3.down), out RaycastHit hitR, 80f))
                         {
+                            if (hitR.point.y < 19.5f) continue; // Do not spawn submerged rocks
                             GameObject prefabToSpawn;
                             if (isCoastal && cliffs.Count > 0 && r == 0 && UnityEngine.Random.value < 0.65f)
                             {
@@ -1631,6 +1612,8 @@ namespace BattleSummoner.EditorScripts
             {
                 if (terrainCollider.Raycast(new Ray(bExit + Vector3.up * 500f, Vector3.down), out RaycastHit hitExit, 1000f))
                 {
+                    // STRICT DRY LAND CHECK: Water level is Y=18.0m. Skip any exit that lands in or below water!
+                    if (hitExit.point.y < 19.5f) continue;
                     // Roadside Gateway Arch
                     if (archPrefab != null)
                     {

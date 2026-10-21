@@ -235,6 +235,9 @@ namespace BattleSummoner.World.Editor
                 if (Physics.Raycast(new Vector3(wx, 600f, wz), Vector3.down, out RaycastHit hit, 800f))
                     wy = hit.point.y;
 
+                // STRICT DRY LAND CHECK: Water level is Y=18.0m, do not place mountain steps/boulders underwater
+                if (wy < 19.5f) continue;
+
                 // 1. Stone Switchback Trail Retaining Curb / Waypoint Slab
                 GameObject pathSlab = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 pathSlab.name = $"MountainPath_StepSlab_{i:02d}";

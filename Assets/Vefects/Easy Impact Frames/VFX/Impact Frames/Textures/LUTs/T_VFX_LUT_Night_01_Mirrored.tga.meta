@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7ec8770032fde664293a54891cec7860
+guid: 4340328970eada943936825b381c0230
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Night_01_Mirrored.tga
+  uploadId: 847048

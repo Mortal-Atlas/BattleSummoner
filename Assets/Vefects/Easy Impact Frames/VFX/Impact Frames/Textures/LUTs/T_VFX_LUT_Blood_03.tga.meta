@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 6453e1fe10f235948bfbea654eed9c0f
+guid: b9e4e99cb71751c46947318e0251ef0b
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Blood_03.tga
+  uploadId: 847048

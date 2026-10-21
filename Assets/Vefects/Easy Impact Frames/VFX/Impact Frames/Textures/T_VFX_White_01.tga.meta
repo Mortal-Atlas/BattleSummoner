@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ea2294d8e80da34459d74aca296ce52a
+guid: a35aecfe914c648479336e6afec58647
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/T_VFX_White_01.tga
+  uploadId: 847048

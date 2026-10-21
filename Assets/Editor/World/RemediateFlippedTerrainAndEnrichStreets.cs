@@ -270,14 +270,14 @@ namespace BattleSummoner.EditorScripts
             float curbWidth = 1.5f;
 
             // Exact Tier spans matching sculpted continent terrain:
-            // Tier 4: R = 10m to 86m,   Y = 80.06m
-            // Tier 3: R = 116m to 202m, Y = 58.06m
+            // Tier 4: R = 10m to 95m,   Y = 80.06m (extends to retaining wall ledge)
+            // Tier 3: R = 125m to 202m, Y = 58.06m (meets bottom of T4 stairs at 125m)
             // Tier 2: R = 232m to 316m, Y = 38.06m
             // Tier 1: R = 348m to 468m, Y = 22.06m
             (float rStart, float rEnd, float yElev)[] tierSegments = new (float, float, float)[]
             {
-                (10f,  86f,  80.06f),
-                (116f, 202f, 58.06f),
+                (10f,  95f,  80.06f),
+                (125f, 202f, 58.06f),
                 (232f, 316f, 38.06f),
                 (348f, 468f, 22.06f)
             };
@@ -310,7 +310,8 @@ namespace BattleSummoner.EditorScripts
                 }
 
                 // 2. Grand Stone Flight of Stairs at Tier Transitions with solid foundations & balustrades
-                CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T4_to_T3", dir * 101.0f, dir, perp, 30.0f, 80.06f, 58.06f, boulevardWidth, 26, curbMat);
+                // T4 to T3: Centered at 110m (length 30m) -> top reaches R=95m ledge at Y=80.06m, bottom lands at R=125m at Y=58.06m
+                CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T4_to_T3", dir * 110.0f, dir, perp, 30.0f, 80.06f, 58.06f, boulevardWidth, 28, curbMat, true);
                 CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T3_to_T2", dir * 217.0f, dir, perp, 30.0f, 58.06f, 38.06f, boulevardWidth, 26, curbMat);
                 CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T2_to_T1", dir * 332.0f, dir, perp, 32.0f, 38.06f, 22.06f, boulevardWidth, 26, curbMat);
 
@@ -525,7 +526,7 @@ namespace BattleSummoner.EditorScripts
         private static void CreateFlightOfStairs(
             Transform parent, string name,
             Vector3 center, Vector3 forward, Vector3 right,
-            float length, float yTop, float yBottom, float width, int stepCount, Material mat)
+            float length, float yTop, float yBottom, float width, int stepCount, Material mat, bool isTopTier = false)
         {
             float stepLength = length / stepCount;
             float stepHeight = (yTop - yBottom) / stepCount;
@@ -557,14 +558,28 @@ namespace BattleSummoner.EditorScripts
                 step.GetComponent<MeshRenderer>().sharedMaterial = mat;
             }
 
+            // Top Landing Threshold Platform (for top tier stairs reaching the ledge at R = 95m)
+            if (isTopTier)
+            {
+                float landingThickness = 0.5f;
+                Vector3 landingPos = forward * 94.6f + Vector3.up * (yTop - landingThickness * 0.5f);
+                GameObject topLanding = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                topLanding.name = "Top_Landing_Threshold";
+                topLanding.transform.SetParent(stairsGroup.transform, false);
+                topLanding.transform.position = landingPos;
+                topLanding.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+                topLanding.transform.localScale = new Vector3(width, landingThickness, 2.8f);
+                topLanding.GetComponent<MeshRenderer>().sharedMaterial = mat;
+            }
+
             // Left & Right Stone Balustrades along stairs
-            float balustradeWidth = 0.8f;
-            float balustradeHeight = 1.2f;
+            float balustradeWidth = 0.85f;
+            float balustradeHeight = 1.3f;
             float midY = (yTop + yBottom) * 0.5f;
             float slopeAngle = Mathf.Atan2(yTop - yBottom, length) * Mathf.Rad2Deg;
 
             // Left Balustrade
-            Vector3 leftBPos = center - right * (width * 0.5f + balustradeWidth * 0.5f) + Vector3.up * (midY + balustradeHeight * 0.5f - 1.0f);
+            Vector3 leftBPos = center - right * (width * 0.5f + balustradeWidth * 0.5f) + Vector3.up * (midY + balustradeHeight * 0.5f - 0.9f);
             GameObject leftB = GameObject.CreatePrimitive(PrimitiveType.Cube);
             leftB.name = "Balustrade_Left";
             leftB.transform.SetParent(stairsGroup.transform, false);
@@ -574,7 +589,7 @@ namespace BattleSummoner.EditorScripts
             leftB.GetComponent<MeshRenderer>().sharedMaterial = mat;
 
             // Right Balustrade
-            Vector3 rightBPos = center + right * (width * 0.5f + balustradeWidth * 0.5f) + Vector3.up * (midY + balustradeHeight * 0.5f - 1.0f);
+            Vector3 rightBPos = center + right * (width * 0.5f + balustradeWidth * 0.5f) + Vector3.up * (midY + balustradeHeight * 0.5f - 0.9f);
             GameObject rightB = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rightB.name = "Balustrade_Right";
             rightB.transform.SetParent(stairsGroup.transform, false);
@@ -582,6 +597,31 @@ namespace BattleSummoner.EditorScripts
             rightB.transform.rotation = Quaternion.LookRotation(forward, Vector3.up) * Quaternion.Euler(slopeAngle, 0f, 0f);
             rightB.transform.localScale = new Vector3(balustradeWidth, balustradeHeight + 2.5f, length * 1.05f);
             rightB.GetComponent<MeshRenderer>().sharedMaterial = mat;
+
+            // Decorative Newel Piers at Top and Bottom of Balustrades
+            if (isTopTier)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Vector3 pierPos = forward * 94.6f + right * (side * (width * 0.5f + balustradeWidth * 0.5f)) + Vector3.up * (yTop + 0.65f);
+                    GameObject pier = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    pier.name = side == -1 ? "Newel_Pier_Top_Left" : "Newel_Pier_Top_Right";
+                    pier.transform.SetParent(stairsGroup.transform, false);
+                    pier.transform.position = pierPos;
+                    pier.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+                    pier.transform.localScale = new Vector3(balustradeWidth * 1.3f, 1.5f, balustradeWidth * 1.3f);
+                    pier.GetComponent<MeshRenderer>().sharedMaterial = mat;
+
+                    Vector3 btmPierPos = forward * 125.5f + right * (side * (width * 0.5f + balustradeWidth * 0.5f)) + Vector3.up * (yBottom + 0.65f);
+                    GameObject btmPier = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    btmPier.name = side == -1 ? "Newel_Pier_Btm_Left" : "Newel_Pier_Btm_Right";
+                    btmPier.transform.SetParent(stairsGroup.transform, false);
+                    btmPier.transform.position = btmPierPos;
+                    btmPier.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+                    btmPier.transform.localScale = new Vector3(balustradeWidth * 1.3f, 1.5f, balustradeWidth * 1.3f);
+                    btmPier.GetComponent<MeshRenderer>().sharedMaterial = mat;
+                }
+            }
         }
 
         private static void CreateConcentricRingPavement(

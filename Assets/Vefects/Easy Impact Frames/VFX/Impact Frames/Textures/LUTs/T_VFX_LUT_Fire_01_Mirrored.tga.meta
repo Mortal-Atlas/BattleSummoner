@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d3d1e7cf7e42f744f851d5f462eabf1f
+guid: 4d383843c75da9e48806b278c0e7383c
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Fire_01_Mirrored.tga
+  uploadId: 847048

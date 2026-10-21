@@ -85,90 +85,26 @@ namespace BattleSummoner.VisualPolish.Editor
 
             Shader charShader = Shader.Find("BattleSummoner/Painterly/GenshinPainterlyCharacter");
 
-            // A. Replace Player_Hero with MaleStarter.glb (Testing Default) + wire PlayerHeroModelSelector
-            GameObject playerHero = GameObject.Find("Player_Hero") ?? GameObject.FindWithTag("Player");
-            if (playerHero == null)
+            // A. Configure Player_Hero with rigged Starter_Male_Rigged FBX
+            BattleSummoner.EditorScripts.HeroAndUIBuilder.SetupHeroModelAndRig();
+
+            // B. Ensure Catherine (Guildhall Clerk) is rigged
+            GameObject catherineNpc = GameObject.Find("NPC_Catherine_GuildhallClerk");
+            if (catherineNpc != null)
             {
-                foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
-                {
-                    string n = go.name.ToLowerInvariant();
-                    if (n.Contains("player_hero") || n == "player")
-                    {
-                        playerHero = go;
-                        break;
-                    }
-                }
-            }
-
-            if (playerHero != null)
-            {
-                PlayerHeroModelSelector selector = playerHero.GetComponent<PlayerHeroModelSelector>();
-                if (selector == null) selector = Undo.AddComponent<PlayerHeroModelSelector>(playerHero);
-
-                selector.maleStarterGlbPrefab   = maleStarterPrefab;
-                selector.femaleStarterGlbPrefab = femaleStarterPrefab;
-                selector.manBaseGlbPrefab       = manBasePrefab;
-                selector.womanBaseGlbPrefab     = womanBasePrefab;
-
-                // Default to MaleStarter.glb for testing purposes as instructed
-                selector.selectedSex = CharacterSex.Male;
-                selector.isWearingStarterArmor = true;
-                PlayerPrefs.SetInt(PlayerHeroModelSelector.PrefsKeySelectedSex, (int)CharacterSex.Male);
-
-                selector.ApplySelectedCharacterModel(CharacterSex.Male, true);
-                if (selector.activeVisualInstance != null && charShader != null)
-                    ApplyCharacterCelShaderToHierarchy(selector.activeVisualInstance, charShader);
-
-                EditorUtility.SetDirty(playerHero);
-            }
-
-            // B. Replace Catherine (Guildhall Clerk) with Catherine.glb
-            GameObject catherineNpc = null;
-            foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
-            {
-                string n = go.name.ToLowerInvariant();
-                if (n.Contains("catherine") || n.Contains("guildhall_clerk") || n.Contains("guild_clerk") || n.Contains("clerk"))
-                {
-                    catherineNpc = go;
-                    break;
-                }
-            }
-
-            if (catherineNpc == null && catherinePrefab != null)
-            {
-                catherineNpc = new GameObject("NPC_Catherine_GuildhallClerk");
-                catherineNpc.transform.position = new Vector3(2.4f, 0f, 7.2f);
-                catherineNpc.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            }
-
-            if (catherineNpc != null && catherinePrefab != null)
-            {
-                SwapObjectVisualMeshWithGlb(catherineNpc, catherinePrefab, charShader, "Visual_Catherine_GLB");
                 EnsureCleanNameplate(catherineNpc, "Catherine", "Guildhall Clerk");
             }
 
-            // C. Replace all Cylindrical Placeholder NPCs & Generic Citizens with manbase.glb / womanbase.glb / starters
+            // C. Replace only legacy unrigged Cylindrical Placeholders (skip already rigged NPCs)
             int npcToggleIndex = 0;
             GameObject[] allObjects = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
             foreach (GameObject go in allObjects)
             {
-                if (go == null || go == playerHero || go == catherineNpc) continue;
-                if (playerHero != null && go.transform.IsChildOf(playerHero.transform)) continue;
-                if (catherineNpc != null && go.transform.IsChildOf(catherineNpc.transform)) continue;
-
-                string n = go.name.ToLowerInvariant();
-                bool isNpcRoot = n.Contains("npc") || n.Contains("citizen") || n.Contains("villager") ||
-                                 n.Contains("merchant") || n.Contains("guard") || n.Contains("dummy_npc");
-
-                // Also catch standalone primitive cylinders acting as character placeholders
-                MeshFilter mf = go.GetComponent<MeshFilter>();
-                bool isCylinderPlaceholder = mf != null && mf.sharedMesh != null &&
-                                             (mf.sharedMesh.name.Contains("Cylinder") || mf.sharedMesh.name.Contains("Capsule")) &&
-                                             (n.Contains("npc") || n.Contains("citizen") || n.Contains("placeholder") || n.Contains("user") || n.Contains("char"));
-
-                if (!isNpcRoot && !isCylinderPlaceholder) continue;
-                // Skip child bones/meshes of already-swapped characters
-                if (go.transform.parent != null && go.transform.parent.name.StartsWith("Visual_")) continue;
+                if (go == null || go == catherineNpc) continue;
+                if (go.name.Contains("Player_Hero") || go.name == "Player") continue;
+                if (go.transform.Find("HumanoidBody") != null) continue;
+                if (go.GetComponentInChildren<SkinnedMeshRenderer>() != null) continue;
+                if (go.GetComponent<Animator>() != null && go.GetComponent<Animator>().isHuman) continue;
 
                 GameObject chosenNpcGlb = null;
                 switch (npcToggleIndex % 4)

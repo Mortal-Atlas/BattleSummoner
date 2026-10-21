@@ -355,6 +355,7 @@ namespace BattleSummoner.EditorScripts
 
         private static void BuildFingerPier(Vector3 rootPos, float length, float width, float angleDeg, Transform parent)
         {
+            if (rootPos.y < 19.0f) return; // STRICT DRY LAND CHECK: Ocean surface is at Y=18.0m
             var pierGO = new GameObject($"Finger_Pier_{length:F0}m");
             pierGO.transform.SetParent(parent);
             pierGO.transform.position = rootPos;
@@ -736,6 +737,9 @@ namespace BattleSummoner.EditorScripts
         // Helper
         private static GameObject SpawnAsset(string assetPath, Vector3 position, Quaternion rotation, Vector3 scale, Transform parent)
         {
+            // STRICT WATER EXCLUSION: Water level is Y=18.0m. Skip any asset placed in or below water!
+            if (position.y < 19.0f) return null;
+
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (prefab == null) return null;
 

@@ -46,7 +46,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 2b1f05be2257cb14aa1c51edd67872f7, type: 3}
+        m_Texture: {fileID: 2800000, guid: 3fbd99f43b184df499e8358e2b78b803, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -110,6 +110,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _AmbientBoost: 1.15
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1

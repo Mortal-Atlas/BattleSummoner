@@ -28,6 +28,12 @@ namespace BattleSummoner.Character
 
         private void Awake()
         {
+            // If character already has rigged AvatarRigRoot, do not overwrite with static meshes
+            if (transform.Find("AvatarRigRoot") != null)
+            {
+                return;
+            }
+
             // Read from Character Creation choice if saved; otherwise default to Male (0) for testing
             if (PlayerPrefs.HasKey(PrefsKeySelectedSex))
             {

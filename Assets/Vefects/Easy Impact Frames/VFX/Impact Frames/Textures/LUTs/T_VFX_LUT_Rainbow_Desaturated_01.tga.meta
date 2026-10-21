@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: fda0f11b2320e854c950b469b3ac2b35
+guid: afc87740ac4ea9f40b7696708479c436
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Rainbow_Desaturated_01.tga
+  uploadId: 847048

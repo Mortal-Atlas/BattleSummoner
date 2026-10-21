@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 27908f217ded7fb4c942051a70b10d3c
+guid: f21f2648158bc7c48baacabec34b28b1
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/LUTs/T_VFX_LUT_Rainbow_Desaturated_01_Mirrored.tga
+  uploadId: 847048

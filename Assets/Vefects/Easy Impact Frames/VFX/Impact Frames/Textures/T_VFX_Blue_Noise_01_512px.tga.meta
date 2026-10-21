@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ba730e3a9b3f28946af5afccc7cf03a2
+guid: 64d685474f689b84c91b6042c5e11d99
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/T_VFX_Blue_Noise_01_512px.tga
+  uploadId: 847048

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: bc839b20e7f07fb41a3075f2810cf696
+guid: b824f69dfa2caa24a81b90da3495915c
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,3 +110,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 355378
+  packageName: Easy Impact Frames - URP
+  packageVersion: 1.0.1
+  assetPath: Assets/Vefects/Easy Impact Frames/VFX/Impact Frames/Textures/T_VFX_Perlin_01.tga
+  uploadId: 847048

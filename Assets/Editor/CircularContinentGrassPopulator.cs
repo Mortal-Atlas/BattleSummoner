@@ -211,8 +211,8 @@ namespace BattleSummoner.EditorScripts
                             Ray ray = new Ray(new Vector3(sampleX, 350f, sampleZ), Vector3.down);
                             if (!terrainCollider.Raycast(ray, out RaycastHit hit, 400f)) continue;
 
-                            // Altitude check: must be above water
-                            if (hit.point.y < 0.8f) continue;
+                            // Altitude check: STRICT DRY LAND CHECK (Water level is Y=18.0m)
+                            if (hit.point.y < 18.5f) continue;
 
                             // Barycentric Face Interpolation (eliminates per-face discretization & hard edge seams)
                             Color blendedCol = Color.green;
@@ -245,7 +245,7 @@ namespace BattleSummoner.EditorScripts
                             float grassFactor = Mathf.SmoothStep(0.18f, 0.42f, grassWeight);
                             float nonGrassPenalty = 1.0f - Mathf.SmoothStep(0.20f, 0.40f, nonGrassWeight);
                             float slopeFactor = Mathf.SmoothStep(0.52f, 0.70f, blendedNormal.y);
-                            float heightFactor = Mathf.SmoothStep(0.8f, 1.4f, hit.point.y);
+                            float heightFactor = Mathf.SmoothStep(18.5f, 19.5f, hit.point.y);
 
                             float totalProbability = grassFactor * nonGrassPenalty * slopeFactor * heightFactor;
                             if (totalProbability < 0.05f) continue;
