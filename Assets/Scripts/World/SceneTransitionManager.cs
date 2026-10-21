@@ -48,8 +48,39 @@ public class SceneTransitionManager : MonoBehaviour
     private bool isTransitioning = false;
     public bool IsTransitioning => isTransitioning;
 
+    public string LastSceneBeforeCampfire { get; set; } = "OverworldMap";
+    public Vector3? LastPositionBeforeCampfire { get; set; } = null;
+
     public event Action<string> OnTransitionStarted;
     public event Action<string> OnTransitionCompleted;
+
+    /// <summary>
+    /// Set up camp anywhere (overworld, dungeon rest zones, field).
+    /// Stores the current scene and coordinates so BreakCamp returns smoothly.
+    /// </summary>
+    public void PitchCamp(string customTitle = "Setting Up Camp...")
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (currentScene != "CampfireHub")
+        {
+            LastSceneBeforeCampfire = currentScene;
+            GameObject player = GameObject.Find("Player_Hero") ?? GameObject.FindWithTag("Player");
+            if (player != null)
+            {
+                LastPositionBeforeCampfire = player.transform.position;
+            }
+        }
+        TransitionToScene("CampfireHub", "Campfire_Arrival", customTitle);
+    }
+
+    /// <summary>
+    /// Pack up camp and return to the exact previous adventure location and position.
+    /// </summary>
+    public void BreakCamp()
+    {
+        string target = !string.IsNullOrEmpty(LastSceneBeforeCampfire) ? LastSceneBeforeCampfire : "OverworldMap";
+        TransitionToScene(target, null, "Resuming Adventure...", LastPositionBeforeCampfire);
+    }
 
     private void Awake()
     {
@@ -154,7 +185,11 @@ public class SceneTransitionManager : MonoBehaviour
         // Brief hold at full black
         yield return new WaitForSecondsRealtime(0.1f);
 
-        // 3. Load Target Scene Asynchronously
+        // 3. Load Target Scene Asynchronously (with backward compatibility)
+        if (sceneName == "MultiCharacterDialogueHub")
+        {
+            sceneName = "CampfireHub";
+        }
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         if (asyncLoad != null)
         {

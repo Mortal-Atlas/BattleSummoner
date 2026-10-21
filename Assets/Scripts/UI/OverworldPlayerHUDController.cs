@@ -220,8 +220,8 @@ namespace BattleSummoner.UI
             if (Input.GetKeyDown(KeyCode.Q)) UseHpPotion();
             if (Input.GetKeyDown(KeyCode.R)) UseMpPotion();
 
-            // Campfire travel shortcut (M)
-            if (Input.GetKeyDown(KeyCode.M)) TransitionToCampfireHub();
+            // Campfire rest shortcut (C or M)
+            if (Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.M)) TransitionToCampfireHub();
         }
 
         public void ExecuteAttack()
@@ -352,14 +352,14 @@ namespace BattleSummoner.UI
 
         private void TransitionToCampfireHub()
         {
-            ShowToast("✦ VENTURING TO CAMPFIRE DIALOGUE HUB... ✦");
+            ShowToast("✦ SETTING UP CAMPFIRE REST HUB... ✦");
             if (SceneTransitionManager.Instance != null)
             {
-                SceneTransitionManager.Instance.TransitionToScene("MultiCharacterDialogueHub", "Campfire_Arrival", "Solas Campfire Rendezvous");
+                SceneTransitionManager.Instance.PitchCamp("Solas Campfire Rendezvous");
             }
             else
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene("MultiCharacterDialogueHub");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("CampfireHub");
             }
         }
 

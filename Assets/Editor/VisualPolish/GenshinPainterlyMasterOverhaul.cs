@@ -371,10 +371,15 @@ namespace BattleSummoner.VisualPolish.Editor
 
             GameObject propRoot = GameObject.Find("Genshin_Meshy_PlazaSetDressing") ?? new GameObject("Genshin_Meshy_PlazaSetDressing");
 
-            GameObject planterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_SakuraStonePlanterRing.fbx");
-            GameObject cratesPrefab  = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_MarketMerchantSet_CratesAndBaskets.fbx");
-            GameObject lampPrefab    = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_Mondstadt_WroughtIronStreetLamp.fbx");
-            GameObject benchPrefab   = AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_PlazaFlowerBox_And_Bench.fbx");
+            // Load properly configured prefabs (with colliders, materials, and light sources)
+            GameObject planterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeshyProps/Prop_SakuraStonePlanterRing.prefab")
+                                    ?? AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_SakuraStonePlanterRing.fbx");
+            GameObject cratesPrefab  = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeshyProps/Prop_MarketMerchantSet_CratesAndBaskets.prefab")
+                                    ?? AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_MarketMerchantSet_CratesAndBaskets.fbx");
+            GameObject lampPrefab    = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeshyProps/Prop_Mondstadt_WroughtIronStreetLamp.prefab")
+                                    ?? AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_Mondstadt_WroughtIronStreetLamp.fbx");
+            GameObject benchPrefab   = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab")
+                                    ?? AssetDatabase.LoadAssetAtPath<GameObject>(MeshyPropDir + "Prop_PlazaFlowerBox_And_Bench.fbx");
 
             foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
             {
@@ -388,6 +393,7 @@ namespace BattleSummoner.VisualPolish.Editor
                         GameObject inst = (GameObject)PrefabUtility.InstantiatePrefab(planterPrefab, go.transform);
                         inst.name = "Meshy_SakuraPlanter";
                         inst.transform.localPosition = Vector3.zero;
+                        inst.transform.localScale = Vector3.one;
                     }
                     else if (planterPrefab == null && go.transform.Find("Genshin_StonePlanterRing") == null)
                     {
@@ -408,52 +414,40 @@ namespace BattleSummoner.VisualPolish.Editor
                 }
             }
 
-            SpawnPropAtGround(cratesPrefab, propRoot.transform, new Vector3(4.5f, 10f, 6.0f), 0f, "Meshy_MarketGoods_01");
-            SpawnPropAtGround(cratesPrefab, propRoot.transform, new Vector3(4.5f, 10f, 9.5f), 90f, "Meshy_MarketGoods_02");
-            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(-4.2f, 10f, 5.0f), 25f, "Meshy_StreetLamp_Left");
-            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(3.8f, 10f, 3.2f), -145f, "Meshy_StreetLamp_Right");
-            SpawnPropAtGround(benchPrefab,  propRoot.transform, new Vector3(-3.8f, 10f, 8.5f), 90f, "Meshy_FlowerBench_Left");
+            // Market Goods (Produce crates and baskets beside promenade bazaar stalls)
+            SpawnPropAtGround(cratesPrefab, propRoot.transform, new Vector3(6.40f, 100f, -36.20f), 15f,  "Meshy_MarketGoods_01", Vector3.one);
+            SpawnPropAtGround(cratesPrefab, propRoot.transform, new Vector3(6.40f, 100f, -22.50f), -20f, "Meshy_MarketGoods_02", Vector3.one);
+            SpawnPropAtGround(cratesPrefab, propRoot.transform, new Vector3(6.40f, 100f, -46.20f), 10f,  "Meshy_MarketGoods_03", Vector3.one);
+
+            // Flower Benches (Plaza promenade seating with flanking flower boxes)
+            SpawnPropAtGround(benchPrefab,  propRoot.transform, new Vector3(-6.20f, 100f, -41.00f), 90f,  "Meshy_FlowerBench_Left",  Vector3.one);
+            SpawnPropAtGround(benchPrefab,  propRoot.transform, new Vector3(-6.20f, 100f, -24.50f), 90f,  "Meshy_FlowerBench_North", Vector3.one);
+            SpawnPropAtGround(benchPrefab,  propRoot.transform, new Vector3(6.40f,  100f, -41.00f), -90f, "Meshy_FlowerBench_Right", Vector3.one);
+
+            // Street Lamps (Warm Mondstadt wrought iron lanterns along walkway curbs)
+            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(-5.40f, 100f, -48.00f), 45f,  "Meshy_StreetLamp_SouthLeft",  Vector3.one * 0.85f);
+            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(5.40f,  100f, -48.00f), -45f, "Meshy_StreetLamp_SouthRight", Vector3.one * 0.85f);
+            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(-5.40f, 100f, -33.00f), 45f,  "Meshy_StreetLamp_MidLeft",    Vector3.one * 0.85f);
+            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(5.40f,  100f, -33.00f), -45f, "Meshy_StreetLamp_MidRight",   Vector3.one * 0.85f);
+            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(-5.40f, 100f, -18.50f), 45f,  "Meshy_StreetLamp_NorthLeft",  Vector3.one * 0.85f);
+            SpawnPropAtGround(lampPrefab,   propRoot.transform, new Vector3(5.40f,  100f, -18.50f), -45f, "Meshy_StreetLamp_NorthRight", Vector3.one * 0.85f);
         }
 
-        private static void SpawnPropAtGround(GameObject prefab, Transform parent, Vector3 rayOrigin, float yaw, string instanceName)
+        private static void SpawnPropAtGround(GameObject prefab, Transform parent, Vector3 rayOrigin, float yaw, string instanceName, Vector3 targetScale)
         {
             if (prefab == null) return;
             Transform existing = parent.Find(instanceName);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
-            Vector3 spawnPos = new Vector3(rayOrigin.x, 0f, rayOrigin.z);
+            Vector3 spawnPos = new Vector3(rayOrigin.x, 80.24f, rayOrigin.z);
             if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 50f))
                 spawnPos = hit.point;
 
             GameObject inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
             inst.name = instanceName;
             inst.transform.position = spawnPos;
-
-            // Detect if model was exported Z-up (e.g. lamp lying on ground with size.z > size.y)
-            Renderer[] renderers = inst.GetComponentsInChildren<Renderer>();
-            if (renderers.Length > 0)
-            {
-                Bounds b = renderers[0].bounds;
-                for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
-                if (instanceName.ToLowerInvariant().Contains("lamp") && b.size.z > b.size.y)
-                {
-                    inst.transform.rotation = Quaternion.Euler(-90f, yaw, 0f);
-                }
-                else
-                {
-                    inst.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
-                }
-
-                // Re-evaluate bounds and normalize scale if necessary
-                b = renderers[0].bounds;
-                for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
-                float maxDim = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
-                if (maxDim > 6.0f)
-                {
-                    float scaleRatio = 3.5f / maxDim;
-                    inst.transform.localScale = Vector3.one * scaleRatio;
-                }
-            }
+            inst.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+            inst.transform.localScale = targetScale;
         }
     }
 }

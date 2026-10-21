@@ -154,6 +154,12 @@ public class PortraitHUDController : MonoBehaviour
         {
             satietyGauge.value = livingGear.currentSatiety / Mathf.Max(1f, livingGear.maxSatiety);
         }
+
+        // Quick Campfire Rest shortcut (Key C)
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            OnCampfireHubClicked();
+        }
     }
 
     private void ResolveSubsystems()
@@ -518,8 +524,15 @@ public class PortraitHUDController : MonoBehaviour
 
     public void OnCampfireHubClicked()
     {
-        Debug.Log("[HUD] Opening Campfire Multi-Character Dialogue Hub...");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MultiCharacterDialogueHub");
+        Debug.Log("[HUD] Setting up Campfire Hub...");
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.PitchCamp("Campfire Rest");
+        }
+        else
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("CampfireHub");
+        }
     }
 
     public void OnKalimbaToggleClicked()

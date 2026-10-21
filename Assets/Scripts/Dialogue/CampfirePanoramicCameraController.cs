@@ -156,7 +156,21 @@ namespace BattleSummoner.Dialogue
                 while (curr != null)
                 {
                     string n = curr.gameObject.name.ToLower();
-                    if (n.Contains("margo"))
+                    if (n.Contains("female") || n.Contains("aria"))
+                    {
+                        hoveredNpcId = "starter_female";
+                        hoveredDisplayName = "Aria (Female Starter)";
+                        hoveredWorldPosition = curr.position + Vector3.up * 1.5f;
+                        break;
+                    }
+                    else if (n.Contains("male") || n.Contains("leo"))
+                    {
+                        hoveredNpcId = "starter_male";
+                        hoveredDisplayName = "Leo (Male Starter)";
+                        hoveredWorldPosition = curr.position + Vector3.up * 1.6f;
+                        break;
+                    }
+                    else if (n.Contains("margo"))
                     {
                         hoveredNpcId = "npc_margo";
                         hoveredDisplayName = "Margo";

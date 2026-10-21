@@ -204,12 +204,12 @@ namespace BattleSummoner.Dialogue
             }
 
             // 2. Setup Right Character (Companion - Facing Left towards Player)
-            if (npcId == "npc_margo")
+            if (npcId == "starter_female" || npcId == "aria" || npcId == "npc_female" || npcId == "npc_margo")
             {
                 if (rightBaseImage != null) rightBaseImage.sprite = baseFemaleLeft;
                 if (rightOutfitImage != null) rightOutfitImage.sprite = outfitFemaleLeft;
             }
-            else // Barnaby or Zephyr
+            else // starter_male, leo, barnaby, zephyr
             {
                 if (rightBaseImage != null) rightBaseImage.sprite = baseMaleLeft;
                 if (rightOutfitImage != null) rightOutfitImage.sprite = outfitMaleLeft;
@@ -228,7 +228,19 @@ namespace BattleSummoner.Dialogue
 
         private void SetupChoicesForCompanion(string npcId)
         {
-            if (npcId == "npc_margo")
+            if (npcId == "starter_female" || npcId == "aria" || npcId == "npc_female")
+            {
+                if (choiceText1 != null) choiceText1.text = "How do you maintain mental clarity during dangerous delves?";
+                if (choiceText2 != null) choiceText2.text = "Can you share what ancient records say about these rifts?";
+                if (choiceText3 != null) choiceText3.text = "Let's share some warm herbal stew from the cauldron.";
+            }
+            else if (npcId == "starter_male" || npcId == "leo" || npcId == "npc_male")
+            {
+                if (choiceText1 != null) choiceText1.text = "How should we coordinate Vanguard defense and summoner spells?";
+                if (choiceText2 != null) choiceText2.text = "What is your philosophy on venturing into the unknown?";
+                if (choiceText3 != null) choiceText3.text = "How is your weapon and gear holding up after today's battles?";
+            }
+            else if (npcId == "npc_margo")
             {
                 if (choiceText1 != null) choiceText1.text = "How do you distill Void Amethyst geodes?";
                 if (choiceText2 != null) choiceText2.text = "What is the three-strike thermodynamic rule?";
@@ -250,7 +262,15 @@ namespace BattleSummoner.Dialogue
 
         private string GetInitialGreeting(string npcId)
         {
-            if (npcId == "npc_margo")
+            if (npcId == "starter_female" || npcId == "aria" || npcId == "npc_female")
+            {
+                return "Take a seat by the embers. We've pushed through tough territory today, and the night chill is setting in. Resting your mind and taking in the warmth is just as vital as blade practice. What's on your thoughts?";
+            }
+            else if (npcId == "starter_male" || npcId == "leo" || npcId == "npc_male")
+            {
+                return "Glad you pulled up to the fire. Setting up camp always feels good after a long trek. My blade is sharpened, but catching our breath together keeps us alive out here. How are you holding up?";
+            }
+            else if (npcId == "npc_margo")
             {
                 return "Pull up a log, delver. The embers are nice, but if you're here to ask about my alchemical reagents, keep your hands off the alembic. (¬_¬) What's on your mind?";
             }
@@ -334,7 +354,43 @@ namespace BattleSummoner.Dialogue
             string playerQuery = "";
             string npcResponse = "";
 
-            if (activeNpcId == "npc_margo")
+            if (activeNpcId == "starter_female" || activeNpcId == "aria" || activeNpcId == "npc_female")
+            {
+                if (choiceIndex == 1)
+                {
+                    playerQuery = "How do you maintain mental clarity during dangerous delves?";
+                    npcResponse = "Aria: 'Deep, steady breathing and trusting our party. When the chaos of battle spikes, don't let your eyes dart everywhere. Anchor your gaze on your immediate footing and our team's formation. Calm mind, decisive action.'";
+                }
+                else if (choiceIndex == 2)
+                {
+                    playerQuery = "Can you share what ancient records say about these rifts?";
+                    npcResponse = "Aria: 'The ancient codices describe these rifts as tectonic folds between astral memory and physical matter. The deeper we venture, the more the environment resonates with our collective resolve.'";
+                }
+                else
+                {
+                    playerQuery = "Let's share some warm herbal stew from the cauldron.";
+                    npcResponse = "Aria: 'Gladly! I gathered wild mountain sage and sunlit roots earlier. A warm bowl of stew by the campfire works miracles on dungeon exhaustion.'";
+                }
+            }
+            else if (activeNpcId == "starter_male" || activeNpcId == "leo" || activeNpcId == "npc_male")
+            {
+                if (choiceIndex == 1)
+                {
+                    playerQuery = "How should we coordinate Vanguard defense and summoner spells?";
+                    npcResponse = "Leo: 'Keep your shield arm firm and never overcommit into enemy swarms. When you cast your summon or spell, I'll hold the vanguard line to shield your casting circle. Synergy wins every skirmish.'";
+                }
+                else if (choiceIndex == 2)
+                {
+                    playerQuery = "What is your philosophy on venturing into the unknown?";
+                    npcResponse = "Leo: 'Every step forward is earned together. No matter how deep or forbidding the cavern gets, knowing we have a warm campfire to return to keeps our spirits unbroken.'";
+                }
+                else
+                {
+                    playerQuery = "How is your weapon and gear holding up after today's battles?";
+                    npcResponse = "Leo: 'Just needed a few passes along the whetstone. The temper is true and the edge is clean. Rest easy tonight, partner; tomorrow we delve even deeper.'";
+                }
+            }
+            else if (activeNpcId == "npc_margo")
             {
                 if (choiceIndex == 1)
                 {
@@ -416,7 +472,25 @@ namespace BattleSummoner.Dialogue
         private string GenerateDynamicReply(string npcId, string query)
         {
             string lower = query.ToLower();
-            if (npcId == "npc_margo")
+            if (npcId == "starter_female" || npcId == "aria" || npcId == "npc_female")
+            {
+                if (lower.Contains("food") || lower.Contains("stew") || lower.Contains("cook") || lower.Contains("eat"))
+                    return "Aria: 'The stew in the alchemist cauldron has wild chanterelles and healing roots. Have a warm bowl, relax, and let your body recover.'";
+                if (lower.Contains("rest") || lower.Contains("sleep") || lower.Contains("tire"))
+                    return "Aria: 'Resting by the fire is the best way to recharge our mana reserves. Close your eyes for a while; I'll keep the first watch.'";
+                if (lower.Contains("help") || lower.Contains("magic") || lower.Contains("spell"))
+                    return "Aria: 'I can weave warding barriers and analyze rift anomalies. Whenever you start casting, I'll watch your flanks.'";
+                return $"Aria: 'You bring up a thoughtful point about \"{query}\". When we rest together like this, it makes the heavy road ahead feel manageable.'";
+            }
+            else if (npcId == "starter_male" || npcId == "leo" || npcId == "npc_male")
+            {
+                if (lower.Contains("fight") || lower.Contains("weapon") || lower.Contains("blade") || lower.Contains("shield"))
+                    return "Leo: 'My broadsword and shield are locked and ready. In the field, call the shot and I'll create the opening!'";
+                if (lower.Contains("rest") || lower.Contains("sleep") || lower.Contains("camp"))
+                    return "Leo: 'Setting up camp was the right call. Delving when fatigued gets people hurt. Let the fire warm your spirits tonight.'";
+                return $"Leo: 'Well said regarding \"{query}\"! We've got each other's backs through thick and thin. Let's finish up camp and get ready for tomorrow.'";
+            }
+            else if (npcId == "npc_margo")
             {
                 if (lower.Contains("food") || lower.Contains("cook") || lower.Contains("eat"))
                     return "Margo: 'If you want food, ask Barnaby. The only thing I can brew at this campfire is a high-potency restorative elixir, and it tastes like boiled brimstone.'";

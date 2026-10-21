@@ -321,11 +321,11 @@ public static class MetropolisLifeAndAestheticPopulator
             count++;
         }
 
-        // 3. Inn Lodge Building -> MultiCharacterDialogueHub
+        // 3. Inn Lodge Building -> CampfireHub
         var innBuilding = GameObject.Find("Building_Inn_Lodge");
         if (innBuilding != null)
         {
-            EnsureDoorwayTrigger(innBuilding, "Doorway_CampfireHub", "MultiCharacterDialogueHub", "Interior_Doorway", "The Adventurers' Campfire Hub");
+            EnsureDoorwayTrigger(innBuilding, "Doorway_CampfireHub", "CampfireHub", "Interior_Doorway", "The Adventurers' Campfire Hub");
             count++;
         }
 
