@@ -13,7 +13,6 @@
   <Project Path="Unity.VisualScripting.Core.Editor.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Editor.csproj" />
   <Project Path="Unity.PerformanceTesting.Editor.csproj" />
-  <Project Path="Pinwheel.Vista.Runtime.csproj" />
   <Project Path="Unity.Burst.csproj" />
   <Project Path="Unity.VisualScripting.Flow.Editor.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Editor.csproj" />
@@ -26,7 +25,6 @@
   <Project Path="Unity.Searcher.Editor.csproj" />
   <Project Path="Unity.ProBuilder.Editor.csproj" />
   <Project Path="glTFast.csproj" />
-  <Project Path="Pinwheel.Vista.Editor.csproj" />
   <Project Path="Unity.InferenceEngine.Tokenization.csproj" />
   <Project Path="Unity.VisualScripting.Core.csproj" />
   <Project Path="Unity.InferenceEngine.Editor.csproj" />

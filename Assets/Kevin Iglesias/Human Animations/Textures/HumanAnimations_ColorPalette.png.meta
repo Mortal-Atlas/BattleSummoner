@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: be68c75390efe49418658795204834c4
+guid: 1a4492c96c7a53646a0514634cbdecaa
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -140,8 +140,8 @@ TextureImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 345572
-  packageName: Human Throwing Animations FREE
-  packageVersion: 1.0
+  productId: 157920
+  packageName: Human Crafting Animations FREE
+  packageVersion: 2.2
   assetPath: Assets/Kevin Iglesias/Human Animations/Textures/HumanAnimations_ColorPalette.png
-  uploadId: 825318
+  uploadId: 825240
