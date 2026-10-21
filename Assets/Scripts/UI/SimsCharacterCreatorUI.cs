@@ -176,8 +176,18 @@ public class SimsCharacterCreatorUI : MonoBehaviour
 
     public void AutoBindReferences()
     {
-        if (maleCharacterInstance == null) maleCharacterInstance = GameObject.Find("Showcase_Male_Base_Naked");
-        if (femaleCharacterInstance == null) femaleCharacterInstance = GameObject.Find("Showcase_Female_Base_Naked");
+        if (maleCharacterInstance == null)
+        {
+            maleCharacterInstance = GameObject.Find("Showcase_Character_Male_Starter")
+                ?? GameObject.Find("Character_Starter_Male")
+                ?? GameObject.Find("Showcase_Male_Base_Naked");
+        }
+        if (femaleCharacterInstance == null)
+        {
+            femaleCharacterInstance = GameObject.Find("Showcase_Character_Female_Starter")
+                ?? GameObject.Find("Character_Starter_Female")
+                ?? GameObject.Find("Showcase_Female_Base_Naked");
+        }
         if (turntableController == null) turntableController = Camera.main?.GetComponent<ShowcaseTurntableController>();
         if (environmentController == null)
         {
@@ -249,7 +259,8 @@ public class SimsCharacterCreatorUI : MonoBehaviour
                 isFemaleTarget = false;
                 maleCharacterInstance.SetActive(true);
                 femaleCharacterInstance.SetActive(false);
-                maleCharacterInstance.transform.position = new Vector3(0, 0, 0);
+                maleCharacterInstance.transform.position = new Vector3(0, 0.95f, 0);
+                maleCharacterInstance.transform.rotation = Quaternion.Euler(0, 0, 0);
                 if (turntableController != null) turntableController.FocusFullBody();
                 SelectTargetCharacter(maleCharacterInstance);
                 if (sideProfilePortrait != null) sideProfilePortrait.SetGender(BattlePortraitGender.Masc);
@@ -259,7 +270,8 @@ public class SimsCharacterCreatorUI : MonoBehaviour
                 isFemaleTarget = true;
                 maleCharacterInstance.SetActive(false);
                 femaleCharacterInstance.SetActive(true);
-                femaleCharacterInstance.transform.position = new Vector3(0, 0, 0);
+                femaleCharacterInstance.transform.position = new Vector3(0, 0.95f, 0);
+                femaleCharacterInstance.transform.rotation = Quaternion.Euler(0, 0, 0);
                 if (turntableController != null) turntableController.FocusFullBody();
                 SelectTargetCharacter(femaleCharacterInstance);
                 if (sideProfilePortrait != null) sideProfilePortrait.SetGender(BattlePortraitGender.Feme);
@@ -269,12 +281,14 @@ public class SimsCharacterCreatorUI : MonoBehaviour
             default:
                 maleCharacterInstance.SetActive(true);
                 femaleCharacterInstance.SetActive(true);
-                maleCharacterInstance.transform.position = new Vector3(-0.55f, 0, 0);
-                femaleCharacterInstance.transform.position = new Vector3(0.55f, 0, 0);
+                maleCharacterInstance.transform.position = new Vector3(-0.46f, 0.95f, 0);
+                maleCharacterInstance.transform.rotation = Quaternion.Euler(0, 170f, 0);
+                femaleCharacterInstance.transform.position = new Vector3(0.46f, 0.95f, 0);
+                femaleCharacterInstance.transform.rotation = Quaternion.Euler(0, 190f, 0);
                 if (turntableController != null)
                 {
-                    turntableController.focalPoint = new Vector3(-0.15f, 0.95f, 0f);
-                    turntableController.distance = 3.3f;
+                    turntableController.focalPoint = new Vector3(0f, 1.05f, 0f);
+                    turntableController.distance = 4.6f;
                 }
                 SelectTargetCharacter(isFemaleTarget ? femaleCharacterInstance : maleCharacterInstance);
                 if (sideProfilePortrait != null) sideProfilePortrait.SetGender(isFemaleTarget ? BattlePortraitGender.Feme : BattlePortraitGender.Masc);
@@ -640,12 +654,16 @@ public class SimsCharacterCreatorUI : MonoBehaviour
         if (equipMgr == null) equipMgr = charObj.AddComponent<ModularEquipmentManager>();
         equipMgr.AutoDetectSockets();
 
-        if (torsoPrefab != null)
-            equipMgr.Equip(new EquipmentItemDefinition { itemId = "torso", itemName = "Adventurer Cuirass", slot = EquipmentSlot.Torso, prefab = torsoPrefab });
-        if (leggingsPrefab != null)
-            equipMgr.Equip(new EquipmentItemDefinition { itemId = "leggings", itemName = "Adventurer Leggings", slot = EquipmentSlot.Leggings, prefab = leggingsPrefab });
-        if (shoesPrefab != null)
-            equipMgr.Equip(new EquipmentItemDefinition { itemId = "shoes", itemName = "Armored Boots", slot = EquipmentSlot.Shoes, prefab = shoesPrefab });
+        // If the character is a legacy naked segmented body, overlay clothing
+        if (charObj.name.Contains("Naked") || charObj.GetComponent<BattleSummoner.Customization.ModularCharacterAppearance>() != null)
+        {
+            if (torsoPrefab != null)
+                equipMgr.Equip(new EquipmentItemDefinition { itemId = "torso", itemName = "Adventurer Cuirass", slot = EquipmentSlot.Torso, prefab = torsoPrefab });
+            if (leggingsPrefab != null)
+                equipMgr.Equip(new EquipmentItemDefinition { itemId = "leggings", itemName = "Adventurer Leggings", slot = EquipmentSlot.Leggings, prefab = leggingsPrefab });
+            if (shoesPrefab != null)
+                equipMgr.Equip(new EquipmentItemDefinition { itemId = "shoes", itemName = "Armored Boots", slot = EquipmentSlot.Shoes, prefab = shoesPrefab });
+        }
 
         GameObject wPrefab = isFemale ? (wandPrefab != null ? wandPrefab : swordPrefab) : swordPrefab;
         if (wPrefab != null)

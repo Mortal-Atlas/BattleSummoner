@@ -178,11 +178,12 @@ public class ModularEquipmentManager : MonoBehaviour
                 var rHand = transform.Find("Character_Armature/Hips/Spine/Chest/UpperChest/RightShoulder/RightArm/RightForeArm/RightHand");
                 Vector3 wOffset = Vector3.zero;
                 Quaternion wRot = Quaternion.identity;
-                if (!string.IsNullOrEmpty(item.itemId) && item.itemId.ToLower().Contains("sword"))
+                Transform targetSocket = rightHandSocket != null ? rightHandSocket : rHand;
+                if (targetSocket == null && !string.IsNullOrEmpty(item.itemId) && item.itemId.ToLower().Contains("sword"))
                 {
                     wOffset = new Vector3(-0.015f, -0.64f, -0.01f);
                 }
-                AttachEquipment(ref activeMainWeaponInstance, item.prefab, rightHandSocket != null ? rightHandSocket : rHand, wOffset, wRot);
+                AttachEquipment(ref activeMainWeaponInstance, item.prefab, targetSocket, wOffset, wRot);
                 currentMainWeapon = item;
                 break;
 
@@ -240,32 +241,32 @@ public class ModularEquipmentManager : MonoBehaviour
         switch (slot)
         {
             case EquipmentSlot.Helmet:
-                if (activeHelmetInstance != null) Destroy(activeHelmetInstance);
+                if (activeHelmetInstance != null) DestroySafe(activeHelmetInstance);
                 currentHelmet = null;
                 break;
             case EquipmentSlot.Torso:
-                if (activeTorsoInstance != null) Destroy(activeTorsoInstance);
+                if (activeTorsoInstance != null) DestroySafe(activeTorsoInstance);
                 currentTorso = null;
                 break;
             case EquipmentSlot.Gauntlets:
-                if (activeGauntletsInstance != null) Destroy(activeGauntletsInstance);
+                if (activeGauntletsInstance != null) DestroySafe(activeGauntletsInstance);
                 currentGauntlets = null;
                 break;
             case EquipmentSlot.Leggings:
-                if (activeLeggingsInstance != null) Destroy(activeLeggingsInstance);
+                if (activeLeggingsInstance != null) DestroySafe(activeLeggingsInstance);
                 currentLeggings = null;
                 break;
             case EquipmentSlot.Shoes:
-                if (activeShoesInstance != null) Destroy(activeShoesInstance);
-                if (activeShoesRightInstance != null) Destroy(activeShoesRightInstance);
+                if (activeShoesInstance != null) DestroySafe(activeShoesInstance);
+                if (activeShoesRightInstance != null) DestroySafe(activeShoesRightInstance);
                 currentShoes = null;
                 break;
             case EquipmentSlot.MainHandWeapon:
-                if (activeMainWeaponInstance != null) Destroy(activeMainWeaponInstance);
+                if (activeMainWeaponInstance != null) DestroySafe(activeMainWeaponInstance);
                 currentMainWeapon = null;
                 break;
             case EquipmentSlot.OffHandWeapon:
-                if (activeOffWeaponInstance != null) Destroy(activeOffWeaponInstance);
+                if (activeOffWeaponInstance != null) DestroySafe(activeOffWeaponInstance);
                 currentOffWeapon = null;
                 break;
         }
@@ -273,11 +274,18 @@ public class ModularEquipmentManager : MonoBehaviour
         OnEquipmentChanged?.Invoke(slot, null);
     }
 
+    private void DestroySafe(UnityEngine.Object obj)
+    {
+        if (obj == null) return;
+        if (Application.isPlaying) Destroy(obj);
+        else DestroyImmediate(obj);
+    }
+
     private void AttachEquipment(ref GameObject currentInstance, GameObject prefab, Transform parentSocket, Vector3 localPos, Quaternion localRot)
     {
         if (currentInstance != null)
         {
-            Destroy(currentInstance);
+            DestroySafe(currentInstance);
             currentInstance = null;
         }
 
@@ -293,7 +301,7 @@ public class ModularEquipmentManager : MonoBehaviour
         // Strip extraneous colliders from cosmetic gear
         foreach (var col in currentInstance.GetComponentsInChildren<Collider>())
         {
-            if (!col.isTrigger) Destroy(col);
+            if (!col.isTrigger) DestroySafe(col);
         }
     }
 }

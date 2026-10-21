@@ -48,6 +48,12 @@ namespace BattleSummoner.Optimization
                 }
             }
 
+            var urpAsset = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
+            if (urpAsset != null)
+            {
+                urpAsset.cascade2Split = twoCascadeSplit;
+            }
+
             Debug.Log($"💡 [LIGHTING OPTIMIZER] Optimized {allLights.Length} scene lights (disabled {additionalShadowsDisabled} expensive point/spot shadow passes for mobile).");
         }
     }
