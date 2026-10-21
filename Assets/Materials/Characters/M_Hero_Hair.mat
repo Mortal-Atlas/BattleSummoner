@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Hero_Hair
-  m_Shader: {fileID: -6465566751694194690, guid: b2c58a39b59af42b081d22622f1969e6, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -45,6 +45,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -59,19 +67,29 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _CelSoftness: 0.15
+    - _CelThreshold: 0.46
+    - _GroundingHeight: 3.5
+    - _GroundingStrength: 0.35
     - _Metalic: 0
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _RimPower: 4
+    - _RimStrength: 0.25
     - _Smoothness: 0.15
     - _StrokeBlendingNoiseScale: 6
     - _StrokeBlendingNoiseStrength: 0.35
     - _StrokeRandomness: 0.85
     - _StrokeScale: 14
     - _UseBlendingNoise: 1
+    - _UseRampTex: 1
     - _Variation: 0.18
     - _XRMotionVectorsPass: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 0.58, b: 0.15, a: 1}
+    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
+    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
+    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _VariationColorA: {r: 1.05, g: 0.7, b: 0.25, a: 1}
     - _VariationColorB: {r: 0.85, g: 0.45, b: 0.1, a: 1}
   m_BuildTextureStacks: []

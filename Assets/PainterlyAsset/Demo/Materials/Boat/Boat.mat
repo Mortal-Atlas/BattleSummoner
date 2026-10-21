@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Boat
-  m_Shader: {fileID: -6465566751694194690, guid: d2f91465ec99a41cca1de94d4dce60e0, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -93,6 +93,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -117,6 +121,8 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
+    - _CelSoftness: 0.15
+    - _CelThreshold: 0.46
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -129,6 +135,8 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GroundingHeight: 3.5
+    - _GroundingStrength: 0.35
     - _Metalic: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
@@ -136,6 +144,8 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RimPower: 4
+    - _RimStrength: 0.25
     - _Smoothness: 0.4
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -147,13 +157,18 @@ Material:
     - _StrokeScale: 10
     - _Surface: 0
     - _UseBlendingNoise: 1
+    - _UseRampTex: 1
     - _Variation: 0.412
     - _WorkflowMode: 1
+    - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
+    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _VariationColorA: {r: 0.7075472, g: 0.41565454, b: 0.11681202, a: 0}
     - _VariationColorB: {r: 0.735849, g: 0.71592146, b: 0.10065861, a: 0}

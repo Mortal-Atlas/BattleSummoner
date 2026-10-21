@@ -24,12 +24,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Pine_B_Bark
-  m_Shader: {fileID: -6465566751694194690, guid: 515f8966b1d702f4a8c97ca412a9a4e9, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - BACKFACE_NORMAL_MODE_NONE
-  m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -46,6 +46,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: ad6480470c15d984f84830f327244ee7, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -56,6 +60,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: b7c5a8102ddcb694fb1ba87d491cc421, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceTex:
@@ -91,6 +99,8 @@ Material:
     - _Blend: 0
     - _BlendMode: 0
     - _CastShadows: 1
+    - _CelSoftness: 0.15
+    - _CelThreshold: 0.46
     - _ConservativeDepthOffsetEnable: 0
     - _Cull: 2
     - _CullMode: 0
@@ -103,6 +113,8 @@ Material:
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
     - _Glossiness: 0.5
+    - _GroundingHeight: 3.5
+    - _GroundingStrength: 0.35
     - _HueVariationKwToggle: 1
     - _Metallic: 0
     - _NormalMapKwToggle: 1
@@ -117,6 +129,8 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
+    - _RimPower: 4
+    - _RimStrength: 0.25
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 8
@@ -141,6 +155,7 @@ Material:
     - _TransparentSortPriority: 0
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
+    - _UseRampTex: 1
     - _UseShadowThreshold: 0
     - _WINDQUALITY: 4
     - _WindQuality: 1
@@ -154,10 +169,14 @@ Material:
     m_Colors:
     - Diffusion_Profile_Asset: {r: 2.2888926e+38, g: 1.2389358e-26, b: 7.69327e-37, a: 0.00018220427}
     - _AO_Remap: {r: 0.8, g: 1, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 0.97999996, b: 0.94, a: 1}
+    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _HueVariationColor: {r: 0.4509804, g: 0.40343803, b: 0.28235295, a: 1}
+    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
+    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _SubsurfaceColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

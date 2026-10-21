@@ -24,13 +24,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Conifer_Branches
-  m_Shader: {fileID: -6465566751694194690, guid: d4fdc026464a42041be7fe785babd90e, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - BACKFACE_NORMAL_MODE_MIRROR
   - _WINDQUALITY_BEST
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
@@ -48,6 +48,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: 7b24d7997f7027e47b59fb9f777457d6, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -58,6 +62,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 80ec7e07223ddfa46b063d556e2d1d35, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceTex:
@@ -95,6 +103,8 @@ Material:
     - _CanopyBaseHeight: 8
     - _Canopy_Base_Height: 15.55
     - _CastShadows: 1
+    - _CelSoftness: 0.15
+    - _CelThreshold: 0.46
     - _ConservativeDepthOffsetEnable: 0
     - _Cull: 0
     - _CullMode: 0
@@ -108,6 +118,8 @@ Material:
     - _EnableFogOnTransparent: 1
     - _ForceForwardEmissive: 0
     - _Glossiness: 0
+    - _GroundingHeight: 3.5
+    - _GroundingStrength: 0.35
     - _HueVariationKwToggle: 1
     - _Metallic: 0
     - _Mip_Bias: 0
@@ -123,6 +135,8 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
+    - _RimPower: 4
+    - _RimStrength: 0.25
     - _SphereAOCenter: 1
     - _SphereAODarken: 1
     - _SphereAORadius: 4
@@ -151,10 +165,12 @@ Material:
     - _TransparentSortPriority: 0
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
+    - _UseRampTex: 1
     - _UseShadowThreshold: 0
     - _WINDQUALITY: 3
     - _WindQuality: 4
     - _WorkflowMode: 1
+    - _XRMotionVectorsPass: 1
     - _ZTest: 4
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 3
@@ -164,10 +180,14 @@ Material:
     m_Colors:
     - Diffusion_Profile_Asset: {r: 2.2888926e+38, g: 1.2389358e-26, b: 7.69327e-37, a: 0.00018220427}
     - _AO_Remap: {r: 0.22, g: 0.6, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 0.97999996, b: 0.94, a: 1}
+    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
     - _Color: {r: 0.8679245, g: 0.8466358, b: 0.8466358, a: 1}
     - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _HueVariationColor: {r: 0.5943396, g: 0.50214976, b: 0.31623352, a: 0.50980395}
+    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
+    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _Smoothness_Remap: {r: 0.1, g: 0.3, b: 0, a: 0}
     - _SubsurfaceColor: {r: 0.6509434, g: 0.6281874, b: 0.41390175, a: 1}
   m_BuildTextureStacks: []

@@ -21,20 +21,19 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Fir_Bark
-  m_Shader: {fileID: -6465566751694194690, guid: ef2aa9333fbc23b40ae6289389ebd8fb, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - _BLEND_NORMALS
   - _COVERAGE_OVERLAY_VERTEX_POSITION
-  m_InvalidKeywords:
   - _OVERLAY_NORMAL_VECTOR
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -145,6 +144,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _RockBaseMap:
         m_Texture: {fileID: 2800000, guid: 6e6d40daed5ec53498089823750578d3, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -186,6 +189,8 @@ Material:
     - _BumpScale: 1
     - _COVERAGE_OVERLAY: 0
     - _CastShadows: 1
+    - _CelSoftness: 0.15
+    - _CelThreshold: 0.46
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Contrast: 0.55
@@ -203,6 +208,7 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _DstBlendAlpha: 0
     - _ENABLED: 0
     - _ENABLE_COVERAGE: 0
     - _EnvironmentReflections: 1
@@ -210,6 +216,8 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GroundingHeight: 3.5
+    - _GroundingStrength: 0.35
     - _Level: -0.06
     - _MetalicCoverage: 0
     - _Metallic: 0
@@ -223,24 +231,32 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RimPower: 4
+    - _RimStrength: 0.25
     - _RockMetallicSmoothness: 0
     - _RockNormalStrength: 0.4
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _UseRampTex: 1
     - _WorkflowMode: 1
+    - _XRMotionVectorsPass: 1
     - _ZTest: 4
     - _ZWrite: 1
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 0.8396226, g: 0.71310794, b: 0.53466535, a: 1}
+    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
     - _Color: {r: 0.7075472, g: 0.5635503, b: 0.41051087, a: 1}
     - _Coverage_Color: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _MossOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
     - _RockColor: {r: 1, g: 0.7716981, b: 0.4292453, a: 0}
+    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Vector2: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -36,14 +36,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Conifer_Billboard
-  m_Shader: {fileID: -6465566751694194690, guid: d4fdc026464a42041be7fe785babd90e, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9508ad71cb0db97498678ed3af426e06, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - BACKFACE_NORMAL_MODE_MIRROR
   - EFFECT_BILLBOARD
   - _WINDQUALITY_FAST
-  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -61,6 +61,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: e77eeb540c78bfd49a2429003968c75f, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -71,6 +75,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 85a29d61543e03447acfbd4eb59ff7cd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 2800000, guid: ebfd9e2161d1109429aaa4ad8b8b8499, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceTex:
@@ -108,6 +116,8 @@ Material:
     - _CanopyBaseHeight: 8
     - _Canopy_Base_Height: 0
     - _CastShadows: 1
+    - _CelSoftness: 0.15
+    - _CelThreshold: 0.46
     - _ConservativeDepthOffsetEnable: 0
     - _Cull: 0
     - _CullMode: 2
@@ -121,6 +131,8 @@ Material:
     - _EnableFogOnTransparent: 1
     - _ForceForwardEmissive: 0
     - _Glossiness: 0
+    - _GroundingHeight: 3.5
+    - _GroundingStrength: 0.35
     - _HueVariationKwToggle: 1
     - _Metallic: 0
     - _Mip_Bias: 1
@@ -136,6 +148,8 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
+    - _RimPower: 4
+    - _RimStrength: 0.25
     - _SphereAOCenter: 18
     - _SphereAODarken: 0
     - _SphereAORadius: 12
@@ -164,10 +178,12 @@ Material:
     - _TransparentSortPriority: 0
     - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
+    - _UseRampTex: 1
     - _UseShadowThreshold: 0
     - _WINDQUALITY: 1
     - _WindQuality: 0
     - _WorkflowMode: 1
+    - _XRMotionVectorsPass: 1
     - _ZTest: 4
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 3
@@ -177,10 +193,14 @@ Material:
     m_Colors:
     - Diffusion_Profile_Asset: {r: 2.2888926e+38, g: 1.2389358e-26, b: 7.69327e-37, a: 0.00018220427}
     - _AO_Remap: {r: 0, g: 0.3, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 0.97999996, b: 0.94, a: 1}
+    - _BottomGroundingColor: {r: 0.72, g: 0.68, b: 0.65, a: 1}
     - _Color: {r: 0.7700869, g: 0.8396226, b: 0.6376379, a: 1}
     - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _HueVariationColor: {r: 0.2792039, g: 0.3018868, b: 0.2264151, a: 0.7607843}
+    - _RimColor: {r: 1, g: 0.93, b: 0.78, a: 1}
+    - _ShadowColor: {r: 0.56, g: 0.62, b: 0.78, a: 1}
     - _Smoothness_Remap: {r: 0, g: 1, b: 0, a: 0}
     - _SubsurfaceColor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
