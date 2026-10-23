@@ -32,6 +32,8 @@ namespace BattleSummoner.Minigames.Insects
             if (Instance == null) Instance = this;
             BuildUIIfMissing();
             if (celebrationRoot != null) celebrationRoot.SetActive(false);
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = false;
         }
 
         public void BuildUIIfMissing()
@@ -146,6 +148,8 @@ namespace BattleSummoner.Minigames.Insects
         public void ShowCatchCelebration(InsectSpeciesData insect, AnimeFaceOverlayController faceCtrl)
         {
             BuildUIIfMissing();
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = true;
             celebrationRoot.SetActive(true);
 
             if (faceCtrl != null)
@@ -206,6 +210,8 @@ namespace BattleSummoner.Minigames.Insects
         public void DismissCelebration()
         {
             if (celebrationRoot != null) celebrationRoot.SetActive(false);
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = false;
             if (activeSpecimenModel != null)
             {
                 if (Application.isPlaying) Destroy(activeSpecimenModel);

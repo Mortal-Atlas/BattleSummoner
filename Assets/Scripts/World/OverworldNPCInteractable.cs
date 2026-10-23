@@ -109,7 +109,7 @@ namespace BattleSummoner.World
             nameObj.transform.localPosition = new Vector3(0f, 0.28f, 0f);
             _nameplateTMP = nameObj.AddComponent<TextMeshPro>();
             _nameplateTMP.text = $"<color=#{ColorUtility.ToHtmlStringRGB(nameplateColor)}><b>{npcName}</b></color>\n<size=70%><color=#FFE070>〈 {npcRole} 〉</color></size>";
-            _nameplateTMP.fontSize = 3.6f;
+            _nameplateTMP.fontSize = 1.6f;
             _nameplateTMP.alignment = TextAlignmentOptions.Center;
             _nameplateTMP.sortingOrder = 50;
 
@@ -119,20 +119,17 @@ namespace BattleSummoner.World
             promptObj.transform.localPosition = new Vector3(0f, -0.22f, 0f);
             _promptTMP = promptObj.AddComponent<TextMeshPro>();
             _promptTMP.text = "<color=#FFFF55><b>[E] TALK</b></color>";
-            _promptTMP.fontSize = 3.0f;
+            _promptTMP.fontSize = 1.4f;
             _promptTMP.alignment = TextAlignmentOptions.Center;
             _promptTMP.sortingOrder = 51;
             _promptTMP.gameObject.SetActive(false);
+
+            // Hide by default until player approaches
+            _overheadCanvasObj.SetActive(false);
         }
 
         private void Update()
         {
-            // Billboard overhead prompt toward Camera
-            if (_overheadCanvasObj != null && Camera.main != null)
-            {
-                _overheadCanvasObj.transform.rotation = Camera.main.transform.rotation;
-            }
-
             if (_playerTransform == null)
             {
                 FindPlayerReference();
@@ -141,6 +138,22 @@ namespace BattleSummoner.World
 
             float dist = Vector3.Distance(transform.position, _playerTransform.position);
             bool inRange = dist <= interactionRadius;
+            bool nearPlayer = dist <= Mathf.Max(6.5f, interactionRadius * 1.5f);
+
+            // Distance culling: hide overhead billboard entirely when player is far away
+            if (_overheadCanvasObj != null)
+            {
+                if (_overheadCanvasObj.activeSelf != nearPlayer)
+                {
+                    _overheadCanvasObj.SetActive(nearPlayer);
+                }
+
+                // Billboard overhead prompt toward Camera only when visible
+                if (nearPlayer && Camera.main != null)
+                {
+                    _overheadCanvasObj.transform.rotation = Camera.main.transform.rotation;
+                }
+            }
 
             if (inRange != _isPlayerInRange)
             {

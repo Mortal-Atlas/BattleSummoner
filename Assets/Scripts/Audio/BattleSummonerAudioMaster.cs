@@ -14,7 +14,33 @@ public class SfxCue { public string preset; public float timestamp; }
 /// </summary>
 public class BattleSummonerAudioMaster : MonoBehaviour
 {
-    public static BattleSummonerAudioMaster Instance { get; private set; }
+    private static BattleSummonerAudioMaster _instance;
+    public static BattleSummonerAudioMaster Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = UnityEngine.Object.FindAnyObjectByType<BattleSummonerAudioMaster>();
+                if (_instance == null)
+                {
+                    var go = new GameObject("BattleSummonerAudioMaster");
+                    _instance = go.AddComponent<BattleSummonerAudioMaster>();
+                }
+            }
+            return _instance;
+        }
+        private set => _instance = value;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void EnsureAudioMasterRuntime()
+    {
+        if (_instance == null)
+        {
+            _ = Instance;
+        }
+    }
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource vocalSource;
@@ -67,9 +93,9 @@ public class BattleSummonerAudioMaster : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
             if (transform.parent == null)
             {
                 DontDestroyOnLoad(gameObject);
@@ -77,7 +103,7 @@ public class BattleSummonerAudioMaster : MonoBehaviour
             InitializeAudioComponents();
             GenerateProceduralAudioBuffers();
         }
-        else if (Instance != this)
+        else if (_instance != this)
         {
             Destroy(gameObject);
         }
@@ -182,8 +208,19 @@ public class BattleSummonerAudioMaster : MonoBehaviour
         proceduralClipCache["chime"] = SynthesizeRelicChime();
         proceduralClipCache["laser"] = SynthesizeLaser();
         proceduralClipCache["drone"] = SynthesizeDrone();
-        proceduralClipCache["camera_click"] = SynthesizeCameraClick();
-        proceduralClipCache["typing"] = SynthesizeTyping();
+        // UI & Atmospheric Essentials
+        proceduralClipCache["click"] = SynthesizeUiClick();
+        proceduralClipCache["ui_click"] = proceduralClipCache["click"];
+        proceduralClipCache["hover"] = SynthesizeUiHover();
+        proceduralClipCache["ui_hover"] = proceduralClipCache["hover"];
+        proceduralClipCache["bell_chime"] = SynthesizeRelicChime();
+        proceduralClipCache["cinematic_chime"] = proceduralClipCache["bell_chime"];
+        proceduralClipCache["swoosh_air"] = SynthesizeWhoosh();
+        proceduralClipCache["dash_wind"] = proceduralClipCache["swoosh_air"];
+        proceduralClipCache["door_creak"] = SynthesizeDoorCreak();
+        proceduralClipCache["camera_shutter"] = SynthesizeCameraClick();
+        proceduralClipCache["dialogue_start"] = SynthesizeDialogueStart();
+        proceduralClipCache["campfire_crackles"] = SynthesizeCampfireCrackles();
 
         PreloadKalimbaTines();
     }
@@ -1377,5 +1414,108 @@ public class BattleSummonerAudioMaster : MonoBehaviour
 
         if (ambientSource != null) ambientSource.volume = targetAmb;
     }
+
+    private AudioClip SynthesizeUiClick()
+    {
+        float duration = 0.045f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(404);
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float freq = Mathf.Lerp(1400f, 650f, t / duration);
+            float sine = Mathf.Sin(2f * Mathf.PI * freq * t);
+            float noise = ((float)rnd.NextDouble() * 2f - 1f) * 0.15f;
+            float env = Mathf.Exp(-95f * t);
+            samples[i] = Mathf.Clamp((sine * 0.8f + noise) * env, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("ui_click", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeUiHover()
+    {
+        float duration = 0.035f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float sine1 = Mathf.Sin(2f * Mathf.PI * 659.25f * t);
+            float sine2 = Mathf.Sin(2f * Mathf.PI * 987.77f * t) * 0.4f;
+            float env = Mathf.Exp(-80f * t);
+            samples[i] = Mathf.Clamp((sine1 + sine2) * env * 0.45f, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("ui_hover", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeDoorCreak()
+    {
+        float duration = 0.38f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(712);
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float f = 110f + Mathf.Sin(2f * Mathf.PI * 14f * t) * 35f;
+            float wood = Mathf.Sin(2f * Mathf.PI * f * t) * 0.5f;
+            float friction = ((float)rnd.NextDouble() * 2f - 1f) * 0.25f;
+            float env = Mathf.Sin(Mathf.PI * (t / duration)) * Mathf.Exp(-2.5f * t);
+            samples[i] = Mathf.Clamp((wood + friction) * env * 0.85f, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("door_creak", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeDialogueStart()
+    {
+        float duration = 0.18f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float tone1 = Mathf.Sin(2f * Mathf.PI * 523.25f * t) * Mathf.Exp(-18f * t);
+            float tone2 = t > 0.05f ? Mathf.Sin(2f * Mathf.PI * 659.25f * (t - 0.05f)) * Mathf.Exp(-16f * (t - 0.05f)) : 0f;
+            samples[i] = Mathf.Clamp((tone1 + tone2) * 0.65f, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("dialogue_start", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    private AudioClip SynthesizeCampfireCrackles()
+    {
+        float duration = 3.5f;
+        int numSamples = Mathf.FloorToInt(sampleRate * duration);
+        float[] samples = new float[numSamples];
+        System.Random rnd = new System.Random(555);
+        for (int i = 0; i < numSamples; i++)
+        {
+            float t = (float)i / sampleRate;
+            float rumble = Mathf.Sin(2f * Mathf.PI * 60f * t) * 0.08f;
+            float snap = 0f;
+            if (rnd.NextDouble() < 0.0006)
+            {
+                snap = ((float)rnd.NextDouble() * 2f - 1f) * 0.8f;
+            }
+            float hiss = ((float)rnd.NextDouble() * 2f - 1f) * 0.06f;
+            samples[i] = Mathf.Clamp(rumble + snap + hiss, -1f, 1f);
+        }
+        AudioClip clip = AudioClip.Create("campfire_crackles", numSamples, 1, sampleRate, false);
+        clip.SetData(samples, 0);
+        return clip;
+    }
+
+    public void PlayButtonClick() => PlayPresetSFX("click", 0.75f);
+    public void PlayButtonHover() => PlayPresetSFX("hover", 0.40f);
+    public void PlayMenuOpen() => PlayPresetSFX("whoosh", 0.65f);
+    public void PlayMenuClose() => PlayPresetSFX("whoosh", 0.50f);
     #endregion
 }

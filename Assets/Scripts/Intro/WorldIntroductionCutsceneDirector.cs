@@ -450,7 +450,14 @@ namespace BattleSummoner.Intro
             }
 
             string worldScene = !string.IsNullOrEmpty(targetOpenWorldSceneName) ? targetOpenWorldSceneName : "OverworldMap";
-            UnityEngine.SceneManagement.SceneManager.LoadScene(worldScene);
+            if (SceneTransitionManager.Instance != null)
+            {
+                SceneTransitionManager.Instance.TransitionToScene(worldScene, "Spawn_CitadelCenter", "Arriving at Citadel Spire Sanctum...");
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(worldScene);
+            }
         }
 
         private IEnumerator FadeCanvasGroup(CanvasGroup cg, float from, float to, float dur)

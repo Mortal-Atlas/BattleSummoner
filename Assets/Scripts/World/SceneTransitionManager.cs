@@ -35,6 +35,15 @@ public class SceneTransitionManager : MonoBehaviour
         }
     }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void EnsureTransitionManagerRuntime()
+    {
+        if (_instance == null)
+        {
+            _ = Instance;
+        }
+    }
+
     [Header("Transition Settings")]
     [SerializeField] private float fadeDuration = 0.45f;
     [SerializeField] private string defaultTransitionAudio = "relic_chime";

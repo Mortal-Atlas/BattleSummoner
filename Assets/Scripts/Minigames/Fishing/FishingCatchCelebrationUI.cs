@@ -36,6 +36,8 @@ namespace BattleSummoner.Minigames.Fishing
             if (Instance == null) Instance = this;
             BuildUIIfMissing();
             if (celebrationRoot != null) celebrationRoot.SetActive(false);
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = false;
         }
 
         public void BuildUIIfMissing()
@@ -157,6 +159,8 @@ namespace BattleSummoner.Minigames.Fishing
         public void ShowCatchCelebration(FishSpeciesData fish, float lengthCm, AnimeFaceOverlayController faceCtrl)
         {
             BuildUIIfMissing();
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = true;
             celebrationRoot.SetActive(true);
 
             // Shift character face to Joy
@@ -219,6 +223,8 @@ namespace BattleSummoner.Minigames.Fishing
         public void DismissCelebration()
         {
             if (celebrationRoot != null) celebrationRoot.SetActive(false);
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = false;
             if (activeTrophyModel != null)
             {
                 if (Application.isPlaying) Destroy(activeTrophyModel);

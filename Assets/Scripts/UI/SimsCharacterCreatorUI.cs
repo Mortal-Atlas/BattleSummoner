@@ -861,7 +861,14 @@ public class SimsCharacterCreatorUI : MonoBehaviour
 
     private IEnumerator TransitionToCutsceneRoutine()
     {
-        // Smooth fade out
+        string nextScene = !string.IsNullOrEmpty(targetCutsceneSceneName) ? targetCutsceneSceneName : "WorldIntroductionCutscene";
+        if (SceneTransitionManager.Instance != null)
+        {
+            SceneTransitionManager.Instance.TransitionToScene(nextScene, null, "Embarking to Solas...");
+            yield break;
+        }
+
+        // Smooth fade out fallback
         var faderObj = GameObject.Find("SAO_ScreenFadeOverlay");
         Image fadeImg = null;
         if (faderObj != null) fadeImg = faderObj.GetComponent<Image>();
@@ -883,7 +890,6 @@ public class SimsCharacterCreatorUI : MonoBehaviour
             yield return new WaitForSeconds(0.35f);
         }
 
-        string nextScene = !string.IsNullOrEmpty(targetCutsceneSceneName) ? targetCutsceneSceneName : "WorldIntroductionCutscene";
         UnityEngine.SceneManagement.SceneManager.LoadScene(nextScene);
     }
 

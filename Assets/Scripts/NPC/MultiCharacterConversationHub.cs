@@ -180,26 +180,31 @@ public class MultiCharacterConversationHub : MonoBehaviour
     {
         if (sendPlayerMessageButton != null)
         {
+            sendPlayerMessageButton.onClick.AddListener(() => BattleSummonerAudioMaster.Instance?.PlayButtonClick());
             sendPlayerMessageButton.onClick.AddListener(OnPlayerSendClicked);
         }
 
         if (toggleBanterButton != null)
         {
+            toggleBanterButton.onClick.AddListener(() => BattleSummonerAudioMaster.Instance?.PlayButtonClick());
             toggleBanterButton.onClick.AddListener(ToggleBanterPlayback);
         }
 
         if (returnToDungeonButton != null)
         {
+            returnToDungeonButton.onClick.AddListener(() => BattleSummonerAudioMaster.Instance?.PlayButtonClick());
             returnToDungeonButton.onClick.AddListener(BreakCampAndReturn);
         }
 
         if (restAtCampfireButton != null)
         {
+            restAtCampfireButton.onClick.AddListener(() => BattleSummonerAudioMaster.Instance?.PlayButtonClick());
             restAtCampfireButton.onClick.AddListener(RestAtCampfire);
         }
 
         if (toggleTranscriptButton != null)
         {
+            toggleTranscriptButton.onClick.AddListener(() => BattleSummonerAudioMaster.Instance?.PlayButtonClick());
             toggleTranscriptButton.onClick.AddListener(ToggleTranscriptPanel);
         }
 

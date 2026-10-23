@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: aa83b73f7458c3047bf377189ad3daa7
+guid: 5e7ec37ef90cbb44293623d6caf35500
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -11,8 +11,8 @@ MonoImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 404470
-  packageName: Anime Star VFX
-  packageVersion: 
+  productId: 375124
+  packageName: Money VFX - URP
+  packageVersion: 1.0.1
   assetPath: Assets/Vefects/Flipbook VFX Bundle Lite/Demo/Resources/Scripts/Demo_TurningAround.cs
-  uploadId: 0
+  uploadId: 908156

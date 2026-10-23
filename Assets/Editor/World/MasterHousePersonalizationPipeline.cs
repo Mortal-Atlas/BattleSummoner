@@ -419,24 +419,38 @@ namespace BattleSummoner.Editor.World
         private static void ApplyRoofMaterial(GameObject house, Material roofMat)
         {
             if (house == null || roofMat == null) return;
-            foreach (var mr in house.GetComponentsInChildren<MeshRenderer>(true))
-            {
-                // Skip child decorations
-                if (mr.transform.parent != null && mr.transform.parent.name == LIVED_IN_CONTAINER_NAME) continue;
+            string hName = house.name;
 
+            var mr = house.GetComponent<MeshRenderer>();
+            if (mr != null)
+            {
                 var mats = mr.sharedMaterials;
-                bool mod = false;
-                for (int i = 0; i < mats.Length; i++)
+                int roofSlot = -1;
+                if (hName.Contains("Building_House_Residential") && mats.Length >= 5) roofSlot = 4;
+                else if (hName.Contains("Building_House_LowDistrict") && mats.Length >= 4) roofSlot = 2;
+                else if (hName.Contains("Building_Tavern_Open") && mats.Length >= 5) roofSlot = 4;
+                else if (hName.Contains("Building_Bakery_Shop") && mats.Length >= 6) roofSlot = 5;
+                else if ((hName.Contains("Building_Inn_Lodge") || hName.Contains("Terrace_")) && mats.Length >= 4) roofSlot = 3;
+                else if (hName.Contains("Building_Guildhall_Grand") && mats.Length >= 4) roofSlot = 3;
+                else if (hName.Contains("Building_Blacksmith_OpenForge") && mats.Length >= 5) roofSlot = 4;
+                else if (hName.Contains("Building_EnchanterWorkshop") && mats.Length >= 4) roofSlot = 2;
+
+                if (roofSlot >= 0 && roofSlot < mats.Length)
                 {
-                    if (mats[i] == null) continue;
-                    string mName = mats[i].name.ToLower();
-                    if (mName.Contains("roof") || mName.Contains("slate") || mName.Contains("clay") || mName.Contains("tile"))
-                    {
-                        mats[i] = roofMat;
-                        mod = true;
-                    }
+                    mats[roofSlot] = roofMat;
+                    mr.sharedMaterials = mats;
+                    return;
                 }
-                if (mod) mr.sharedMaterials = mats;
+            }
+
+            // Fallback for multi-part or nested objects
+            foreach (var childMr in house.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (childMr.transform.parent != null && childMr.transform.parent.name == LIVED_IN_CONTAINER_NAME) continue;
+                if (childMr.name.Contains("Roof") || childMr.name.Contains("Dome"))
+                {
+                    childMr.sharedMaterial = roofMat;
+                }
             }
         }
 

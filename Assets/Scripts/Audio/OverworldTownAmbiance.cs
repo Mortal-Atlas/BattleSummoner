@@ -12,6 +12,28 @@ namespace BattleSummoner.Audio
     [RequireComponent(typeof(AudioSource))]
     public class OverworldTownAmbiance : MonoBehaviour
     {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void InitAmbianceHook()
+        {
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += (scene, mode) =>
+            {
+                if (scene.name == "OverworldMap")
+                {
+                    if (UnityEngine.Object.FindAnyObjectByType<OverworldTownAmbiance>() == null)
+                    {
+                        new GameObject("OverworldTownAmbiance", typeof(AudioSource), typeof(OverworldTownAmbiance));
+                    }
+                }
+            };
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "OverworldMap")
+            {
+                if (UnityEngine.Object.FindAnyObjectByType<OverworldTownAmbiance>() == null)
+                {
+                    new GameObject("OverworldTownAmbiance", typeof(AudioSource), typeof(OverworldTownAmbiance));
+                }
+            }
+        }
+
         [Header("Audio Settings")]
         [SerializeField] private float masterVolume = 0.40f;
         [SerializeField] private bool playOnAwake = true;

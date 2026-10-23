@@ -28,8 +28,11 @@ public class BattleViewportRebalancer : MonoBehaviour
     [Header("Purged Elements")]
     [SerializeField] private GameObject deprecatedHoldAndFlickButton;
 
+    public static BattleViewportRebalancer Instance { get; private set; }
+
     private void Awake()
     {
+        Instance = this;
         AutoResolveIfNull();
         ExecuteLayoutSnap();
         ApplyPersonaAesthetic();
@@ -269,6 +272,51 @@ public class BattleViewportRebalancer : MonoBehaviour
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
             dynamicGo = go.transform;
+        }
+    }
+
+    public void HideInitialHUDForTutorial()
+    {
+        AutoResolveIfNull();
+        if (settingsButton != null) settingsButton.gameObject.SetActive(false);
+        if (aiAutoButton != null) aiAutoButton.gameObject.SetActive(false);
+        if (playerStatsContainer != null) playerStatsContainer.gameObject.SetActive(false);
+        if (allyVerticalContainer != null) allyVerticalContainer.gameObject.SetActive(false);
+        var whetstone = GameObject.Find("WhetstoneActionButton") ?? GameObject.Find("WhetstoneButton");
+        if (whetstone != null) whetstone.SetActive(false);
+        var itemBelt = GameObject.Find("ItemBeltCarousel") ?? GameObject.Find("QuickItemCarouselContainer");
+        if (itemBelt != null) itemBelt.SetActive(false);
+    }
+
+    public void UnlockPlayerVitalsHUD()
+    {
+        AutoResolveIfNull();
+        if (settingsButton != null) settingsButton.gameObject.SetActive(true);
+        if (aiAutoButton != null) aiAutoButton.gameObject.SetActive(true);
+        if (playerStatsContainer != null) playerStatsContainer.gameObject.SetActive(true);
+        var itemBelt = GameObject.Find("ItemBeltCarousel") ?? GameObject.Find("QuickItemCarouselContainer");
+        if (itemBelt != null) itemBelt.SetActive(true);
+        ExecuteLayoutSnap();
+        ApplyPersonaAesthetic();
+    }
+
+    public void UnlockAllyColumnHUD()
+    {
+        AutoResolveIfNull();
+        if (allyVerticalContainer != null)
+        {
+            allyVerticalContainer.gameObject.SetActive(true);
+            ExecuteLayoutSnap();
+            ApplyPersonaAesthetic();
+        }
+    }
+
+    public void UnlockWhetstoneHUD()
+    {
+        var whetstone = GameObject.Find("WhetstoneActionButton") ?? GameObject.Find("WhetstoneButton");
+        if (whetstone != null)
+        {
+            whetstone.SetActive(true);
         }
     }
 }

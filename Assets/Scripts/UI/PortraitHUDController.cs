@@ -57,6 +57,11 @@ public class PortraitHUDController : MonoBehaviour
     {
         ResolveSubsystems();
         BindButtons();
+        if (kalimbaOverlayPanel != null) kalimbaOverlayPanel.SetActive(false);
+        if (storeModal != null) storeModal.SetActive(false);
+        if (relicOverlay != null) relicOverlay.SetActive(false);
+        if (expeditionBoardModal != null) expeditionBoardModal.SetActive(false);
+        if (summoningRitualModal != null) summoningRitualModal.SetActive(false);
     }
 
     [Header("Battle Side Profile HUD (Persona Style)")]

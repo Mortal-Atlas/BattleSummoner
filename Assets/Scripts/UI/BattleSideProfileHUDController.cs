@@ -361,6 +361,13 @@ namespace BattleSummoner.UI
             }
         }
 
+        private static void SafeDestroy(UnityEngine.Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying) Destroy(obj);
+            else DestroyImmediate(obj);
+        }
+
         /// <summary>
         /// Ensures a BattleSideProfileHUD exists in the scene hierarchy.
         /// </summary>
@@ -371,7 +378,7 @@ namespace BattleSummoner.UI
             {
                 foreach (var ex in existingList)
                 {
-                    if (ex != null) DestroyImmediate(ex.gameObject);
+                    if (ex != null) SafeDestroy(ex.gameObject);
                 }
                 Instance = null;
             }
@@ -379,7 +386,7 @@ namespace BattleSummoner.UI
             {
                 for (int i = 1; i < existingList.Length; i++)
                 {
-                    if (existingList[i] != null) DestroyImmediate(existingList[i].gameObject);
+                    if (existingList[i] != null) SafeDestroy(existingList[i].gameObject);
                 }
                 if (existingList[0] != null)
                 {

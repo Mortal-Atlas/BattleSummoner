@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 50ed4ca17fec62040b026499ee908178
+guid: 1f173818bb8c24642b8bc52c737f088b
 PrefabImporter:
   externalObjects: {}
   userData: 
@@ -7,8 +7,8 @@ PrefabImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 404470
-  packageName: Anime Star VFX
+  productId: 375124
+  packageName: Money VFX - URP
   packageVersion: 1.0.1
   assetPath: Assets/Vefects/Anime Star VFX URP/Demo/Resources/Prefabs/_ VFX.prefab
-  uploadId: 988824
+  uploadId: 908156

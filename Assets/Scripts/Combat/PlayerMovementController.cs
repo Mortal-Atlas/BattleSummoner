@@ -264,8 +264,8 @@ public class PlayerMovementController : MonoBehaviour
         bool wantSprint = !isADS && ((virtualStick != null && virtualStick.IsAtFarEdge) || Input.GetKey(KeyCode.LeftShift));
         isSprinting = wantSprint && desiredDirection.sqrMagnitude > 0.01f;
 
-        // Keyboard shortcut for dash (LeftControl or LeftAlt)
-        if (Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftAlt))
+        // Keyboard shortcut for dash (LeftShift, LeftControl, or LeftAlt)
+        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.LeftAlt))
         {
             TriggerDash(input.sqrMagnitude > 0.01f ? input : Vector2.up);
         }

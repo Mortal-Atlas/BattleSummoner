@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: 66ebe4da1ef67e64e8aeccb820e409d6
+AssetOrigin:
+  serializedVersion: 1
+  productId: 17100
+  packageName: Grass And Flowers Pack 1
+  packageVersion: 1
+  assetPath: Assets/Grass And Flowers Pack 1/Example Scene/Skyboxes/Textures/Sunny1/Sunny1_left.tif
+  uploadId: 22655
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -22,7 +29,7 @@ TextureImporter:
     normalMapFilter: 0
     flipGreenChannel: 0
   isReadable: 0
-  streamingMipmaps: 0
+  streamingMipmaps: 1
   streamingMipmapsPriority: 0
   vTOnly: 0
   ignoreMipmapLimit: 0
@@ -154,10 +161,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 17100
-  packageName: Grass And Flowers Pack 1
-  packageVersion: 1
-  assetPath: Assets/Grass And Flowers Pack 1/Example Scene/Skyboxes/Textures/Sunny1/Sunny1_left.tif
-  uploadId: 22655

@@ -70,6 +70,10 @@ public class BuildingEntranceTrigger : MonoBehaviour
         if (SceneTransitionManager.Instance.IsTransitioning) return;
 
         Debug.Log($"🚪 [DOORWAY TRIGGER] Entering '{locationTitle}' -> Loading scene '{targetSceneName}' (Marker: '{targetSpawnMarkerId}')");
+        if (BattleSummonerAudioMaster.Instance != null)
+        {
+            BattleSummonerAudioMaster.Instance.PlayPresetSFX("door_creak", 0.85f);
+        }
         SceneTransitionManager.Instance.TransitionToScene(targetSceneName, targetSpawnMarkerId, locationTitle);
     }
 

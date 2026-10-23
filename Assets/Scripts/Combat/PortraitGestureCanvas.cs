@@ -108,6 +108,15 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            if (FruitNinjaBladeCutter.Instance != null)
+            {
+                FruitNinjaBladeCutter.Instance.TriggerTwoFingerParry();
+            }
+            return;
+        }
+
         startTouchPosition = eventData.position;
         startTouchTime = Time.time;
         swipeStartPos = eventData.position;

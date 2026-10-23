@@ -384,8 +384,8 @@ namespace BattleSummoner.Combat
 
         private void ProcessDesktopFallbackInput()
         {
-            // Desktop Key 'F' triggers Universal Two-Finger Parry
-            if (Input.GetKeyDown(KeyCode.F))
+            // Desktop Key 'F' or Right-Click Mouse triggers Universal Two-Finger Parry
+            if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(1))
             {
                 ExecuteTwoFingerParry();
             }

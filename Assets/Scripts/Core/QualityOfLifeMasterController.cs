@@ -23,7 +23,33 @@ namespace BattleSummoner.Core
     /// </summary>
     public class QualityOfLifeMasterController : MonoBehaviour
     {
-        public static QualityOfLifeMasterController Instance { get; private set; }
+        private static QualityOfLifeMasterController _instance;
+        public static QualityOfLifeMasterController Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = UnityEngine.Object.FindAnyObjectByType<QualityOfLifeMasterController>();
+                    if (_instance == null)
+                    {
+                        var go = new GameObject("QualityOfLifeMasterController");
+                        _instance = go.AddComponent<QualityOfLifeMasterController>();
+                    }
+                }
+                return _instance;
+            }
+            private set => _instance = value;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void EnsureQoLMasterRuntime()
+        {
+            if (_instance == null)
+            {
+                _ = Instance;
+            }
+        }
 
         [Header("Keybindings")]
         [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
@@ -121,12 +147,12 @@ namespace BattleSummoner.Core
 
         private void Awake()
         {
-            if (Instance == null)
+            if (_instance == null)
             {
-                Instance = this;
+                _instance = this;
                 DontDestroyOnLoad(gameObject);
             }
-            else
+            else if (_instance != this)
             {
                 Destroy(gameObject);
                 return;
@@ -365,14 +391,30 @@ namespace BattleSummoner.Core
                 return;
             }
 
-            // Case 2: Player is currently in an interior or dungeon and picks an Overworld landmark
+            // Case 2: Campfire Hub Direct Scene Warp
+            if (wp.name.Contains("Campfire Hub"))
+            {
+                TogglePause();
+                ShowToast("Resting at the Adventurers' Campfire Hub...");
+                if (SceneTransitionManager.Instance != null)
+                {
+                    SceneTransitionManager.Instance.PitchCamp("Adventurers' Campfire Hub");
+                }
+                else
+                {
+                    SceneManager.LoadScene("CampfireHub");
+                }
+                return;
+            }
+
+            // Case 3: Player is currently in an interior or dungeon and picks an Overworld landmark
             if (SceneManager.GetActiveScene().name != "OverworldMap")
             {
                 TogglePause();
                 ShowToast($"Departing to {wp.name}...");
                 if (SceneTransitionManager.Instance != null)
                 {
-                    SceneTransitionManager.Instance.TransitionToScene("OverworldMap", "Spawn_CitadelCenter", wp.name);
+                    SceneTransitionManager.Instance.TransitionToScene("OverworldMap", null, wp.name, wp.position);
                 }
                 else
                 {
@@ -381,7 +423,7 @@ namespace BattleSummoner.Core
                 return;
             }
 
-            // Case 3: In OverworldMap, teleport character controller directly
+            // Case 4: In OverworldMap, teleport character controller directly
             if (playerTransform == null) FindPlayer();
             if (playerTransform == null) return;
 
@@ -829,11 +871,11 @@ namespace BattleSummoner.Core
             rt.anchorMin = new Vector2(0.5f, 1.0f);
             rt.anchorMax = new Vector2(0.5f, 1.0f);
             rt.pivot = new Vector2(0.5f, 1.0f);
-            rt.anchoredPosition = new Vector2(0f, -100f);
-            rt.sizeDelta = new Vector2(640f, 48f);
+            rt.anchoredPosition = new Vector2(0f, -65f);
+            rt.sizeDelta = new Vector2(420f, 34f);
 
             var img = toastBannerObj.GetComponent<Image>();
-            img.color = new Color(0.05f, 0.12f, 0.22f, 0.95f);
+            img.color = new Color(0.04f, 0.08f, 0.16f, 0.75f);
 
             var textGo = new GameObject("Toast_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
             textGo.transform.SetParent(toastBannerObj.transform, false);
@@ -843,7 +885,7 @@ namespace BattleSummoner.Core
             tRt.offsetMin = tRt.offsetMax = Vector2.zero;
 
             toastBannerText = textGo.GetComponent<TextMeshProUGUI>();
-            toastBannerText.fontSize = 20f;
+            toastBannerText.fontSize = 14f;
             toastBannerText.alignment = TextAlignmentOptions.Center;
             toastBannerText.color = new Color(1.0f, 0.95f, 0.6f);
             toastBannerText.text = "Notification";
@@ -859,21 +901,21 @@ namespace BattleSummoner.Core
             rt.anchorMin = new Vector2(0.5f, 1.0f);
             rt.anchorMax = new Vector2(0.5f, 1.0f);
             rt.pivot = new Vector2(0.5f, 1.0f);
-            rt.anchoredPosition = new Vector2(0f, -25f);
-            rt.sizeDelta = new Vector2(620f, 68f);
+            rt.anchoredPosition = new Vector2(0f, -20f);
+            rt.sizeDelta = new Vector2(380f, 36f);
 
             var img = compassBannerObj.GetComponent<Image>();
-            img.color = new Color(0.06f, 0.08f, 0.14f, 0.88f);
+            img.color = new Color(0.04f, 0.06f, 0.12f, 0.60f);
 
             // Heading Text
             var headGo = new GameObject("Heading_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
             headGo.transform.SetParent(compassBannerObj.transform, false);
             var hRt = headGo.GetComponent<RectTransform>();
             hRt.anchorMin = new Vector2(0f, 0f);
-            hRt.anchorMax = new Vector2(0.32f, 1.0f);
+            hRt.anchorMax = new Vector2(0.30f, 1.0f);
             hRt.offsetMin = hRt.offsetMax = Vector2.zero;
             compassHeadingText = headGo.GetComponent<TextMeshProUGUI>();
-            compassHeadingText.fontSize = 24f;
+            compassHeadingText.fontSize = 16f;
             compassHeadingText.alignment = TextAlignmentOptions.Center;
             compassHeadingText.text = "<color=#FFE570><b>N</b></color> 0°";
 
@@ -881,11 +923,11 @@ namespace BattleSummoner.Core
             var distGo = new GameObject("District_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
             distGo.transform.SetParent(compassBannerObj.transform, false);
             var dRt = distGo.GetComponent<RectTransform>();
-            dRt.anchorMin = new Vector2(0.32f, 0f);
+            dRt.anchorMin = new Vector2(0.30f, 0f);
             dRt.anchorMax = new Vector2(1.0f, 1.0f);
             dRt.offsetMin = dRt.offsetMax = Vector2.zero;
             compassDistrictText = distGo.GetComponent<TextMeshProUGUI>();
-            compassDistrictText.fontSize = 19f;
+            compassDistrictText.fontSize = 15f;
             compassDistrictText.alignment = TextAlignmentOptions.MidlineLeft;
             compassDistrictText.text = "✦ Citadel Acropolis ✦";
         }
@@ -898,11 +940,11 @@ namespace BattleSummoner.Core
             rt.anchorMin = new Vector2(0.5f, 0f);
             rt.anchorMax = new Vector2(0.5f, 0f);
             rt.pivot = new Vector2(0.5f, 0f);
-            rt.anchoredPosition = new Vector2(0f, 215f);
-            rt.sizeDelta = new Vector2(560f, 60f);
+            rt.anchoredPosition = new Vector2(0f, 140f);
+            rt.sizeDelta = new Vector2(300f, 40f);
 
             var img = interactionPromptPillObj.GetComponent<Image>();
-            img.color = new Color(0.08f, 0.12f, 0.20f, 0.94f);
+            img.color = new Color(0.06f, 0.09f, 0.16f, 0.75f);
 
             var btn = interactionPromptPillObj.GetComponent<Button>();
             btn.onClick.AddListener(ExecuteNearestInteraction);
@@ -915,7 +957,7 @@ namespace BattleSummoner.Core
             tRt.offsetMin = tRt.offsetMax = Vector2.zero;
 
             interactionPromptText = textGo.GetComponent<TextMeshProUGUI>();
-            interactionPromptText.fontSize = 21f;
+            interactionPromptText.fontSize = 15f;
             interactionPromptText.alignment = TextAlignmentOptions.Center;
             interactionPromptText.text = "<color=#FFE060><b>[E] TALK</b></color>  <color=#FFFFFF>Linus</color>";
 
@@ -927,14 +969,14 @@ namespace BattleSummoner.Core
             autoRunBadgeObj = new GameObject("AutoRun_Badge", typeof(RectTransform), typeof(Image));
             autoRunBadgeObj.transform.SetParent(root, false);
             var rt = autoRunBadgeObj.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0f, 0.5f);
-            rt.anchorMax = new Vector2(0f, 0.5f);
-            rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(30f, 0f);
-            rt.sizeDelta = new Vector2(320f, 44f);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.zero;
+            rt.pivot = Vector2.zero;
+            rt.anchoredPosition = new Vector2(25f, 30f);
+            rt.sizeDelta = new Vector2(160f, 28f);
 
             var img = autoRunBadgeObj.GetComponent<Image>();
-            img.color = new Color(0.1f, 0.45f, 0.85f, 0.90f);
+            img.color = new Color(0.08f, 0.20f, 0.40f, 0.70f);
 
             var textGo = new GameObject("Badge_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
             textGo.transform.SetParent(autoRunBadgeObj.transform, false);
@@ -944,7 +986,7 @@ namespace BattleSummoner.Core
             tRt.offsetMin = tRt.offsetMax = Vector2.zero;
 
             var tmp = textGo.GetComponent<TextMeshProUGUI>();
-            tmp.fontSize = 18f;
+            tmp.fontSize = 13f;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.text = "<b>[R] AUTO-RUN ACTIVE</b> (R to Stop)";
 
@@ -1042,6 +1084,14 @@ namespace BattleSummoner.Core
             img.color = new Color(0.18f, 0.25f, 0.38f, 0.95f);
 
             var btn = btnGo.GetComponent<Button>();
+            btn.transition = Selectable.Transition.ColorTint;
+            var cb = btn.colors;
+            cb.normalColor = new Color(0.18f, 0.25f, 0.38f, 0.95f);
+            cb.highlightedColor = new Color(0.28f, 0.40f, 0.60f, 1.0f);
+            cb.pressedColor = new Color(0.12f, 0.18f, 0.28f, 1.0f);
+            cb.selectedColor = cb.highlightedColor;
+            btn.colors = cb;
+            btn.onClick.AddListener(() => PlaySound("click", 0.75f));
             btn.onClick.AddListener(action);
 
             var textGo = new GameObject("BtnText", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -1095,7 +1145,9 @@ namespace BattleSummoner.Core
             cRt.anchoredPosition = new Vector2(0f, 20f);
             cRt.sizeDelta = new Vector2(300f, 48f);
             closeGo.GetComponent<Image>().color = new Color(0.3f, 0.2f, 0.2f, 0.95f);
-            closeGo.GetComponent<Button>().onClick.AddListener(() =>
+            var cBtn = closeGo.GetComponent<Button>();
+            cBtn.onClick.AddListener(() => PlaySound("click", 0.75f));
+            cBtn.onClick.AddListener(() =>
             {
                 fastTravelPanelObj.SetActive(false);
                 if (mainMenuContainerObj != null) mainMenuContainerObj.SetActive(true);
@@ -1127,7 +1179,16 @@ namespace BattleSummoner.Core
                 wRt.sizeDelta = new Vector2(640f, 44f);
 
                 wpBtnGo.GetComponent<Image>().color = wp.name.Contains("Boss") ? new Color(0.50f, 0.15f, 0.22f, 0.95f) : new Color(0.15f, 0.22f, 0.35f, 0.92f);
-                wpBtnGo.GetComponent<Button>().onClick.AddListener(() => FastTravelTo(wp));
+                var wpBtn = wpBtnGo.GetComponent<Button>();
+                wpBtn.transition = Selectable.Transition.ColorTint;
+                var wpCb = wpBtn.colors;
+                wpCb.normalColor = wp.name.Contains("Boss") ? new Color(0.50f, 0.15f, 0.22f, 0.95f) : new Color(0.15f, 0.22f, 0.35f, 0.92f);
+                wpCb.highlightedColor = wp.name.Contains("Boss") ? new Color(0.65f, 0.22f, 0.30f, 1.0f) : new Color(0.26f, 0.38f, 0.58f, 1.0f);
+                wpCb.pressedColor = new Color(0.10f, 0.15f, 0.25f, 1.0f);
+                wpCb.selectedColor = wpCb.highlightedColor;
+                wpBtn.colors = wpCb;
+                wpBtn.onClick.AddListener(() => PlaySound("click", 0.75f));
+                wpBtn.onClick.AddListener(() => FastTravelTo(wp));
 
                 var labelGo = new GameObject("WP_Label", typeof(RectTransform), typeof(TextMeshProUGUI));
                 labelGo.transform.SetParent(wpBtnGo.transform, false);
@@ -1218,7 +1279,9 @@ namespace BattleSummoner.Core
             cRt.anchoredPosition = new Vector2(0f, 25f);
             cRt.sizeDelta = new Vector2(300f, 48f);
             closeGo.GetComponent<Image>().color = new Color(0.3f, 0.2f, 0.2f, 0.95f);
-            closeGo.GetComponent<Button>().onClick.AddListener(() =>
+            var setCBtn = closeGo.GetComponent<Button>();
+            setCBtn.onClick.AddListener(() => PlaySound("click", 0.75f));
+            setCBtn.onClick.AddListener(() =>
             {
                 settingsPanelObj.SetActive(false);
                 if (mainMenuContainerObj != null) mainMenuContainerObj.SetActive(true);
@@ -1349,7 +1412,16 @@ namespace BattleSummoner.Core
             bRt.offsetMin = bRt.offsetMax = Vector2.zero;
 
             bGo.GetComponent<Image>().color = new Color(0.20f, 0.28f, 0.42f, 0.95f);
-            bGo.GetComponent<Button>().onClick.AddListener(onAction);
+            var rowBtn = bGo.GetComponent<Button>();
+            rowBtn.transition = Selectable.Transition.ColorTint;
+            var rCb = rowBtn.colors;
+            rCb.normalColor = new Color(0.20f, 0.28f, 0.42f, 0.95f);
+            rCb.highlightedColor = new Color(0.28f, 0.42f, 0.62f, 1.0f);
+            rCb.pressedColor = new Color(0.14f, 0.20f, 0.30f, 1.0f);
+            rCb.selectedColor = rCb.highlightedColor;
+            rowBtn.colors = rCb;
+            rowBtn.onClick.AddListener(() => PlaySound("click", 0.75f));
+            rowBtn.onClick.AddListener(onAction);
 
             var btGo = new GameObject("BtnText", typeof(RectTransform), typeof(TextMeshProUGUI));
             btGo.transform.SetParent(bGo.transform, false);
@@ -1432,7 +1504,9 @@ namespace BattleSummoner.Core
             clRt.anchoredPosition = new Vector2(0f, 25f);
             clRt.sizeDelta = new Vector2(300f, 48f);
             closeGo.GetComponent<Image>().color = new Color(0.3f, 0.2f, 0.2f, 0.95f);
-            closeGo.GetComponent<Button>().onClick.AddListener(() =>
+            var ctrlCBtn = closeGo.GetComponent<Button>();
+            ctrlCBtn.onClick.AddListener(() => PlaySound("click", 0.75f));
+            ctrlCBtn.onClick.AddListener(() =>
             {
                 controlsGuidePanelObj.SetActive(false);
                 if (mainMenuContainerObj != null) mainMenuContainerObj.SetActive(true);
