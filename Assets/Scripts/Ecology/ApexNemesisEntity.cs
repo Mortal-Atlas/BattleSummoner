@@ -109,6 +109,10 @@ public class ApexNemesisEntity : MonoBehaviour
             {
                 receiver.CleanseAllDebuffs();
             }
+            if (spireEnemy != null)
+            {
+                spireEnemy.MoveSpeed *= shockAbsorptionSpeedBoost;
+            }
             Debug.Log("⚡ [AETHER GROUNDING] Nemesis absorbed shock tick and surged forward with accelerated velocity!");
             return damage * 0.40f; // 60% resistance
         }

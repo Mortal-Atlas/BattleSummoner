@@ -257,7 +257,7 @@ namespace BattleSummoner.Combat
             EvaluateElementalCombos(payload, ref result, ref damageMultiplier);
 
             // 5. Final Damage Calculation
-            float rawDamage = payload.baseDamage * damageMultiplier + result.comboBonusDamage;
+            float rawDamage = Mathf.Max(0f, payload.baseDamage * damageMultiplier - defenseArmor) + result.comboBonusDamage;
             result.finalDamage = Mathf.Max(1f, rawDamage);
 
             // Apply to entity health

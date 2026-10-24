@@ -57,6 +57,7 @@ namespace BattleSummoner.Optimization
                 QualitySettings.vSyncCount = 0; // Avoid forced 30/60/120 drops
                 QualitySettings.shadowDistance = mobileShadowDistance;
                 QualitySettings.shadowCascades = 2; // Optimal mobile shadow cascade balance
+                QualitySettings.shadows = mobileEnableSoftShadows ? UnityEngine.ShadowQuality.All : UnityEngine.ShadowQuality.HardOnly;
                 QualitySettings.anisotropicFiltering = AnisotropicFiltering.Enable;
                 QualitySettings.realtimeReflectionProbes = false;
 
@@ -77,6 +78,7 @@ namespace BattleSummoner.Optimization
                 QualitySettings.vSyncCount = 1;
                 QualitySettings.shadowDistance = pcShadowDistance;
                 QualitySettings.shadowCascades = 4;
+                QualitySettings.shadows = UnityEngine.ShadowQuality.All;
                 QualitySettings.anisotropicFiltering = AnisotropicFiltering.ForceEnable;
                 QualitySettings.realtimeReflectionProbes = true;
 
@@ -95,7 +97,7 @@ namespace BattleSummoner.Optimization
         [MenuItem("BattleSummoner/Optimization/Apply Mobile Build Optimizations (2-Click)")]
         public static void OptimizeForMobileBuild()
         {
-            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
             PlayerSettings.stripEngineCode = true;

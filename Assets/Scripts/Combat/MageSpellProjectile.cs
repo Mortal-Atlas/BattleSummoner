@@ -17,11 +17,12 @@ public class MageSpellProjectile : MonoBehaviour
     private float lifeTimer = 0f;
     private bool hasDetonated = false;
 
-    public void Initialize(Vector3 direction, float spellDamage, float radius = 3.5f)
+    public void Initialize(Vector3 direction, float spellDamage, float radius = 3.5f, float projectileSpeed = 22f)
     {
         moveDirection = direction.normalized;
         damage = spellDamage;
         explosionRadius = radius;
+        speed = projectileSpeed;
         transform.rotation = Quaternion.LookRotation(moveDirection, Vector3.up);
     }
 

@@ -120,6 +120,19 @@ public class PuzzleCryptex : MonoBehaviour, IInspectablePuzzlePiece
         return false;
     }
 
+    /// <summary>
+    /// Triggers the spring-loaded needle trap if rigged and not disarmed.
+    /// </summary>
+    public void TriggerNeedleTrap()
+    {
+        if (isRiggedWithNeedleTrap && !isNeedleTrapDisarmed)
+        {
+            Debug.LogWarning("[CRYPTEX TRAP] Spring-loaded needle trap sprung!");
+            RelicASMRSynthesizer.Instance?.PlayClick(1.2f, 1.5f);
+            OnNeedleTrapTriggered?.Invoke(true);
+        }
+    }
+
     private void HandleDialRotated(int step, bool ringSolved)
     {
         CheckSolutionState();

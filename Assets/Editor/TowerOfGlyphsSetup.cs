@@ -796,7 +796,7 @@ public static class TowerOfGlyphsSetup
         tmp.fontSize = 24;
         tmp.color = new Color(1f, 0.85f, 0.2f, 1f); // Gold
         tmp.alignment = TextAlignmentOptions.Center;
-        tmp.enableWordWrapping = false;
+        tmp.textWrappingMode = TextWrappingModes.NoWrap;
         tmp.overflowMode = TextOverflowModes.Ellipsis;
 
         SystemBroadcastManager mgr = bannerObj.GetComponent<SystemBroadcastManager>();
@@ -1017,7 +1017,7 @@ public static class TowerOfGlyphsSetup
         marqueeTmp.fontSize = 24;
         marqueeTmp.color = new Color(1f, 0.85f, 0.2f, 1f);
         marqueeTmp.alignment = TextAlignmentOptions.Center;
-        marqueeTmp.enableWordWrapping = false;
+        marqueeTmp.textWrappingMode = TextWrappingModes.NoWrap;
 
         SystemBroadcastManager sysMgr = bannerObj.GetComponent<SystemBroadcastManager>();
         SerializedObject sysSo = new SerializedObject(sysMgr);
@@ -2074,7 +2074,7 @@ public static class TowerOfGlyphsSetup
         TextMeshProUGUI transcriptTmp = transcriptTextObj.GetComponent<TextMeshProUGUI>();
         transcriptTmp.fontSize = 26;
         transcriptTmp.color = Color.white;
-        transcriptTmp.enableWordWrapping = true;
+        transcriptTmp.textWrappingMode = TextWrappingModes.Normal;
         transcriptTmp.richText = true;
         transcriptTmp.text = "<color=#666688><i>[Campfire embers crackle as the delvers assemble around the hearth...]</i></color>\n\n";
 
@@ -2256,7 +2256,7 @@ public static class TowerOfGlyphsSetup
         TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
         tmp.fontSize = 2.4f;
         tmp.alignment = TextAlignmentOptions.Center;
-        tmp.enableWordWrapping = true;
+        tmp.textWrappingMode = TextWrappingModes.Normal;
         tmp.color = Color.white;
         tmp.text = "...";
 
@@ -2291,7 +2291,7 @@ public static class TowerOfGlyphsSetup
         tmp.fontSize = fontSize;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.color = Color.white;
-        tmp.enableWordWrapping = true;
+        tmp.textWrappingMode = TextWrappingModes.Normal;
         tmp.enableAutoSizing = true;
         tmp.fontSizeMin = 18;
         tmp.fontSizeMax = fontSize > 28 ? fontSize : 28;

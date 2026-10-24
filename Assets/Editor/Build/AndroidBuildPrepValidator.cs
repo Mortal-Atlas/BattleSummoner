@@ -71,7 +71,9 @@ namespace BattleSummoner.Build.Editor
 
             // 7. Configure APK output (Uncheck App Bundle so 'Build' outputs a direct installable .apk for Samsung testing)
             EditorUserBuildSettings.buildAppBundle = false;
+#pragma warning disable CS0618
             EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Disabled;
+#pragma warning restore CS0618
 
             // 8. Ensure activeInputHandler is 2 (Both) in ProjectSettings
             try

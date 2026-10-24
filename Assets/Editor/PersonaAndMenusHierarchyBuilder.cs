@@ -1796,7 +1796,7 @@ public static class PersonaAndMenusHierarchyBuilder
         TextMeshProUGUI logTMP = logTextObj.AddComponent<TextMeshProUGUI>();
         logTMP.fontSize = 13;
         logTMP.color = Color.white;
-        logTMP.enableWordWrapping = true;
+        logTMP.textWrappingMode = TextWrappingModes.Normal;
         modalObj.SetActive(false);
 
         // 8. Attach MultiPersonDialogueChatHub & Bind fields

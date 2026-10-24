@@ -408,7 +408,7 @@ namespace BattleSummoner.UI
             ttmp.text = data.messageText;
             ttmp.fontSize = 15;
             ttmp.color = new Color(0.95f, 0.95f, 0.92f);
-            ttmp.enableWordWrapping = true;
+            ttmp.textWrappingMode = TextWrappingModes.Normal;
             ttmp.alignment = data.isRightAligned ? TextAlignmentOptions.TopRight : TextAlignmentOptions.TopLeft;
 
             // Portrait Badge (Angular persona badge)

@@ -48,16 +48,21 @@ namespace BattleSummoner.VFX
             }
         }
 
-        public static void TriggerBlur(float strength = 0.55f, float duration = 0.22f, Vector2? screenCenter = null)
+        public static void TriggerBlur(float? strength = null, float? duration = null, Vector2? screenCenter = null)
         {
             EnsureInstance();
-            Instance.TriggerRadialBlur(strength, duration, screenCenter);
+            Instance.TriggerRadialBlur(strength ?? Instance.defaultStrength, duration ?? Instance.defaultDuration, screenCenter);
         }
 
         public void TriggerRadialBlur(float strength, float duration, Vector2? screenCenter = null)
         {
             if (activeBlurRoutine != null) StopCoroutine(activeBlurRoutine);
             activeBlurRoutine = StartCoroutine(RoutineZoomBlur(strength, duration, screenCenter ?? new Vector2(0.5f, 0.5f)));
+        }
+
+        public void TriggerDefaultBlur(Vector2? screenCenter = null)
+        {
+            TriggerRadialBlur(defaultStrength, defaultDuration, screenCenter);
         }
 
         private IEnumerator RoutineZoomBlur(float peakStrength, float duration, Vector2 center)

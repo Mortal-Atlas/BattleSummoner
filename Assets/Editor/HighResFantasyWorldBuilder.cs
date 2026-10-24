@@ -612,7 +612,7 @@ public static class HighResFantasyWorldBuilder
         if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
 
         var cam = Camera.main;
-        if (cam == null) cam = Object.FindObjectOfType<Camera>();
+        if (cam == null) cam = Object.FindAnyObjectByType<Camera>();
         if (cam == null)
         {
             Debug.LogError("No camera found in scene!");

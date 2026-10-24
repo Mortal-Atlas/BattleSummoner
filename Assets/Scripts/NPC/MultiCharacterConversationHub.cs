@@ -310,7 +310,8 @@ public class MultiCharacterConversationHub : MonoBehaviour
             yield return StartCoroutine(ExecuteSpokenUtterance(utterance));
 
             currentUtteranceIndex++;
-            yield return new WaitForSeconds(utterance.customDelayAfter);
+            float delay = utterance.customDelayAfter > 0 ? utterance.customDelayAfter : basePauseBetweenSpeakers;
+            yield return new WaitForSeconds(delay);
         }
     }
 

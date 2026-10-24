@@ -161,6 +161,7 @@ public class NPCConversationAgent : MonoBehaviour
             }
 
             // Fallback to local simulated persona on network lag
+            OnDialogueFailed?.Invoke(request.error);
             string fallback = GetSimulatedPersonaReply("delve");
             conversationMemory.Add(new LLMChatMessage { role = "assistant", content = fallback });
             OnDialogueReceived?.Invoke(fallback);

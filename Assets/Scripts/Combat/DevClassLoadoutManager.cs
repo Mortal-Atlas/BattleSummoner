@@ -716,7 +716,7 @@ public class DevClassLoadoutManager : MonoBehaviour
 
         // Add projectile controller
         MageSpellProjectile proj = projObj.AddComponent<MageSpellProjectile>();
-        proj.Initialize(direction, spellDamage, spellExplosionRadius);
+        proj.Initialize(direction, spellDamage, spellExplosionRadius, spellSpeed);
 
         // Turn player slightly toward spell direction
         transform.rotation = Quaternion.LookRotation(direction, Vector3.up);

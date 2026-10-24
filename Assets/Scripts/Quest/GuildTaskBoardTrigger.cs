@@ -24,7 +24,11 @@ namespace BattleSummoner.Quests
         private void Awake()
         {
             BoxCollider col = GetComponent<BoxCollider>();
-            if (col != null) col.isTrigger = true;
+            if (col != null)
+            {
+                col.isTrigger = true;
+                col.size = Vector3.one * triggerDistance;
+            }
 
             EnsurePromptCanvas();
         }
@@ -49,7 +53,7 @@ namespace BattleSummoner.Quests
             promptTMP.text = "<color=#FFD700><b>[GUILD TASK BOARD]</b></color>\n<size=80%><color=#FFFFFF>Tap or Press [E] to View Jobs</color></size>";
             promptTMP.alignment = TextAlignmentOptions.Center;
             promptTMP.fontSize = 20;
-            promptTMP.enableWordWrapping = false;
+            promptTMP.textWrappingMode = TextWrappingModes.NoWrap;
 
             promptCanvasObj.SetActive(false);
         }

@@ -303,6 +303,8 @@ namespace BattleSummoner.Combat
             if (toAttacker.sqrMagnitude < 0.001f) toAttacker = playerForward;
             toAttacker.Normalize();
 
+            if (Time.time - lastPassiveBlockTime < passiveBlockCooldown) return false;
+
             float angle = Vector3.Angle(playerForward, toAttacker);
             if (angle <= maxBlockAngle)
             {

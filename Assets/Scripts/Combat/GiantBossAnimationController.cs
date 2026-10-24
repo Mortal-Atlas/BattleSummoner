@@ -35,7 +35,6 @@ namespace BattleSummoner.Combat
 
         private BossController bossController;
         private GiantBossState currentState = GiantBossState.Idle;
-        private float stateTimer = 0f;
         private bool isAttacking = false;
 
         // Animator Parameter Hashes
@@ -274,7 +273,6 @@ namespace BattleSummoner.Combat
         private void SetState(GiantBossState state)
         {
             currentState = state;
-            stateTimer = 0f;
             if (animator != null && animator.isInitialized)
             {
                 animator.SetInteger(HashGiantState, (int)state);

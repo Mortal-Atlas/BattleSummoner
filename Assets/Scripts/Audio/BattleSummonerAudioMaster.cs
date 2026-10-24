@@ -148,6 +148,8 @@ public class BattleSummonerAudioMaster : MonoBehaviour
             ambientSource.loop = true;
             ambientSource.volume = 0.4f;
         }
+
+        duckingAttenuation = 1.0f - Mathf.Clamp01(duckingGainReduction);
     }
 
     public void SetMusicVolume(float vol)

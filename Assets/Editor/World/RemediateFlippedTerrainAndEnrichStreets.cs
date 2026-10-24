@@ -530,7 +530,6 @@ namespace BattleSummoner.EditorScripts
         {
             float stepLength = length / stepCount;
             float stepHeight = (yTop - yBottom) / stepCount;
-            float deepSkirt = 3.5f;
 
             GameObject stairsGroup = new GameObject(name);
             stairsGroup.transform.SetParent(parent, false);

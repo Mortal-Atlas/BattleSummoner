@@ -33,10 +33,18 @@ namespace BattleSummoner.Optimization
             // Optimize all additional lights in the scene
             var allLights = FindObjectsByType<Light>(FindObjectsSortMode.None);
             int additionalShadowsDisabled = 0;
+            int additionalCount = 0;
 
             foreach (var l in allLights)
             {
                 if (l.type == LightType.Directional) continue; // Keep sun light intact
+
+                additionalCount++;
+                if (additionalCount > maxActiveAdditionalLights)
+                {
+                    l.enabled = false;
+                    continue;
+                }
 
                 if (disableAdditionalLightShadowsOnLowTier)
                 {
@@ -45,6 +53,10 @@ namespace BattleSummoner.Optimization
                         l.shadows = LightShadows.None;
                         additionalShadowsDisabled++;
                     }
+                }
+                else if (l.shadows != LightShadows.None)
+                {
+                    l.range = Mathf.Min(l.range, additionalLightShadowDistance);
                 }
             }
 

@@ -117,3 +117,5 @@ config.secret.*
 
 Assets/_Recovery/
 [Aa]ssets/_Recovery/
+_Recovery_Archive/
+

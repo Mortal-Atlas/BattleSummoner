@@ -140,6 +140,10 @@ Shader "BattleSummoner/Painterly/GenshinPainterlyEnvironment"
 
                 half3 color = baseTex.rgb * celLighting;
 
+                // Vertical Grounding + Cavity AO from Vertex Color Channel R (baked via Blender 5.1 Pipeline)
+                half vertexAO = saturate(IN.vertexCol.r);
+                color *= lerp(1.0, vertexAO, step(0.001, IN.vertexCol.r));
+
                 // Emissive glow (glowing runes, lantern glass, forge embers)
                 half4 emissiveTex = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, IN.uv);
                 color += emissiveTex.rgb * _EmissionColor.rgb;

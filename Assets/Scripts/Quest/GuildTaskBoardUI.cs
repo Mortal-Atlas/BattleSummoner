@@ -373,6 +373,10 @@ namespace BattleSummoner.Quests
                     new Color(0.18f, 0.58f, 0.32f), "<b>ACCEPT JOB</b>", () =>
                 {
                     QuestManager.Instance.AcceptQuest(q.questId);
+                    if (BattleSummonerAudioMaster.Instance != null && !string.IsNullOrEmpty(acceptAudio))
+                    {
+                        BattleSummonerAudioMaster.Instance.PlayPresetSFX(acceptAudio, 0.85f);
+                    }
                 });
 
                 // DISPATCH B-TEAM Button (Palico-style Sub-Contracting)
@@ -382,6 +386,10 @@ namespace BattleSummoner.Quests
                         new Color(0.88f, 0.54f, 0.12f), "<b>DISPATCH B-TEAM ❯</b>", () =>
                     {
                         QuestManager.Instance.DispatchBTeam(q.questId);
+                        if (BattleSummonerAudioMaster.Instance != null && !string.IsNullOrEmpty(acceptAudio))
+                        {
+                            BattleSummonerAudioMaster.Instance.PlayPresetSFX(acceptAudio, 0.85f);
+                        }
                     });
                 }
             }
@@ -402,6 +410,10 @@ namespace BattleSummoner.Quests
                         new Color(0.92f, 0.70f, 0.15f), $"<b>CLAIM B-TEAM LOOT! ★{oresStr}</b>", () =>
                     {
                         QuestManager.Instance.ClaimBTeamLoot(q.questId);
+                        if (BattleSummonerAudioMaster.Instance != null && !string.IsNullOrEmpty(claimAudio))
+                        {
+                            BattleSummonerAudioMaster.Instance.PlayPresetSFX(claimAudio, 0.9f);
+                        }
                     });
                     claimBtnObj.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.10f, 0.10f, 0.10f);
                 }
@@ -436,6 +448,10 @@ namespace BattleSummoner.Quests
                     new Color(0.85f, 0.65f, 0.15f), "<b>CLAIM REWARD! ★</b>", () =>
                 {
                     QuestManager.Instance.ClaimQuestReward(q.questId);
+                    if (BattleSummonerAudioMaster.Instance != null && !string.IsNullOrEmpty(claimAudio))
+                    {
+                        BattleSummonerAudioMaster.Instance.PlayPresetSFX(claimAudio, 0.9f);
+                    }
                 });
                 claimBtnObj.GetComponentInChildren<TextMeshProUGUI>().color = new Color(0.10f, 0.10f, 0.10f);
             }

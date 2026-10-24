@@ -71,12 +71,18 @@ namespace BattleSummoner.Optimization
         {
             if (mesh == null || material == null) return;
 
+            float lodTier = 1.0f;
             // Distance culling check against camera
             if (mainCamera != null)
             {
                 Vector3 pos = transformMatrix.GetColumn(3);
                 float distSqr = (pos - mainCamera.transform.position).sqrMagnitude;
                 if (distSqr > (cullingDistance * cullingDistance)) return; // Frustum / Proximity Culled
+
+                if (distSqr > (lowTierLODDistance * lowTierLODDistance))
+                {
+                    lodTier = 0.5f;
+                }
 
                 // Frustum cull
                 var bounds = new Bounds(pos, Vector3.one * 2.5f);
@@ -101,7 +107,7 @@ namespace BattleSummoner.Optimization
             if (group.activeCount < maxEntitiesPerBatch)
             {
                 group.matrices[group.activeCount] = transformMatrix;
-                group.animParams[group.activeCount] = new Vector4(animTime, animSpeed, animCycle, 1.0f);
+                group.animParams[group.activeCount] = new Vector4(animTime, animSpeed, animCycle, lodTier);
                 group.activeCount++;
             }
         }

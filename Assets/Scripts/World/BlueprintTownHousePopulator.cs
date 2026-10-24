@@ -153,10 +153,12 @@ namespace BattleSummoner.World
 
             AutoAssignBlueprintAssets();
 
+#pragma warning disable CS0618
             if (diagramPlots.Count == 0)
             {
                 ExtractPlotsFromOwnBlueprintDiagram();
             }
+#pragma warning restore CS0618
 
             int instantiatedCount = 0;
             foreach (var plot in diagramPlots)

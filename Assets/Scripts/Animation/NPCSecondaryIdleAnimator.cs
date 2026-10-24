@@ -198,15 +198,25 @@ namespace BattleSummoner.Animation
             switch (ambientBehavior)
             {
                 case NPCAmbientBehavior.BlacksmithCrafting:
-                    animator.SetInteger(HashCraftingAction, 1);
+                    if (HasParameter(animator, HashCraftingAction)) animator.SetInteger(HashCraftingAction, 1);
                     break;
                 case NPCAmbientBehavior.BardDancing:
-                    animator.SetInteger(HashDanceAction, 1);
+                    if (HasParameter(animator, HashDanceAction)) animator.SetInteger(HashDanceAction, 1);
                     break;
                 case NPCAmbientBehavior.BakerCooking:
-                    animator.SetInteger(HashCookingAction, 1);
+                    if (HasParameter(animator, HashCookingAction)) animator.SetInteger(HashCookingAction, 1);
                     break;
             }
+        }
+
+        private static bool HasParameter(Animator anim, int paramHash)
+        {
+            if (anim == null || anim.runtimeAnimatorController == null) return false;
+            foreach (var p in anim.parameters)
+            {
+                if (p.nameHash == paramHash) return true;
+            }
+            return false;
         }
 
         private void Update()

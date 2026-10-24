@@ -180,6 +180,18 @@ namespace BattleSummoner.Combat
 
             // Multi-stroke drawing: The player can lift their finger and keep drawing freely.
             // Completed strokes accumulate and linger until cast or dispelled.
+            if (fadeCoroutine != null)
+            {
+                StopCoroutine(fadeCoroutine);
+                fadeCoroutine = null;
+            }
+
+            if (completedStrokes.Count > 0 && lastStrokeEndTime > 0 && (Time.time - lastStrokeEndTime > multiStrokeWindow * 8f))
+            {
+                completedStrokes.Clear();
+                if (inkGraphic != null) inkGraphic.ClearAll();
+            }
+
             isCurrentlyDrawing = true;
             currentStroke.Clear();
 
@@ -340,7 +352,19 @@ namespace BattleSummoner.Combat
                 {
                     SpellcraftLiveFeedbackHUD.Instance.ShowDispelButton();
                 }
+
+                if (autoFadeUnrecognizedInk)
+                {
+                    if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+                    fadeCoroutine = StartCoroutine(RoutineFadeInkAfterDelay(unrecognizedFadeDelay));
+                }
             }
+        }
+
+        private IEnumerator RoutineFadeInkAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            DispelDrawnInk();
         }
 
         private IEnumerator RoutineQuickBladeTrailFade()

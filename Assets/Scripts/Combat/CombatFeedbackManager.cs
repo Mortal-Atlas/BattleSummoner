@@ -225,7 +225,7 @@ namespace BattleSummoner.Combat
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.fontSize = 24;
             tmp.fontStyle = FontStyles.Bold;
-            tmp.enableWordWrapping = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
             var anim = go.AddComponent<FloatingTextAnimator>();
             anim.textMesh = tmp;

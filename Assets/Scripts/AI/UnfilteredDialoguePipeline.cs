@@ -154,7 +154,8 @@ public class UnfilteredDialoguePipeline : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[UnfilteredDialoguePipeline] OpenRouter request failed: {req.error}. Utilizing local uncensored parser.");
+                Debug.LogWarning($"[UnfilteredDialoguePipeline] OpenRouter request with {primaryModel} (fallback: {fallbackModel}) failed: {req.error}. Utilizing local uncensored parser.");
+                OnPipelineError?.Invoke(req.error);
                 yield return GenerateLocalUnfilteredResponseRoutine(pipelineHistory[pipelineHistory.Count - 1].content, activeNpcId);
             }
         }
@@ -180,6 +181,7 @@ public class UnfilteredDialoguePipeline : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogError($"[UnfilteredDialoguePipeline] JSON Schema parsing error: {ex.Message}. Falling back.");
+            OnPipelineError?.Invoke(ex.Message);
         }
 
         StartCoroutine(GenerateLocalUnfilteredResponseRoutine("fallback", activeNpcId));

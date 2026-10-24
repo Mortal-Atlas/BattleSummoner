@@ -48,6 +48,7 @@ namespace BattleSummoner.Core
 
         public float CurrentAspectRatio => currentAspectRatio;
         public Vector2 EffectiveCanvasSize => effectiveCanvasSize;
+        public string CurrentDeviceClass => currentDeviceClass;
 
         public static event Action<Vector2, float> OnResolutionAdapted;
 

@@ -1085,7 +1085,7 @@ public static class OverworldSceneSetup
         tmp.text = $"<color=#FFD700><b>{name}</b></color>\n<size=80%>[{role}]</size>";
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.fontSize = 18;
-        tmp.enableWordWrapping = false;
+        tmp.textWrappingMode = TextWrappingModes.NoWrap;
     }
 
     private static void CreateStoneFireplace(Transform parent, Vector3 pos, WorldMaterials m)

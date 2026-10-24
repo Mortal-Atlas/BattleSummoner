@@ -13,6 +13,7 @@ public class SpireEnemy : MonoBehaviour, IEnemyStagger, IDamageReceiver
 
     [Header("Behavior")]
     [SerializeField] private float moveSpeed = 2.2f;
+    public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
     [SerializeField] private float attackRange = 1.8f;
     [SerializeField] private float attackDamage = 12f;
     [SerializeField] private float attackCooldown = 1.8f;

@@ -237,6 +237,11 @@ namespace BattleSummoner.Combat
             HideDispelButton();
         }
 
+        public void TriggerCast()
+        {
+            OnCastRequested?.Invoke();
+        }
+
         public void ShowDispelButton()
         {
             EnsureReferences();
