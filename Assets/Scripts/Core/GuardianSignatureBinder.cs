@@ -102,6 +102,16 @@ namespace BattleSummoner.Core
         public void EndSignatureStroke()
         {
             isSigning = false;
+            if (activeContract.signatureStrokePoints.Count >= 5)
+            {
+                string aName = string.IsNullOrEmpty(activeContract.avatarName) ? "Hero" : activeContract.avatarName;
+                string gName = string.IsNullOrEmpty(activeContract.guardianPrintedName) ? "Guardian" : activeContract.guardianPrintedName;
+                CompleteGuardianPact(aName, gName);
+                if (DemoVerticalSliceBootstrapper.Instance != null)
+                {
+                    DemoVerticalSliceBootstrapper.Instance.OnGuardianContractSigned(aName);
+                }
+            }
         }
 
         public void ClearSignature()
@@ -116,7 +126,7 @@ namespace BattleSummoner.Core
 
         public bool CompleteGuardianPact(string assignedAvatarName, string guardianName)
         {
-            if (activeContract.signatureStrokePoints.Count < 8)
+            if (activeContract.signatureStrokePoints.Count < 5)
             {
                 Debug.LogWarning("[Guardian Pact] Signature too short! Please sign your name with finger to bind your avatar.");
                 return false;

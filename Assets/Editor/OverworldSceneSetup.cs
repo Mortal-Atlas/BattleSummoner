@@ -1257,11 +1257,15 @@ public static class OverworldSceneSetup
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
     }
 
+    [MenuItem("Tools/BattleSummoner/Register All Scenes in Build Settings")]
     public static void RegisterScenesInBuildSettings()
     {
         string[] scenePaths = {
-            "Assets/Scenes/MainDungeonFloor.unity",
             "Assets/Scenes/OverworldMap.unity",
+            "Assets/Scenes/CampGroupChat.unity",
+            "Assets/Scenes/CampfireHub.unity",
+            "Assets/Scenes/MainDungeonFloor.unity",
+            "Assets/Scenes/WorldEntryExperience.unity",
             "Assets/Scenes/BuildingInterior.unity",
             "Assets/Scenes/ShopInterior.unity",
             "Assets/Scenes/GuildHallInterior.unity",

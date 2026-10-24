@@ -77,6 +77,15 @@ public class PersonaDialogueUI : MonoBehaviour
 
     [Header("Preloaded Character Busts")]
     [SerializeField] private Sprite margoPortraitSprite;
+    [SerializeField] private Sprite barnabyPortraitSprite;
+    [SerializeField] private Sprite zephyrPortraitSprite;
+    [SerializeField] private Sprite ariaPortraitSprite;
+    [SerializeField] private Sprite leoPortraitSprite;
+    [SerializeField] private Sprite playerPortraitSprite;
+    [SerializeField] private Sprite alexPortraitSprite;
+    [SerializeField] private Sprite elenaPortraitSprite;
+    [SerializeField] private Sprite cherylPortraitSprite;
+    [SerializeField] private Sprite keithPortraitSprite;
     [SerializeField] private Sprite merchantPortraitSprite;
     [SerializeField] private Sprite demonPortraitSprite;
 
@@ -132,11 +141,63 @@ public class PersonaDialogueUI : MonoBehaviour
     public void LoadDefaultPortraits()
     {
         if (margoPortraitSprite == null)
-            margoPortraitSprite = Resources.Load<Sprite>("Mockup_PersonaPortrait_Margo") ?? LoadSpriteFromTextures("Mockup_PersonaPortrait_Margo.png");
+            margoPortraitSprite = Resources.Load<Sprite>("Mockup_PersonaPortrait_Margo") ?? LoadSpriteFromTextures("Portraits/Portrait_Margo.png") ?? LoadSpriteFromTextures("Mockup_PersonaPortrait_Margo.png");
+        if (barnabyPortraitSprite == null)
+            barnabyPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_MayorBarnaby.png");
+        if (zephyrPortraitSprite == null)
+            zephyrPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_Zephyr.png");
+        if (ariaPortraitSprite == null)
+            ariaPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_Ally_Feme_Left.png");
+        if (leoPortraitSprite == null)
+            leoPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_Ally_Masc_Left.png");
+        if (playerPortraitSprite == null)
+            playerPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_Protagonist.png");
+        if (alexPortraitSprite == null)
+            alexPortraitSprite = LoadSpriteFromTextures("Dialogue/Crop_Alex_Bust.png");
+        if (elenaPortraitSprite == null)
+            elenaPortraitSprite = LoadSpriteFromTextures("Dialogue/Crop_Elena_Bust.png");
+        if (cherylPortraitSprite == null)
+            cherylPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_Cheryl.png");
+        if (keithPortraitSprite == null)
+            keithPortraitSprite = LoadSpriteFromTextures("Portraits/Portrait_Keith.png");
         if (merchantPortraitSprite == null)
             merchantPortraitSprite = Resources.Load<Sprite>("Mockup_PersonaPortrait_Merchant") ?? LoadSpriteFromTextures("Mockup_PersonaPortrait_Merchant.png");
         if (demonPortraitSprite == null)
             demonPortraitSprite = Resources.Load<Sprite>("Mockup_PersonaPortrait_Demon") ?? LoadSpriteFromTextures("Mockup_PersonaPortrait_Demon.png");
+    }
+
+    public Sprite GetOrResolvePortrait(string speakerName, Sprite fallback = null)
+    {
+        if (fallback != null) return fallback;
+        if (string.IsNullOrEmpty(speakerName)) return margoPortraitSprite;
+
+        string lower = speakerName.ToLowerInvariant();
+        if (lower.Contains("margo")) return margoPortraitSprite;
+        if (lower.Contains("barnaby")) return barnabyPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("zephyr")) return zephyrPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("aria") || lower.Contains("starter_female")) return ariaPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("leo") || lower.Contains("starter_male")) return leoPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("alex")) return alexPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("elena")) return elenaPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("cheryl")) return cherylPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("keith")) return keithPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("player") || lower.Contains("you") || lower.Contains("summoner")) return playerPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("merchant") || lower.Contains("balthazar")) return merchantPortraitSprite ?? margoPortraitSprite;
+        if (lower.Contains("demon") || lower.Contains("boss")) return demonPortraitSprite ?? margoPortraitSprite;
+
+        return margoPortraitSprite;
+    }
+
+    public string GetDefaultAudioSfx(string speaker)
+    {
+        if (string.IsNullOrEmpty(speaker)) return "margo_chime";
+        string lower = speaker.ToLowerInvariant();
+        if (lower.Contains("barnaby")) return "forge_strike";
+        if (lower.Contains("zephyr")) return "harp_flourish";
+        if (lower.Contains("cheryl")) return "bell_chime";
+        if (lower.Contains("keith")) return "sword_unsheath";
+        if (lower.Contains("player") || lower.Contains("you")) return "relic_chime";
+        return "margo_chime";
     }
 
     private Sprite LoadSpriteFromTextures(string fileName)
@@ -152,15 +213,41 @@ public class PersonaDialogueUI : MonoBehaviour
     public void ShowSimpleDialogue(string speaker, string title, Sprite portrait, string[] lines, Action onComplete = null)
     {
         List<PersonaDialogueLine> list = new List<PersonaDialogueLine>();
+        Sprite resolvedPortrait = portrait != null ? portrait : GetOrResolvePortrait(speaker);
         for (int i = 0; i < lines.Length; i++)
         {
             list.Add(new PersonaDialogueLine
             {
                 speakerName = speaker,
                 speakerTitle = title,
-                portraitSprite = portrait != null ? portrait : margoPortraitSprite,
-                text = lines[i]
+                portraitSprite = resolvedPortrait,
+                text = lines[i],
+                audioSfx = GetDefaultAudioSfx(speaker)
             });
+        }
+        StartDialogueSequence(list, onComplete);
+    }
+
+    /// <summary>
+    /// Executes a dynamic multi-person conversation anywhere in the game world.
+    /// Each line can have a distinct speakerName, speakerTitle, portraitSprite, and audioSfx.
+    /// Missing portraits or SFX are resolved automatically.
+    /// </summary>
+    public void ShowMultiPersonDialogue(IEnumerable<PersonaDialogueLine> lines, Action onComplete = null)
+    {
+        if (lines == null) return;
+        List<PersonaDialogueLine> list = new List<PersonaDialogueLine>();
+        foreach (var l in lines)
+        {
+            if (l.portraitSprite == null)
+            {
+                l.portraitSprite = GetOrResolvePortrait(l.speakerName);
+            }
+            if (string.IsNullOrEmpty(l.audioSfx))
+            {
+                l.audioSfx = GetDefaultAudioSfx(l.speakerName);
+            }
+            list.Add(l);
         }
         StartDialogueSequence(list, onComplete);
     }
@@ -188,16 +275,20 @@ public class PersonaDialogueUI : MonoBehaviour
             speakerNameTMP.text = $"<b>{line.speakerName.ToUpper()}</b>{titleTag}";
         }
 
-        if (characterPortraitImg != null && line.portraitSprite != null)
+        if (characterPortraitImg != null)
         {
-            characterPortraitImg.sprite = line.portraitSprite;
-            characterPortraitImg.gameObject.SetActive(true);
-
-            // Pop breathing bounce on speaker change
-            if (portraitContainerRect != null)
+            Sprite resolvedSprite = line.portraitSprite != null ? line.portraitSprite : GetOrResolvePortrait(line.speakerName);
+            if (resolvedSprite != null)
             {
-                StopCoroutine("AnimatePortraitEntrance");
-                StartCoroutine(AnimatePortraitEntrance());
+                characterPortraitImg.sprite = resolvedSprite;
+                characterPortraitImg.gameObject.SetActive(true);
+
+                // Pop breathing bounce on speaker change
+                if (portraitContainerRect != null)
+                {
+                    StopCoroutine("AnimatePortraitEntrance");
+                    StartCoroutine(AnimatePortraitEntrance());
+                }
             }
         }
 

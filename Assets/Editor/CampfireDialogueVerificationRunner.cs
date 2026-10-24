@@ -15,10 +15,10 @@ namespace BattleSummoner.EditorScripts
             Debug.Log("🔥 [CAMPFIRE MULTI-CHARACTER DIALOGUE HUB VERIFICATION] 🔥");
             Debug.Log("================================================================================");
 
-            // 1. Open the Campfire Dialogue Scene
-            string scenePath = "Assets/Scenes/MultiCharacterDialogueHub.unity";
+            // 1. Open the Campfire Dialogue Scene (CampHub)
+            string scenePath = "Assets/Scenes/CampfireHub.unity";
             EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-            Debug.Log($"✦ [CAMPFIRE] Opened scene: {scenePath}");
+            Debug.Log($"✦ [CAMPFIRE HUB] Opened scene: {scenePath}");
 
             // 2. Verify Campfire Panoramic Camera Controller
             var cam = Camera.main;

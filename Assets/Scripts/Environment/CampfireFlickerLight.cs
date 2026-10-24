@@ -38,7 +38,11 @@ namespace BattleSummoner.Environment
         {
             if (enableAmbientAudio)
             {
-                audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+                audioSource = GetComponent<AudioSource>();
+                if (audioSource == null)
+                {
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                }
                 audioSource.spatialBlend = 1.0f;
                 audioSource.minDistance = 2.0f;
                 audioSource.maxDistance = 16.0f;

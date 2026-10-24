@@ -154,6 +154,13 @@ public class PlayerMovementController : MonoBehaviour
             return;
         }
 
+        // Lock movement until Guardian contract is signed
+        if (BattleSummoner.Core.DemoVerticalSliceBootstrapper.Instance != null &&
+            !BattleSummoner.Core.DemoVerticalSliceBootstrapper.Instance.isContractSigned)
+        {
+            return;
+        }
+
         if (isDashing)
         {
             dashTimer -= Time.deltaTime;

@@ -10,7 +10,7 @@ public enum MineralRarity
     PrismaticHeart    // Legendary apex gem (broadcastable!)
 }
 
-public class CaveMiningNode : MonoBehaviour
+public class CaveMiningNode : MonoBehaviour, BattleSummoner.Combat.ISliceable
 {
     [Header("Mineral Vein Settings")]
     public MineralRarity mineralType = MineralRarity.AzuriteCore;
@@ -49,6 +49,37 @@ public class CaveMiningNode : MonoBehaviour
     private void OnDisable()
     {
         PortraitGestureCanvas.OnMiningChiselTap -= HandleChiselHit;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player") || other.name.Contains("Player"))
+        {
+            var gesture = FindAnyObjectByType<PortraitGestureCanvas>();
+            if (gesture != null) gesture.currentMode = InteractionMode.MiningChisel;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player") || other.name.Contains("Player"))
+        {
+            var gesture = FindAnyObjectByType<PortraitGestureCanvas>();
+            if (gesture != null && gesture.currentMode == InteractionMode.MiningChisel)
+            {
+                gesture.currentMode = InteractionMode.CombatSlash;
+            }
+        }
+    }
+
+    private void OnMouseDown()
+    {
+        ExecuteChiselStrike();
+    }
+
+    public void OnSlice(Vector3 slicePoint, Vector3 sliceDirection, float finalDamage)
+    {
+        ExecuteChiselStrike();
     }
 
     private void HandleChiselHit(Vector2 screenTapPosition)

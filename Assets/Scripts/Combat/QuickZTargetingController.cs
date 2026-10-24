@@ -347,6 +347,22 @@ namespace BattleSummoner.Combat
             }
         }
 
+        public void LockTarget(Transform target)
+        {
+            if (target == null) return;
+            currentTarget = target;
+            isLockedOn = true;
+            if (PortraitARPGCamera.Instance != null)
+            {
+                PortraitARPGCamera.Instance.activeBossTarget = target;
+            }
+            PlaySFX("relic_chime");
+            ShowToast($"<color=#00E5FF><b>[Z-LOCK]</b></color> Focused on {GetTargetDisplayName(target)}");
+            OnLockOnToggled?.Invoke(true);
+            OnTargetChanged?.Invoke(target);
+            UpdateUIState();
+        }
+
         public void Focus()
         {
             AcquireBestTarget(false);

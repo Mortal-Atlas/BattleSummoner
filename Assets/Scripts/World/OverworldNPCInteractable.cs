@@ -30,6 +30,13 @@ namespace BattleSummoner.World
             "Watch out for the outer rifts! The incursions have grown fiercer by the day."
         };
 
+        [Header("Multi-Person Conversation (Anywhere)")]
+        [Tooltip("If true, interacting triggers a multi-person conversation with multiple alternating speakers!")]
+        public bool isMultiPersonConversation = false;
+        public List<PersonaDialogueLine> multiPersonDialogue = new List<PersonaDialogueLine>();
+        [Tooltip("If true, nearby companions or citizen NPCs dynamically chime into the conversation!")]
+        public bool enableProximityCompanionChimeIn = true;
+
         [Header("Interaction Settings")]
         public float interactionRadius = 3.8f;
         public KeyCode interactKey = KeyCode.E;
@@ -208,16 +215,92 @@ namespace BattleSummoner.World
                 BattleSummonerAudioMaster.Instance.PlayPresetSFX(greetingAudioSfx, 0.85f);
             }
 
-            if (PersonaDialogueUI.Instance != null && dialogueLines != null && dialogueLines.Length > 0)
+            // Case A: Pre-authored multi-person dialogue sequence
+            if (isMultiPersonConversation || (multiPersonDialogue != null && multiPersonDialogue.Count > 0))
             {
-                PersonaDialogueUI.Instance.ShowSimpleDialogue(npcName, npcRole, portraitSprite, dialogueLines, OnDialogueFinished);
+                if (PersonaDialogueUI.Instance != null)
+                {
+                    PersonaDialogueUI.Instance.ShowMultiPersonDialogue(multiPersonDialogue, OnDialogueFinished);
+                    return;
+                }
+            }
+
+            // Case B: Standard lines, with dynamic proximity chime-in if other NPCs or companions are nearby
+            List<PersonaDialogueLine> finalLines = new List<PersonaDialogueLine>();
+            if (dialogueLines != null)
+            {
+                for (int i = 0; i < dialogueLines.Length; i++)
+                {
+                    finalLines.Add(new PersonaDialogueLine
+                    {
+                        speakerName = npcName,
+                        speakerTitle = npcRole,
+                        portraitSprite = portraitSprite,
+                        text = dialogueLines[i],
+                        audioSfx = greetingAudioSfx
+                    });
+                }
+            }
+
+            if (enableProximityCompanionChimeIn)
+            {
+                AppendNearbyNPCChimeIns(finalLines);
+            }
+
+            if (PersonaDialogueUI.Instance != null && finalLines.Count > 0)
+            {
+                PersonaDialogueUI.Instance.ShowMultiPersonDialogue(finalLines, OnDialogueFinished);
             }
             else
             {
-                Debug.Log($"[NPC Conversation] {npcName} ({npcRole}): \"{string.Join(" ", dialogueLines)}\"");
+                Debug.Log($"[NPC Multi-Person Conversation] {npcName} ({npcRole}): \"{string.Join(" ", dialogueLines)}\"");
                 // Auto finish in 4 seconds if PersonaDialogueUI is absent
                 Invoke(nameof(OnDialogueFinished), 3.5f);
             }
+        }
+
+        private void AppendNearbyNPCChimeIns(List<PersonaDialogueLine> lines)
+        {
+            // Search for other NPCs within chime-in radius
+            float searchRadius = interactionRadius * 2.2f;
+            Collider[] hits = Physics.OverlapSphere(transform.position, searchRadius);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (hits[i].gameObject == gameObject) continue;
+                var otherNpc = hits[i].GetComponent<OverworldNPCInteractable>();
+                if (otherNpc != null && !string.IsNullOrEmpty(otherNpc.npcName))
+                {
+                    string chimeText = GetContextualChimeIn(otherNpc.npcName, npcName);
+                    lines.Add(new PersonaDialogueLine
+                    {
+                        speakerName = otherNpc.npcName,
+                        speakerTitle = otherNpc.npcRole,
+                        portraitSprite = otherNpc.portraitSprite,
+                        text = chimeText,
+                        audioSfx = otherNpc.greetingAudioSfx
+                    });
+                    break; // Keep to 1 chime-in companion per interaction to maintain punchy pacing
+                }
+            }
+        }
+
+        private string GetContextualChimeIn(string chimeInName, string originalSpeaker)
+        {
+            string lowerChime = chimeInName.ToLowerInvariant();
+            string lowerOriginal = originalSpeaker.ToLowerInvariant();
+
+            if (lowerChime.Contains("barnaby") && lowerOriginal.Contains("margo"))
+                return "Hah! Don't let Margo spook you with her gloomy alembics, Summoner. Good honest steel and fire keep the kingdom standing!";
+            if (lowerChime.Contains("margo") && lowerOriginal.Contains("barnaby"))
+                return "Ignore his hammer banging, Summoner. Without alchemical catalysts, his 'honest steel' would snap like dry twigs against spire fiends. (¬_¬)";
+            if (lowerChime.Contains("keith") && lowerOriginal.Contains("cheryl"))
+                return "Sister Cheryl speaks truth. The Church keeps our spirits resolute, but keep your stance wide when the rifts flare!";
+            if (lowerChime.Contains("cheryl") && lowerOriginal.Contains("keith"))
+                return "Captain Keith's shield never wavers. May the light of revival preserve all summoners who march into the breach.";
+            if (lowerChime.Contains("zephyr"))
+                return "♪ 'Steel in the hand, stars in the sky, summoners never say goodbye...' ♪ An epic tale in the making!";
+
+            return $"I stand with {originalSpeaker}. The Hundredfold Spire will test every summoner's mettle today!";
         }
 
         private void OnDialogueFinished()

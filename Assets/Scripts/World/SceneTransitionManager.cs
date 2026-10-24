@@ -70,7 +70,7 @@ public class SceneTransitionManager : MonoBehaviour
     public void PitchCamp(string customTitle = "Setting Up Camp...")
     {
         string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene != "CampfireHub")
+        if (currentScene != "CampGroupChat" && currentScene != "CampfireHub" && currentScene != "MultiCharacterDialogueHub")
         {
             LastSceneBeforeCampfire = currentScene;
             GameObject player = GameObject.Find("Player_Hero") ?? GameObject.FindWithTag("Player");
@@ -79,7 +79,7 @@ public class SceneTransitionManager : MonoBehaviour
                 LastPositionBeforeCampfire = player.transform.position;
             }
         }
-        TransitionToScene("CampfireHub", "Campfire_Arrival", customTitle);
+        TransitionToScene("CampGroupChat", "Campfire_Arrival", customTitle);
     }
 
     /// <summary>
@@ -195,9 +195,9 @@ public class SceneTransitionManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.1f);
 
         // 3. Load Target Scene Asynchronously (with backward compatibility)
-        if (sceneName == "MultiCharacterDialogueHub")
+        if (sceneName == "MultiCharacterDialogueHub" || sceneName == "CampHub" || sceneName == "CampfireHub")
         {
-            sceneName = "CampfireHub";
+            sceneName = "CampGroupChat";
         }
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         if (asyncLoad != null)

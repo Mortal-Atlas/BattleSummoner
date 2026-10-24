@@ -2303,9 +2303,15 @@ public static class TowerOfGlyphsSetup
     {
         EditorBuildSettingsScene[] scenes = new EditorBuildSettingsScene[]
         {
+            new EditorBuildSettingsScene("Assets/Scenes/OverworldMap.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/CampfireHub.unity", true),
             new EditorBuildSettingsScene("Assets/Scenes/MainDungeonFloor.unity", true),
             new EditorBuildSettingsScene("Assets/Scenes/RelicTestingStage.unity", true),
-            new EditorBuildSettingsScene("Assets/Scenes/MultiCharacterDialogueHub.unity", true)
+            new EditorBuildSettingsScene("Assets/Scenes/WorldEntryExperience.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/ShopInterior.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/GuildHallInterior.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/BuildingInterior.unity", true),
+            new EditorBuildSettingsScene("Assets/Scenes/MultiCharacterDialogueHub.unity", false)
         };
         EditorBuildSettings.scenes = scenes;
     }

@@ -314,9 +314,82 @@ public class BattleViewportRebalancer : MonoBehaviour
     public void UnlockWhetstoneHUD()
     {
         var whetstone = GameObject.Find("WhetstoneActionButton") ?? GameObject.Find("WhetstoneButton");
+        if (whetstone == null)
+        {
+            var rootCanvas = GetComponentInParent<Canvas>() ?? FindAnyObjectByType<Canvas>();
+            if (rootCanvas != null)
+            {
+                var btnGo = new GameObject("WhetstoneActionButton", typeof(RectTransform), typeof(Image), typeof(Button));
+                btnGo.transform.SetParent(rootCanvas.transform, false);
+                var rt = btnGo.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(1f, 1f);
+                rt.anchorMax = new Vector2(1f, 1f);
+                rt.pivot = new Vector2(1f, 1f);
+                rt.anchoredPosition = new Vector2(-25f, -25f);
+                rt.sizeDelta = new Vector2(68f, 68f);
+
+                var img = btnGo.GetComponent<Image>();
+                img.color = new Color(0.95f, 0.75f, 0.2f, 0.95f);
+
+                var txtGo = new GameObject("Text", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+                txtGo.transform.SetParent(btnGo.transform, false);
+                var trt = txtGo.GetComponent<RectTransform>();
+                trt.anchorMin = Vector2.zero;
+                trt.anchorMax = Vector2.one;
+                var tmp = txtGo.GetComponent<TMPro.TextMeshProUGUI>();
+                tmp.text = "💎\n<b>HONE</b>";
+                tmp.fontSize = 12;
+                tmp.alignment = TMPro.TextAlignmentOptions.Center;
+                tmp.color = Color.white;
+
+                var btn = btnGo.GetComponent<Button>();
+                btn.onClick.AddListener(OnWhetstonePressed);
+                whetstone = btnGo;
+            }
+        }
+
         if (whetstone != null)
         {
             whetstone.SetActive(true);
+            var btn = whetstone.GetComponent<Button>();
+            if (btn != null)
+            {
+                btn.onClick.RemoveListener(OnWhetstonePressed);
+                btn.onClick.AddListener(OnWhetstonePressed);
+            }
+            StartCoroutine(RoutinePulseWhetstone(whetstone.transform));
+        }
+    }
+
+    private System.Collections.IEnumerator RoutinePulseWhetstone(Transform t)
+    {
+        Vector3 baseScale = Vector3.one;
+        for (int i = 0; i < 6; i++)
+        {
+            if (t == null) break;
+            t.localScale = baseScale * 1.25f;
+            yield return new WaitForSeconds(0.18f);
+            if (t == null) break;
+            t.localScale = baseScale;
+            yield return new WaitForSeconds(0.18f);
+        }
+    }
+
+    public void OnWhetstonePressed()
+    {
+        var temper = FindAnyObjectByType<WeaponTemper>();
+        if (temper != null)
+        {
+            temper.HoneWithWhetstone();
+        }
+        if (BattleSummonerAudioMaster.Instance != null)
+        {
+            BattleSummonerAudioMaster.Instance.PlayPresetSFX("blade_hit", 1.0f);
+            BattleSummonerAudioMaster.Instance.PlayPresetSFX("crystal_resonate", 1.0f);
+        }
+        if (SystemBroadcastManager.Instance != null)
+        {
+            SystemBroadcastManager.Instance.DispatchBroadcast("💎 [WHETSTONE HONED] *SHING!* Blade edge sharpened to razor perfection!", true);
         }
     }
 }

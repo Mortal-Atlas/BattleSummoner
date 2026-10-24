@@ -271,13 +271,21 @@ namespace BattleSummoner.EditorScripts
                 var r = mountNode.GetComponent<Renderer>();
                 if (r != null) r.material.color = new Color(0.2f, 0.6f, 0.9f, 0.7f);
             }
+            if (!mountNode.GetComponent<DemoMountStableNode>()) mountNode.AddComponent<DemoMountStableNode>();
             bootstrapper.mountWhistleStableNode = mountNode;
 
             // 4 Crafting Stations in Tier 2
             bootstrapper.blacksmithForgeStation = GetOrCreateStation(step3Folder, "Station_Blacksmith_Forge", new Vector3(-45f, 38.05f, -10f), new Color(0.9f, 0.3f, 0.1f));
+            if (!bootstrapper.blacksmithForgeStation.GetComponent<DemoBlacksmithForgeNode>()) bootstrapper.blacksmithForgeStation.AddComponent<DemoBlacksmithForgeNode>();
+
             bootstrapper.cookingMamaStation = GetOrCreateStation(step3Folder, "Station_Cooking_Potluck", new Vector3(-55f, 38.05f, -15f), new Color(0.4f, 0.8f, 0.2f));
+            if (!bootstrapper.cookingMamaStation.GetComponent<DemoCookingStationNode>()) bootstrapper.cookingMamaStation.AddComponent<DemoCookingStationNode>();
+
             bootstrapper.alchemyTomeDeskStation = GetOrCreateStation(step3Folder, "Station_Alchemy_TomeDesk", new Vector3(-35f, 38.05f, -20f), new Color(0.6f, 0.2f, 0.8f));
+            if (!bootstrapper.alchemyTomeDeskStation.GetComponent<DemoAlchemyDeskNode>()) bootstrapper.alchemyTomeDeskStation.AddComponent<DemoAlchemyDeskNode>();
+
             bootstrapper.enchantingAnvilStation = GetOrCreateStation(step3Folder, "Station_3Strike_EnchantingAnvil", new Vector3(-40f, 38.05f, -5f), new Color(0.2f, 0.7f, 0.9f));
+            if (!bootstrapper.enchantingAnvilStation.GetComponent<DemoEnchantingAnvilNode>()) bootstrapper.enchantingAnvilStation.AddComponent<DemoEnchantingAnvilNode>();
 
             // Tier 1 Bazaar Merchant Stall
             var bazaarStall = GameObject.Find("Bazaar_Merchant_Stall");
@@ -291,7 +299,14 @@ namespace BattleSummoner.EditorScripts
                 var r = bazaarStall.GetComponent<Renderer>();
                 if (r != null) r.material.color = new Color(0.7f, 0.5f, 0.3f);
             }
+            if (!bazaarStall.GetComponent<DemoBazaarStallNode>()) bazaarStall.AddComponent<DemoBazaarStallNode>();
             bootstrapper.tier1BazaarMerchantStall = bazaarStall;
+
+            // Catherine in Guild Hall node component
+            if (catherineGo != null && !catherineGo.GetComponent<DemoCatherineGuildHallNode>())
+            {
+                catherineGo.AddComponent<DemoCatherineGuildHallNode>();
+            }
 
             // 8. Step 4: Test Dungeon, Mining & Boss Kaelen
             var step4Folder = GetOrCreateChild(rootGo.transform, "Step4_TestDungeonAndBoss");

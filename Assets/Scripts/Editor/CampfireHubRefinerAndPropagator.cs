@@ -258,11 +258,11 @@ namespace BattleSummoner.Editor
                 if (cam != null) cam.fieldOfView = 58f;
 
                 var camPan = camObj.GetComponent<CampfirePanoramicCameraController>();
-                if (camPan != null)
+                if (camPan == null)
                 {
-                    // Configure pan angle limit
-                    camPan.PanToAngle(0f);
+                    camPan = camObj.AddComponent<CampfirePanoramicCameraController>();
                 }
+                camPan.PanToAngle(0f);
             }
 
             // 7. Post-Processing Configuration (Depth of Field, Warm ACES, Gentle Vignette)
@@ -546,12 +546,33 @@ namespace BattleSummoner.Editor
         private static void ConfigureDialogueControllers(GameObject femaleActor, GameObject maleActor)
         {
             var hubControllerObj = GameObject.Find("DialogueHubController");
-            if (hubControllerObj == null) return;
+            if (hubControllerObj == null) hubControllerObj = new GameObject("DialogueHubController");
 
             var conversationHub = hubControllerObj.GetComponent<MultiCharacterConversationHub>();
+            if (conversationHub == null)
+            {
+                conversationHub = hubControllerObj.AddComponent<MultiCharacterConversationHub>();
+            }
+
+            var dualCtrl = hubControllerObj.GetComponent<CampfireDualDialogueController>();
+            if (dualCtrl == null)
+            {
+                dualCtrl = hubControllerObj.AddComponent<CampfireDualDialogueController>();
+            }
+
+            // Ensure SystemsManager
+            var sysMgr = GameObject.Find("SystemsManager");
+            if (sysMgr == null) sysMgr = new GameObject("SystemsManager");
+            if (sysMgr.GetComponent<BattleSummonerAudioMaster>() == null) sysMgr.AddComponent<BattleSummonerAudioMaster>();
+            if (sysMgr.GetComponent<ElevenLabsTTSBridge>() == null) sysMgr.AddComponent<ElevenLabsTTSBridge>();
+            if (sysMgr.GetComponent<UnfilteredDialoguePipeline>() == null) sysMgr.AddComponent<UnfilteredDialoguePipeline>();
+            if (sysMgr.GetComponent<BattleSummoner.Core.UnityThreadDispatcher>() == null) sysMgr.AddComponent<BattleSummoner.Core.UnityThreadDispatcher>();
+
             if (conversationHub != null)
             {
                 var serialized = new SerializedObject(conversationHub);
+                var playerObs = GameObject.Find("PlayerObserver");
+                if (playerObs != null) serialized.FindProperty("playerObserverTransform").objectReferenceValue = playerObs.transform;
                 var actorsProp = serialized.FindProperty("actors");
                 actorsProp.ClearArray();
 
