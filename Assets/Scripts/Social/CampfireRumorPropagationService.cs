@@ -59,6 +59,12 @@ public class CampfireRumorPropagationService : MonoBehaviour
             expirationUnixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (long)(validHours * 3600f)
         };
         myDiscoveredRumors.Add(rumor);
+
+        if (BattleSummoner.Core.OfflineFirstContinuityManager.Instance != null)
+        {
+            string json = JsonUtility.ToJson(rumor);
+            BattleSummoner.Core.OfflineFirstContinuityManager.Instance.EnqueueOfflineAction("RumorDiscovery", json);
+        }
     }
 
     /// <summary>

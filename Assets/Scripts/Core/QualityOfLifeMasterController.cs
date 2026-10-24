@@ -392,7 +392,7 @@ namespace BattleSummoner.Core
             }
 
             // Case 2: Campfire Hub / CampHub Direct Scene Warp
-            if (wp.name.Contains("Campfire Hub") || wp.name.Contains("CampHub"))
+            if (wp.name.Contains("Campfire Hub") || wp.name.Contains("CampHub") || wp.name.Contains("CampGroupChat"))
             {
                 TogglePause();
                 ShowToast("Resting at the Adventurers' Campfire Hub...");
@@ -402,7 +402,7 @@ namespace BattleSummoner.Core
                 }
                 else
                 {
-                    SceneManager.LoadScene("CampfireHub");
+                    SceneManager.LoadScene("CampGroupChat");
                 }
                 return;
             }

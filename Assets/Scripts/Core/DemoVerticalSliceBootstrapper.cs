@@ -62,6 +62,24 @@ namespace BattleSummoner.Core
                 return;
             }
             Instance = this;
+
+            EnsureOfflineContinuitySystems();
+        }
+
+        private void EnsureOfflineContinuitySystems()
+        {
+            if (OfflineFirstContinuityManager.Instance == null)
+            {
+                var go = new GameObject("OfflineFirstContinuityManager", typeof(OfflineFirstContinuityManager));
+            }
+            if (BattleSummoner.Social.AsynchronousClimberInfrastructureManager.Instance == null)
+            {
+                var go = new GameObject("AsynchronousClimberInfrastructureManager", typeof(BattleSummoner.Social.AsynchronousClimberInfrastructureManager));
+            }
+            if (OfflineAutopilotEngine.Instance == null)
+            {
+                var go = new GameObject("OfflineAutopilotEngine", typeof(OfflineAutopilotEngine));
+            }
         }
 
         private void Start()

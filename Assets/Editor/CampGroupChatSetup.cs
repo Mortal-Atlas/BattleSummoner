@@ -385,6 +385,9 @@ namespace BattleSummoner.EditorScripts
             sysMgr.AddComponent<ElevenLabsTTSBridge>();
             sysMgr.AddComponent<UnfilteredDialoguePipeline>();
             sysMgr.AddComponent<BattleSummoner.Core.UnityThreadDispatcher>();
+            sysMgr.AddComponent<BattleSummoner.Core.OfflineFirstContinuityManager>();
+            sysMgr.AddComponent<BattleSummoner.Social.AsynchronousClimberInfrastructureManager>();
+            sysMgr.AddComponent<OfflineAutopilotEngine>();
 
             // Ensure EventSystem
             if (UnityEngine.Object.FindAnyObjectByType<UnityEngine.EventSystems.EventSystem>() == null)

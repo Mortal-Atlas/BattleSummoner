@@ -46,8 +46,14 @@ public class TradingSystem : MonoBehaviour
             buyer.manaCoresBankBalance -= systemParametricPrice;
             
             int burnFee = Mathf.RoundToInt(systemParametricPrice * 0.05f);
-            seller.manaCoresBankBalance += (systemParametricPrice - burnFee);
         }
+
+        if (BattleSummoner.Core.OfflineFirstContinuityManager.Instance != null)
+        {
+            string json = $"{{\"seller\":\"{seller.entityName}\",\"buyer\":\"{buyer.entityName}\",\"cores\":{itemValueCores},\"isP2P\":{isPlayerToPlayer.ToString().ToLower()}}}";
+            BattleSummoner.Core.OfflineFirstContinuityManager.Instance.EnqueueOfflineAction("PlayerTrade", json);
+        }
+
         return true;
     }
 }
