@@ -164,6 +164,7 @@ namespace BattleSummoner.Optimization
             RegisterHierarchyChildren("City_Perimeter_16Towers", towerCullDistance);
             RegisterHierarchyChildren("Arena_Destructible_Pillars_Root", 200f);
             RegisterSingleObject("Courtyard_PracticeDummy_Armored", 150f);
+            RegisterHierarchyChildren("--- CONTINENTAL_RURAL_TOWNS_AND_RUINS ---", metroHouseCullDistance);
 
             // 8. Register All Real-Time Point Lights for Distance Culling
             int lanternMask = LayerMask.GetMask("Default", "Props_Details");
