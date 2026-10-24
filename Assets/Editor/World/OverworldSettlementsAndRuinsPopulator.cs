@@ -187,8 +187,8 @@ namespace BattleSummoner.World
         {
             Vector3 center = new Vector3(850f, 0f, 800f);
 
-            // Sacred Arcane Spire set as the majestic backdrop rising behind the sanctum
-            SpawnProp("Assets/Models/Metropolis/Prop_ArcaneSpire_MagesQuarter.fbx", parent, center + new Vector3(0f, 0f, 16f), 0f, 1.35f, terrainCol, 0f, false, _matCathedralStone);
+            // Sacred Arcane Spire with native marble and glowing arcane runes
+            SpawnProp("Assets/Models/Metropolis/Prop_ArcaneSpire_MagesQuarter.fbx", parent, center + new Vector3(0f, 0f, 16f), 0f, 1.35f, terrainCol);
 
             // Temple Sacred Altar: Crystal Pedestal, Mana Crystals & Spellbook Lectern
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Wizard_CrystalPedestal.prefab", parent, center + new Vector3(0f, 0f, -2f), 0f, 1.6f, terrainCol);
@@ -213,11 +213,9 @@ namespace BattleSummoner.World
                 SpawnPillar(parent, center + off, 1.3f, 8.5f, _matMarble, terrainCol);
             }
 
-            // Sakura Stone Planter Rings filled with blooming flowers
-            SpawnProp("Assets/Prefabs/MeshyProps/Prop_SakuraStonePlanterRing.prefab", parent, center + new Vector3(-14f, 0f, -2f), 0f, 1.25f, terrainCol);
-            SpawnProp("Assets/Prefabs/MeshyProps/Prop_SakuraStonePlanterRing.prefab", parent, center + new Vector3(14f, 0f, -2f), 0f, 1.25f, terrainCol);
-
-            // Stone prayer benches
+            // Stone prayer benches and flower planters flush with the summit
+            SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(-11f, 0f, 0f), 90f, 1.2f, terrainCol);
+            SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(11f, 0f, 0f), -90f, 1.2f, terrainCol);
             SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(-8f, 0f, -12f), 45f, 1.15f, terrainCol);
             SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(8f, 0f, -12f), -45f, 1.15f, terrainCol);
 
@@ -404,7 +402,7 @@ namespace BattleSummoner.World
             SpawnProp("Assets/Prefabs/Overworld/Cliff_Boulder.prefab", parent, center + new Vector3(-3f, 0f, 16f), 15f, 0.0020f, terrainCol);
 
             // Hidden Relic Treasure Cache
-            SpawnProp("Assets/Models/TownProps/Prop_GoldCoinsChest.fbx", parent, center + new Vector3(-2f, 0f, -2f), 45f, 1.4f, terrainCol);
+            SpawnProp("Assets/CobraGamesAssets/Stylized_Dungeon_Props_Pack/Models/Chest_Empty_low.fbx", parent, center + new Vector3(-2f, 0f, -2f), 45f, 1.4f, terrainCol, 0f, false, _matMossyChest);
             SpawnProp("Assets/Models/TownProps/Prop_ManaCrystals_Cluster.fbx", parent, center + new Vector3(3.5f, 0f, -3f), -20f, 1.5f, terrainCol);
             SpawnProp("Assets/Models/TownProps/Prop_WoodenBarrelsCrates.fbx", parent, center + new Vector3(-6f, 0f, -4f), 10f, 1.2f, terrainCol);
 
@@ -427,34 +425,37 @@ namespace BattleSummoner.World
         {
             Vector3 center = new Vector3(-500f, 0f, -700f);
 
-            // Majestic 17-meter Stone Arch Bridge spanning along the riverbank
-            SpawnProp("Assets/Models/Environment/FantasyStoneArchBridge.fbx", parent, center + new Vector3(14f, 0f, 12f), -40f, 1.0f, terrainCol, 0f, false, _matArchBridgeStone);
-
-            // 2 Solitary Hermitage Cottages
+            // 3 Secluded Hermitage Cottages
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Medieval_ArtisanRow.prefab", parent, center + new Vector3(-14f, 0f, 8f), 60f, 5.0f, terrainCol);
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Merchant_HarborManse.prefab", parent, center + new Vector3(8f, 0f, -14f), -110f, 4.8f, terrainCol);
+            SpawnHouse("Assets/Prefabs/Houses/PFB_House_Alchemist_Apothecary.prefab", parent, center + new Vector3(16f, 0f, 10f), -45f, 4.8f, terrainCol);
 
-            // Hermit Shrine: Altar & Mana Crystals
+            // Hermit Shrine: Altar, Spellbook Lectern & Mana Crystals
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Wizard_CrystalPedestal.prefab", parent, center + new Vector3(-2f, 0f, 14f), 0f, 1.4f, terrainCol);
             SpawnProp("Assets/Models/TownProps/Prop_ManaCrystals_Cluster.fbx", parent, center + new Vector3(-1f, 0f, 14f), 25f, 1.2f, terrainCol);
+            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Wizard_SpellbookLectern.prefab", parent, center + new Vector3(-3.5f, 0f, 13f), 30f, 1.2f, terrainCol);
 
-            // Hermit Well, Firewood, and Benches
+            // Hermit Well, Firewood, Dining Table, and Benches
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_VillageWell.prefab", parent, center + new Vector3(0f, 0f, 0f), 0f, 1.3f, terrainCol);
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_FirewoodStack.prefab", parent, center + new Vector3(-8f, 0f, 12f), 30f, 1.3f, terrainCol);
-            SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(4f, 0f, 6f), -30f, 1.1f, terrainCol);
-            SpawnProp("Assets/Models/TownProps/Prop_WoodenBarrelsCrates.fbx", parent, center + new Vector3(7f, 0f, 2f), -15f, 1.1f, terrainCol);
+            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Tavern_DiningTableSet.prefab", parent, center + new Vector3(8f, 0f, 2f), -20f, 1.25f, terrainCol);
+            SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(3f, 0f, 8f), -30f, 1.1f, terrainCol);
+            SpawnProp("Assets/Models/TownProps/Prop_WoodenBarrelsCrates.fbx", parent, center + new Vector3(12f, 0f, -4f), -15f, 1.1f, terrainCol);
+
+            // Rustic Wooden Fence Enclosure
+            BuildRusticFenceEnclosure(parent, center, 28f, terrainCol);
 
             // Lanterns
             SpawnLantern(parent, center + new Vector3(-2f, 0f, -4f), terrainCol);
             SpawnLantern(parent, center + new Vector3(10f, 0f, 8f), terrainCol);
 
-            // Riverbank Stepping Path connecting cottage to well, bridge, and shrine
+            // Stepping Path connecting cottages to well, dining table, and shrine
             SpawnStoneTrail(parent, center + new Vector3(-10f, 0f, 6f), center, 6, _matStone, terrainCol, 1.2f);
-            SpawnStoneTrail(parent, center, center + new Vector3(12f, 0f, 10f), 8, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(12f, 0f, 8f), 8, _matStone, terrainCol, 1.2f);
             SpawnStoneTrail(parent, center, center + new Vector3(-2f, 0f, 12f), 7, _matStone, terrainCol, 1.2f);
 
-            // Living Hermit NPC standing on the stone bridge
-            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(13f, 0f, 11f), -40f, terrainCol, "NPC_Hermit_Elden");
+            // Living Hermit NPC standing gracefully beside his altar and well
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(2f, 0f, 4f), -40f, terrainCol, "NPC_Hermit_Elden");
         }
 
         // =========================================================================
