@@ -211,7 +211,11 @@ namespace BattleSummoner.Animation
 
         private void Update()
         {
+#if UNITY_EDITOR
             float t = (Application.isPlaying ? Time.time : (float)UnityEditor.EditorApplication.timeSinceStartup) + randomOffset;
+#else
+            float t = Time.time + randomOffset;
+#endif
 
             // Check if NPC is actively in dialogue with the player
             bool isTalking = _interactable != null && _interactable.IsCurrentlyTalking;

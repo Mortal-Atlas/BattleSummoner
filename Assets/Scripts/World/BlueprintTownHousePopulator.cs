@@ -344,6 +344,7 @@ namespace BattleSummoner.World
 
         private void ApplyStylingAndColliders(GameObject go)
         {
+#if UNITY_EDITOR
             // Call Aethelburg material application if available
             try
             {
@@ -353,6 +354,7 @@ namespace BattleSummoner.World
             {
                 // Fallback safe if outside editor
             }
+#endif
 
             // Ensure corrected meshes and colliders exist on building meshes
             var meshFilters = go.GetComponentsInChildren<MeshFilter>(true);

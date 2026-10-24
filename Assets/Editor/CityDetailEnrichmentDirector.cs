@@ -138,12 +138,12 @@ namespace BattleSummoner.EditorScripts
 
             Vector3[] squareCoords = new Vector3[]
             {
-                new Vector3(-130f, 40f, -95f),
-                new Vector3(-105f, 40f, -135f),
-                new Vector3(250f, 38f, 70f),
-                new Vector3(-240f, 38f, 90f),
-                new Vector3(180f, 22f, 350f),
-                new Vector3(-280f, 22f, -280f)
+                new Vector3(-130f, 40.78f, -95f),
+                new Vector3(-105f, 39.80f, -135f),
+                new Vector3(250f, 23.12f, 70f),
+                new Vector3(-240f, 25.89f, 90f),
+                new Vector3(180f, 8.24f, 350f),
+                new Vector3(-280f, 9.58f, -280f)
             };
 
             for (int i = 0; i < squareCoords.Length; i++)
@@ -154,7 +154,11 @@ namespace BattleSummoner.EditorScripts
                 sqGo.transform.position = center;
 
                 var mainStructure = (i % 2 == 0) ? boothPrefab : tentPrefab;
-                SpawnSnapped(mainStructure, sqGo, center + new Vector3(0f, 0f, 3.5f), 180f, 1.0f);
+                float structScale = (i % 2 == 0) ? 1.35f : 1.0f;
+                float structYaw = (i % 2 == 0) ? 0f : 180f; // Booth front counter faces plaza (-Z), Tent entrance faces plaza
+                float structYOffset = (i % 2 == 0) ? (0.87f * 1.35f) : 0f; // Booth pivot is at center, offset Y so feet rest on ground
+
+                SpawnSnapped(mainStructure, sqGo, center + new Vector3(0f, structYOffset, 3.5f), structYaw, structScale);
                 SpawnSnapped(tablePrefab, sqGo, center + new Vector3(-2.5f, 0f, 0.5f), 90f, 1.0f);
                 SpawnSnapped(clayPotPrefab, sqGo, center + new Vector3(-2.5f, 0f, 0.8f), 0f, 0.9f);
                 SpawnSnapped(cratesPrefab, sqGo, center + new Vector3(2.5f, 0f, 1.2f), -15f, 1.0f);
@@ -279,8 +283,9 @@ namespace BattleSummoner.EditorScripts
             var ropePrefab = LoadPrefab("Assets/Medieval Props Pack 01/Universal Render Pipeline(URP)/Prefabs/Rope.prefab");
 
             // Merchant Booths & Pavilions
-            SpawnSnapped(boothPrefab, dRoot, new Vector3(10.5f, 40f, -164.0f), 20f, 1.0f);
-            SpawnSnapped(boothPrefab, dRoot, new Vector3(18.5f, 40f, -164.5f), -20f, 1.0f);
+            float boothOffset = 0.87f * 1.35f;
+            SpawnSnapped(boothPrefab, dRoot, new Vector3(10.5f, 40.68f + boothOffset, -164.0f), 0f, 1.35f);
+            SpawnSnapped(boothPrefab, dRoot, new Vector3(18.5f, 40.43f + boothOffset, -164.5f), 0f, 1.35f);
             SpawnSnapped(tentPrefab, dRoot, new Vector3(22.0f, 40f, -174.0f), -45f, 1.1f);
             SpawnSnapped(handcartPrefab, dRoot, new Vector3(7.5f, 40f, -165.0f), 35f, 1.0f);
             SpawnSnapped(handcartPrefab, dRoot, new Vector3(16.0f, 40f, -179.5f), 170f, 1.0f);
@@ -639,8 +644,8 @@ namespace BattleSummoner.EditorScripts
 
         private static Vector3 SnapToGround(Vector3 targetPos)
         {
-            Vector3 origin = new Vector3(targetPos.x, targetPos.y + 15f, targetPos.z);
-            RaycastHit[] hits = Physics.RaycastAll(origin, Vector3.down, 35f);
+            Vector3 origin = new Vector3(targetPos.x, targetPos.y + 40f, targetPos.z);
+            RaycastHit[] hits = Physics.RaycastAll(origin, Vector3.down, 100f);
 
             float bestY = targetPos.y;
             float minDiff = float.MaxValue;
@@ -652,13 +657,14 @@ namespace BattleSummoner.EditorScripts
                 // Filter out non-ground obstacles
                 if (n.Contains("npc") || n.Contains("character") || n.Contains("roof") || 
                     n.Contains("wall") || n.Contains("astrolabe") || n.Contains("bench") || 
-                    n.Contains("gate") || n.Contains("curtain") || n.Contains("door"))
+                    n.Contains("gate") || n.Contains("curtain") || n.Contains("door") ||
+                    n.Contains("drum") || n.Contains("foundation"))
                 {
                     continue;
                 }
 
                 float diff = Mathf.Abs(h.point.y - targetPos.y);
-                if (diff < minDiff && diff < 4.5f)
+                if (diff < minDiff)
                 {
                     minDiff = diff;
                     bestY = h.point.y;

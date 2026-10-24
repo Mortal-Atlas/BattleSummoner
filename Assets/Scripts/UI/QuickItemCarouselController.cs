@@ -163,14 +163,22 @@ public class QuickItemCarouselController : MonoBehaviour, IBeginDragHandler, IDr
         items = new List<QuickItemData>();
 
         // Load potions
-        var red = Resources.Load<Sprite>("UI/Mockup_PotionRed") 
-                  ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionRed.png");
-        var blue = Resources.Load<Sprite>("UI/Mockup_PotionBlue") 
-                   ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionBlue.png");
-        var amber = Resources.Load<Sprite>("UI/Mockup_PotionAmber") 
-                    ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionAmber.png");
-        var elixir = Resources.Load<Sprite>("UI/Mockup_PotionElixir") 
-                     ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionElixir.png");
+        Sprite red = Resources.Load<Sprite>("UI/Mockup_PotionRed");
+#if UNITY_EDITOR
+        if (red == null) red = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionRed.png");
+#endif
+        Sprite blue = Resources.Load<Sprite>("UI/Mockup_PotionBlue");
+#if UNITY_EDITOR
+        if (blue == null) blue = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionBlue.png");
+#endif
+        Sprite amber = Resources.Load<Sprite>("UI/Mockup_PotionAmber");
+#if UNITY_EDITOR
+        if (amber == null) amber = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionAmber.png");
+#endif
+        Sprite elixir = Resources.Load<Sprite>("UI/Mockup_PotionElixir");
+#if UNITY_EDITOR
+        if (elixir == null) elixir = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/UI/Mockup_PotionElixir.png");
+#endif
 
         items.Add(new QuickItemData
         {

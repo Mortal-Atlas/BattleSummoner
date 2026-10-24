@@ -27,15 +27,15 @@ namespace BattleSummoner.WorldGen
             Material stoneMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Metropolis/M_Metro_StoneBase.mat");
             if (stoneMat == null) stoneMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/M_Metro_StoneBase.mat");
 
-            Material waterMat = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Metropolis/M_Metro_CascadeWater.mat");
+            // Moat water is unified with Outerwilds_Ocean_Water at Y = 18.0m to prevent duplicate surface Z-fighting
+            var existingRing = root.transform.Find("Water_ConcentricMoat_Ring");
+            if (existingRing != null) Undo.DestroyObjectImmediate(existingRing.gameObject);
 
-            // 1. Concentric Moat Water Ring (R = 535m outer, Y = 18m)
-            GameObject moatWater = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            moatWater.name = "Water_ConcentricMoat_Ring";
-            moatWater.transform.SetParent(root.transform, false);
-            moatWater.transform.position = new Vector3(0f, 18.0f, 0f);
-            moatWater.transform.localScale = new Vector3(1070f, 0.5f, 1070f);
-            if (waterMat != null) moatWater.GetComponent<Renderer>().sharedMaterial = waterMat;
+            var oceanObj = GameObject.Find("Outerwilds_Ocean_Water");
+            if (oceanObj != null)
+            {
+                oceanObj.transform.position = new Vector3(0f, 18.0f, 0f);
+            }
 
             // 2. Cut-Stone Retaining Wall Collars + Cobblestone Plazas covering raw dirt tiers
             float[] radii = { 450f, 310f, 195f, 95f };

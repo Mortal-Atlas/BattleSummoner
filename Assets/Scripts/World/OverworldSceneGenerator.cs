@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,11 +7,8 @@ using BattleSummoner.Combat;
 using BattleSummoner.World;
 using BattleSummoner.Audio;
 using BattleSummoner.UI;
-
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
-#endif
 
 namespace BattleSummoner.World
 {
@@ -918,3 +916,4 @@ namespace BattleSummoner.World
         }
     }
 }
+#endif
