@@ -8,10 +8,14 @@ using UnityEngine.Rendering;
 namespace BattleSummoner.World
 {
     /// <summary>
-    /// Populates the expansive continent of BattleSummoner with rich, atmospheric rural towns,
-    /// farmhouses, hilltop temples & shrines, and ancient abandoned ruins.
-    /// Uses dynamic bounding-box ground snapping against CircularContinent_MacroLevel1 so all
-    /// houses, ruins, and props sit flush with the terrain (no sunken foundations, no floating).
+    /// Master Overworld World Refinement Populator
+    /// Populates and refines the expansive continent of BattleSummoner:
+    /// - 6 living rural towns, farmhouses, mountaintop temples, and ancient ruins.
+    /// - 4 regional crossroads with directional signposts, lanterns, and rest stops.
+    /// - Animated fantasy NPCs with living idle animation cycles at every settlement.
+    /// - Flagstone stepping paver walking trails connecting houses, wells, gates, and altars.
+    /// - Interactive world props: horse carts, bakery displays, alchemy benches, tool racks.
+    /// - Precision dynamic bounds ground-snapping flush to CircularContinent_MacroLevel1.
     /// </summary>
     public static class OverworldSettlementsAndRuinsPopulator
     {
@@ -86,12 +90,17 @@ namespace BattleSummoner.World
             ClearVegetationInRadius(new Vector3(-500f, 0f, -700f), 36f);
             BuildWhisperingHermitage(hermitage.transform, terrainCol);
 
+            // 7. Continental Crossroads, Road Signposts & Traveller Waypoints
+            GameObject waypoints = new GameObject("07_Continental_Crossroads_And_Waypoints");
+            waypoints.transform.SetParent(root.transform, false);
+            BuildContinentalCrossroads(waypoints.transform, terrainCol);
+
             // Mark Scene Dirty and Save
             var activeScene = EditorSceneManager.GetActiveScene();
             EditorSceneManager.MarkSceneDirty(activeScene);
             EditorSceneManager.SaveScene(activeScene);
 
-            Debug.Log($"🏡 [OverworldSettlements] Successfully populated 6 continental POIs under '{RootName}'.");
+            Debug.Log($"🏡 [OverworldSettlements] Successfully populated & refined continental world under '{RootName}'.");
         }
 
         // =========================================================================
@@ -104,8 +113,9 @@ namespace BattleSummoner.World
             // Village Well at center
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_VillageWell.prefab", parent, center, 0f, 1.4f, terrainCol);
 
-            // Village Market Booth facing square
+            // Village Market Booth facing square with Bakery Display
             SpawnProp("Assets/Prefabs/Overworld/Market_Booth.prefab", parent, center + new Vector3(6f, 0f, -5f), 15f, 1.35f, terrainCol);
+            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Bakery_PastryDisplay.prefab", parent, center + new Vector3(6f, 0f, -4.2f), 15f, 1.1f, terrainCol);
             SpawnProp("Assets/Prefabs/MeshyProps/Prop_MarketMerchantSet_CratesAndBaskets.prefab", parent, center + new Vector3(10f, 0f, -4f), 35f, 1.2f, terrainCol);
             SpawnProp("Assets/Models/TownProps/Prop_WoodenBarrelsCrates.fbx", parent, center + new Vector3(4f, 0f, -9f), 0f, 1.1f, terrainCol);
 
@@ -126,6 +136,13 @@ namespace BattleSummoner.World
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Merchant_HarborManse.prefab", parent, center + new Vector3(0f, 0f, -24f), 0f, 5.0f, terrainCol);
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Medieval_ArtisanRow.prefab", parent, center + new Vector3(-24f, 0f, 0f), 90f, 5.2f, terrainCol);
 
+            // Herbalist Apothecary Outdoor Distillation Bench
+            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Alchemy_DistillationBench.prefab", parent, center + new Vector3(18f, 0f, -4f), 0f, 1.15f, terrainCol);
+
+            // Wooden Horse Cart loaded with harvest produce
+            SpawnProp("Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Horse_Cart_Used_02.prefab", parent, center + new Vector3(-14f, 0f, 16f), -35f, 1.0f, terrainCol);
+            SpawnProp("Assets/Models/TownProps/Prop_WoodenBarrelsCrates.fbx", parent, center + new Vector3(-11f, 0f, 16f), 15f, 1.1f, terrainCol);
+
             // Firewood stacks & tool racks
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_FirewoodStack.prefab", parent, center + new Vector3(18f, 0f, 14f), 0f, 1.3f, terrainCol);
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_FirewoodStack.prefab", parent, center + new Vector3(-16f, 0f, -14f), 45f, 1.3f, terrainCol);
@@ -133,6 +150,18 @@ namespace BattleSummoner.World
 
             // Split-rail wooden fence surrounding the farmstead
             BuildRusticFenceEnclosure(parent, center, 32f, terrainCol);
+
+            // Walking Trails: connecting gate to well, houses, and market booth
+            SpawnStoneTrail(parent, center + new Vector3(0f, 0f, -32f), center, 14, _matStone, terrainCol, 1.4f);
+            SpawnStoneTrail(parent, center, center + new Vector3(0f, 0f, 20f), 10, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(20f, 0f, 0f), 10, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(-20f, 0f, 0f), 10, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(6f, 0f, -5f), 6, _matStone, terrainCol, 1.2f);
+
+            // Living Villager NPCs
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(-12f, 0f, 14f), 45f, terrainCol, "NPC_Farmer_Giles");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Female.prefab", parent, center + new Vector3(16f, 0f, -3f), -45f, terrainCol, "NPC_Herbalist_Elise");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(-3f, 0f, 2f), -135f, terrainCol, "NPC_Villager_Bram");
         }
 
         // =========================================================================
@@ -150,7 +179,7 @@ namespace BattleSummoner.World
             SpawnProp("Assets/Models/TownProps/Prop_ManaCrystals_Cluster.fbx", parent, center + new Vector3(1.2f, 0f, -9f), 30f, 1.4f, terrainCol);
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Wizard_SpellbookLectern.prefab", parent, center + new Vector3(-1.8f, 0f, -8f), 20f, 1.3f, terrainCol);
 
-            // Stone Stairs leading to the Altar (scaled to 12m wide from 10k raw export)
+            // Stone Stairs leading to the Altar
             SpawnProp("Assets/Prefabs/Overworld/Stone_Stairs.prefab", parent, center + new Vector3(0f, 0f, -16f), 0f, 0.0012f, terrainCol);
 
             // 4 Grand Marble Temple Pillars framing the sanctum
@@ -178,6 +207,15 @@ namespace BattleSummoner.World
             SpawnLantern(parent, center + new Vector3(6f, 0f, -22f), terrainCol, new Color(0.25f, 0.75f, 1.0f), 3.0f, 16f);
             SpawnLantern(parent, center + new Vector3(-16f, 0f, 4f), terrainCol, new Color(0.25f, 0.75f, 1.0f), 2.5f, 14f);
             SpawnLantern(parent, center + new Vector3(16f, 0f, 4f), terrainCol, new Color(0.25f, 0.75f, 1.0f), 2.5f, 14f);
+
+            // Sacred Marble Processional Trail
+            SpawnStoneTrail(parent, center + new Vector3(0f, 0f, -24f), center + new Vector3(0f, 0f, -10f), 12, _matMarble, terrainCol, 1.6f);
+            SpawnStoneTrail(parent, center + new Vector3(-10f, 0f, -18f), center + new Vector3(0f, 0f, -12f), 6, _matMarble, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center + new Vector3(10f, 0f, -18f), center + new Vector3(0f, 0f, -12f), 6, _matMarble, terrainCol, 1.2f);
+
+            // Temple Priestess & Acolyte NPCs
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Female.prefab", parent, center + new Vector3(0f, 0f, -7.2f), 0f, terrainCol, "NPC_Priestess_Alyssa");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(-9.5f, 0f, -17f), 60f, terrainCol, "NPC_Acolyte_Kael");
         }
 
         // =========================================================================
@@ -203,6 +241,9 @@ namespace BattleSummoner.World
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Medieval_ArtisanRow.prefab", parent, center + new Vector3(6f, 0f, -22f), 5f, 5.2f, terrainCol);
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Alchemist_Apothecary.prefab", parent, center + new Vector3(-12f, 0f, -20f), 25f, 4.8f, terrainCol);
 
+            // Alchemy Bench outside Apothecary
+            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Alchemy_DistillationBench.prefab", parent, center + new Vector3(-7f, 0f, -18f), 25f, 1.15f, terrainCol);
+
             // Benches & Planters
             SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(-2f, 0f, 8f), 0f, 1.15f, terrainCol);
             SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", parent, center + new Vector3(10f, 0f, -4f), 90f, 1.15f, terrainCol);
@@ -215,6 +256,17 @@ namespace BattleSummoner.World
 
             // Rustic Fence Enclosure around the perimeter
             BuildRusticFenceEnclosure(parent, center, 30f, terrainCol);
+
+            // Stone Walking Trails
+            SpawnStoneTrail(parent, center + new Vector3(0f, 0f, -30f), center, 14, _matStone, terrainCol, 1.35f);
+            SpawnStoneTrail(parent, center, center + new Vector3(-12f, 0f, -5f), 7, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(7f, 0f, 4f), 6, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(15f, 0f, 13f), 10, _matStone, terrainCol, 1.2f);
+
+            // Village Guard, Merchant, and Pilgrim NPCs
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_CityGuard.prefab", parent, center + new Vector3(0f, 0f, -28f), 180f, terrainCol, "NPC_Eastwatch_Sentry");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(-11f, 0f, -4f), 45f, terrainCol, "NPC_Merchant_Rowan");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Female.prefab", parent, center + new Vector3(8.2f, 0f, 4.2f), -75f, terrainCol, "NPC_Pilgrim_Lyra");
         }
 
         // =========================================================================
@@ -232,10 +284,21 @@ namespace BattleSummoner.World
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Blacksmith_CoalBasin.prefab", parent, center + new Vector3(-7.5f, 0f, 7.5f), 0f, 1.3f, terrainCol);
             SpawnLantern(parent, center + new Vector3(-7.5f, 0f, 7.5f), terrainCol, new Color(1.0f, 0.45f, 0.1f), 3.5f, 12f);
 
+            // Hanging Blacksmithing Sign
+            SpawnProp("Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Blacksmithing_Sign_03.prefab", parent, center + new Vector3(-2f, 0f, 2f), -45f, 0.9f, terrainCol);
+
+            // Leaning Work Tools (Pickaxe, Shovel, Iron Axe)
+            SpawnProp("Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Pickaxe_Used_04_Iron.prefab", parent, center + new Vector3(-2.8f, 0f, 5.5f), 20f, 1.2f, terrainCol);
+            SpawnProp("Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Shovel_Used_03_Iron.prefab", parent, center + new Vector3(-2.4f, 0f, 5.2f), -15f, 1.2f, terrainCol);
+            SpawnProp("Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Axe_Used_07_Iron.prefab", parent, center + new Vector3(-9.2f, 0f, 5.2f), 30f, 1.2f, terrainCol);
+
             // Firewood Stacks & Weapon Racks
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_FirewoodStack.prefab", parent, center + new Vector3(-12f, 0f, 2f), 15f, 1.4f, terrainCol);
             SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_FirewoodStack.prefab", parent, center + new Vector3(-12f, 0f, -4f), 0f, 1.4f, terrainCol);
-            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_WeaponRack.prefab", parent, center + new Vector3(-2f, 0f, 5f), -45f, 1.2f, terrainCol);
+            SpawnProp("Assets/Prefabs/Overworld/Props/PFB_Medieval_WeaponRack.prefab", parent, center + new Vector3(-1f, 0f, 6.5f), -45f, 1.2f, terrainCol);
+
+            // Wooden Timber Wagon
+            SpawnProp("Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Horse_Cart_Used_02.prefab", parent, center + new Vector3(5f, 0f, -14f), 75f, 1.0f, terrainCol);
 
             // 3 Mountain Timber Chalets
             SpawnHouse("Assets/Prefabs/Houses/PFB_House_Medieval_ArtisanRow.prefab", parent, center + new Vector3(16f, 0f, 14f), -125f, 5.2f, terrainCol);
@@ -256,6 +319,16 @@ namespace BattleSummoner.World
 
             // Rustic Fence Enclosure
             BuildRusticFenceEnclosure(parent, center, 32f, terrainCol);
+
+            // Walking Trails
+            SpawnStoneTrail(parent, center + new Vector3(0f, 0f, -32f), center, 14, _matStone, terrainCol, 1.3f);
+            SpawnStoneTrail(parent, center, center + new Vector3(-5f, 0f, 4f), 6, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(14f, 0f, 11f), 9, _matStone, terrainCol, 1.2f);
+
+            // Blacksmith, Scout, and Chalet Keeper NPCs
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(-4f, 0f, 4.2f), -135f, terrainCol, "NPC_Blacksmith_Bronn");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_CityGuard.prefab", parent, center + new Vector3(26f, 0f, 0f), -90f, terrainCol, "NPC_Highland_Scout");
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Female.prefab", parent, center + new Vector3(17f, 0f, -10f), -60f, terrainCol, "NPC_Chalet_Keeper");
         }
 
         // =========================================================================
@@ -290,7 +363,7 @@ namespace BattleSummoner.World
             SpawnProp("Assets/Models/TownProps/Prop_WeatheredBoulders.fbx", parent, center + new Vector3(16f, 0f, -16f), -40f, 1.8f, terrainCol);
             SpawnProp("Assets/Prefabs/Overworld/Cliff_Boulder.prefab", parent, center + new Vector3(-18f, 0f, -6f), 20f, 0.0014f, terrainCol);
 
-            // Ancient Stone Stairs leading to ruined wall (scaled to 12m wide from 10k raw export)
+            // Ancient Stone Stairs leading to ruined wall
             SpawnProp("Assets/Prefabs/Overworld/Stone_Stairs.prefab", parent, center + new Vector3(-8f, 0f, 6f), 115f, 0.0012f, terrainCol);
 
             // Hidden Relic Treasure Cache
@@ -302,6 +375,12 @@ namespace BattleSummoner.World
             SpawnLantern(parent, center + new Vector3(-12f, 0f, 0f), terrainCol, new Color(0.2f, 1.0f, 0.6f), 2.5f, 15f);
             SpawnLantern(parent, center + new Vector3(12f, 0f, 0f), terrainCol, new Color(0.2f, 1.0f, 0.6f), 2.5f, 15f);
             SpawnLantern(parent, center + new Vector3(0f, 0f, 14f), terrainCol, new Color(0.2f, 1.0f, 0.6f), 2.5f, 15f);
+
+            // Ruin Stone Walking Path leading to treasure cache
+            SpawnStoneTrail(parent, center + new Vector3(0f, 0f, -20f), center + new Vector3(0f, 0f, -3f), 10, _matStone, terrainCol, 1.4f);
+
+            // Relic Archaeologist NPC
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(-1.2f, 0f, -3.2f), 45f, terrainCol, "NPC_Archaeologist_Valen");
         }
 
         // =========================================================================
@@ -331,10 +410,38 @@ namespace BattleSummoner.World
             // Lanterns
             SpawnLantern(parent, center + new Vector3(-2f, 0f, -4f), terrainCol);
             SpawnLantern(parent, center + new Vector3(10f, 0f, 8f), terrainCol);
+
+            // Riverbank Stepping Path connecting cottage to well, bridge, and shrine
+            SpawnStoneTrail(parent, center + new Vector3(-10f, 0f, 6f), center, 6, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(12f, 0f, 12f), 8, _matStone, terrainCol, 1.2f);
+            SpawnStoneTrail(parent, center, center + new Vector3(-2f, 0f, 12f), 7, _matStone, terrainCol, 1.2f);
+
+            // Hermit NPC on the stone bridge
+            SpawnNPC("Assets/Prefabs/NPCs/NPC_Citizen_Male.prefab", parent, center + new Vector3(14f, 0f, 13f), -45f, terrainCol, "NPC_Hermit_Elden");
         }
 
         // =========================================================================
-        // HELPER UTILITIES: VEGETATION CLEARING, FENCES, PILLARS & LIGHTS
+        // 7. CONTINENTAL CROSSROADS, ROAD SIGNPOSTS & TRAVELLER WAYPOINTS
+        // =========================================================================
+        private static void BuildContinentalCrossroads(Transform parent, Collider terrainCol)
+        {
+            // 4 Major Travel Crossroads connecting the central Metropolis outward
+            var crossroads = new (string name, Vector3 pos, float yaw, string armA, string armB)[]
+            {
+                ("SE_Oakhaven_Crossroads", new Vector3(510f, 0f, -580f), 35f, "Aethelburg Citadel", "Oakhaven Hamlet"),
+                ("NE_Pilgrim_Crossroads", new Vector3(510f, 0f, 550f), -45f, "Four Winds Temple", "Eastwatch Village"),
+                ("NW_Highland_Crossroads", new Vector3(-480f, 0f, 510f), 135f, "Highland Forge", "Aethelburg Citadel"),
+                ("SW_Ruins_Crossroads", new Vector3(-480f, 0f, -640f), -125f, "Sunken Citadel", "Whispering Hermitage")
+            };
+
+            foreach (var cr in crossroads)
+            {
+                SpawnCrossroadsSignpost(parent, cr.pos, cr.yaw, cr.name, terrainCol, cr.armA, cr.armB);
+            }
+        }
+
+        // =========================================================================
+        // HELPER UTILITIES: VEGETATION CLEARING, FENCES, PILLARS, PATHS & NPCS
         // =========================================================================
 
         private static void ClearVegetationInRadius(Vector3 center, float radius)
@@ -453,6 +560,101 @@ namespace BattleSummoner.World
                 railBot.transform.localScale = new Vector3(0.12f, 0.12f, segLen);
                 if (_matWood != null) railBot.GetComponent<Renderer>().sharedMaterial = _matWood;
             }
+        }
+
+        private static void SpawnStoneTrail(Transform parent, Vector3 start, Vector3 end, int stepCount, Material mat, Collider terrainCol, float width = 1.3f)
+        {
+            GameObject trailRoot = new GameObject("Stone_Paver_Trail");
+            trailRoot.transform.SetParent(parent, false);
+
+            for (int i = 0; i <= stepCount; i++)
+            {
+                float t = (float)i / stepCount;
+                Vector3 pos = Vector3.Lerp(start, end, t);
+
+                // Subtle organic offset
+                float jitterX = (Mathf.PerlinNoise(pos.x * 0.12f, pos.z * 0.12f) - 0.5f) * 0.5f;
+                float jitterZ = (Mathf.PerlinNoise(pos.z * 0.12f, pos.x * 0.12f) - 0.5f) * 0.5f;
+                pos.x += jitterX;
+                pos.z += jitterZ;
+
+                float groundY = GetGroundY(pos, terrainCol);
+                pos.y = groundY + 0.02f; // Snugly cresting terrain surface
+
+                GameObject paver = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                paver.name = $"Paver_{i}";
+                paver.transform.SetParent(trailRoot.transform, false);
+                paver.transform.position = pos;
+                float d = width * UnityEngine.Random.Range(0.85f, 1.15f);
+                paver.transform.localScale = new Vector3(d, 0.03f, d);
+                paver.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+
+                if (mat != null) paver.GetComponent<Renderer>().sharedMaterial = mat;
+
+                // Remove collider on decorative stepping stone pavers to conserve physics engine overhead
+                var col = paver.GetComponent<Collider>();
+                if (col != null) UnityEngine.Object.DestroyImmediate(col);
+            }
+        }
+
+        private static void SpawnCrossroadsSignpost(Transform parent, Vector3 pos, float yaw, string signName, Collider terrainCol, string armA = null, string armB = null)
+        {
+            GameObject signObj = new GameObject($"Signpost_{signName}");
+            signObj.transform.SetParent(parent, false);
+            float groundY = GetGroundY(pos, terrainCol);
+            signObj.transform.position = new Vector3(pos.x, groundY, pos.z);
+            signObj.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+
+            // Vertical wooden post
+            GameObject post = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            post.name = "Post";
+            post.transform.SetParent(signObj.transform, false);
+            post.transform.localPosition = new Vector3(0f, 1.3f, 0f);
+            post.transform.localScale = new Vector3(0.2f, 2.6f, 0.2f);
+            if (_matWood != null) post.GetComponent<Renderer>().sharedMaterial = _matWood;
+
+            // Direction arm 1 (pointing forward-right)
+            GameObject arm1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            arm1.name = $"SignArm_{armA ?? "A"}";
+            arm1.transform.SetParent(signObj.transform, false);
+            arm1.transform.localPosition = new Vector3(0.45f, 2.2f, 0f);
+            arm1.transform.localRotation = Quaternion.Euler(0f, 15f, 0f);
+            arm1.transform.localScale = new Vector3(0.9f, 0.22f, 0.06f);
+            if (_matWood != null) arm1.GetComponent<Renderer>().sharedMaterial = _matWood;
+
+            // Direction arm 2 (pointing backward-left)
+            GameObject arm2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            arm2.name = $"SignArm_{armB ?? "B"}";
+            arm2.transform.SetParent(signObj.transform, false);
+            arm2.transform.localPosition = new Vector3(-0.45f, 1.85f, 0f);
+            arm2.transform.localRotation = Quaternion.Euler(0f, -20f, 0f);
+            arm2.transform.localScale = new Vector3(0.9f, 0.22f, 0.06f);
+            if (_matWood != null) arm2.GetComponent<Renderer>().sharedMaterial = _matWood;
+
+            // Hanging Lantern on post
+            SpawnLantern(signObj.transform, pos + signObj.transform.forward * 0.4f, terrainCol, null, 2.0f, 10f);
+
+            // Rest stop bench & wooden crates
+            SpawnProp("Assets/Prefabs/MeshyProps/Prop_PlazaFlowerBox_And_Bench.prefab", signObj.transform, pos + signObj.transform.right * 2.2f, yaw - 90f, 1.0f, terrainCol);
+            SpawnProp("Assets/Models/TownProps/Prop_WoodenBarrelsCrates.fbx", signObj.transform, pos - signObj.transform.right * 1.8f, yaw + 30f, 1.0f, terrainCol);
+        }
+
+        private static GameObject SpawnNPC(string prefabPath, Transform parent, Vector3 targetPos, float yaw, Collider terrainCol, string displayName = null)
+        {
+            var go = SpawnProp(prefabPath, parent, targetPos, yaw, 1.0f, terrainCol);
+            if (go != null)
+            {
+                if (!string.IsNullOrEmpty(displayName)) go.name = displayName;
+                var col = go.GetComponent<Collider>();
+                if (col == null)
+                {
+                    var cap = go.AddComponent<CapsuleCollider>();
+                    cap.center = new Vector3(0f, 1.0f, 0f);
+                    cap.radius = 0.4f;
+                    cap.height = 2.0f;
+                }
+            }
+            return go;
         }
 
         private static void SpawnPillar(Transform parent, Vector3 targetPos, float diameter, float height, Material mat, Collider terrainCol, float tiltAngle = 0f)
