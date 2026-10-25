@@ -26,29 +26,46 @@ namespace BattleSummoner.VisualPolish.Editor
         {
             string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { "Assets" });
             int count = 0;
-            foreach (string guid in guids)
+            AssetDatabase.StartAssetEditing();
+            try
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                if (importer == null) continue;
-
-                bool isUI = importer.textureType == TextureImporterType.Sprite;
-                importer.maxTextureSize = isUI ? 2048 : 4096; // Unlock 2K UI & 4K World Textures
-                importer.textureCompression = TextureImporterCompression.CompressedHQ;
-                importer.anisoLevel = isUI ? 1 : 8; // Crisp oblique ground cobblestone angles
-
-                if (!isUI)
+                foreach (string guid in guids)
                 {
-                    importer.mipmapEnabled = true;
-                    importer.streamingMipmaps = true; // Pair 4K textures with distance VRAM streaming
-                    importer.mipMapsPreserveCoverage = true;
-                }
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (path.StartsWith("Assets/Screenshots")) continue;
 
-                importer.SaveAndReimport();
-                count++;
+                    TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                    if (importer == null) continue;
+
+                    bool isUI = importer.textureType == TextureImporterType.Sprite;
+                    int targetMax = isUI ? 2048 : 4096;
+                    int targetAniso = isUI ? 1 : 8;
+                    bool dirty = false;
+
+                    if (importer.maxTextureSize != targetMax) { importer.maxTextureSize = targetMax; dirty = true; }
+                    if (importer.textureCompression != TextureImporterCompression.CompressedHQ) { importer.textureCompression = TextureImporterCompression.CompressedHQ; dirty = true; }
+                    if (importer.anisoLevel != targetAniso) { importer.anisoLevel = targetAniso; dirty = true; }
+
+                    if (!isUI)
+                    {
+                        if (!importer.mipmapEnabled) { importer.mipmapEnabled = true; dirty = true; }
+                        if (!importer.streamingMipmaps) { importer.streamingMipmaps = true; dirty = true; }
+                        if (!importer.mipMapsPreserveCoverage) { importer.mipMapsPreserveCoverage = true; dirty = true; }
+                    }
+
+                    if (dirty)
+                    {
+                        importer.SaveAndReimport();
+                        count++;
+                    }
+                }
+            }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
             }
             QualitySettings.streamingMipmapsActive = true;
-            Debug.Log($"[Studio Refinement] Upgraded {count} textures to High-Res & Mipmap Streaming.");
+            Debug.Log($"[Studio Refinement] Verified/Upgraded textures to High-Res & Mipmap Streaming (Changed: {count}).");
         }
 
         private static void UpgradeAllUICanvasesToAppGradeStyle()
@@ -72,7 +89,7 @@ namespace BattleSummoner.VisualPolish.Editor
             }
 
             // Upgrade CanvasScalers for razor-sharp high-DPI mobile screens (1080x2400 reference)
-            CanvasScaler[] scalers = Object.FindObjectsByType<CanvasScaler>(FindObjectsSortMode.None);
+            CanvasScaler[] scalers = UnityEngine.Object.FindObjectsByType<CanvasScaler>(FindObjectsSortMode.None);
             foreach (var scaler in scalers)
             {
                 scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -82,7 +99,7 @@ namespace BattleSummoner.VisualPolish.Editor
             }
 
             // Attach spring micro-interactions to all Buttons and style background panels
-            Button[] buttons = Object.FindObjectsByType<Button>(FindObjectsSortMode.None);
+            Button[] buttons = UnityEngine.Object.FindObjectsByType<Button>(FindObjectsSortMode.None);
             foreach (var btn in buttons)
             {
                 if (btn.GetComponent<AppGradeUIPolishController>() == null)
@@ -91,7 +108,7 @@ namespace BattleSummoner.VisualPolish.Editor
                 }
             }
 
-            Image[] images = Object.FindObjectsByType<Image>(FindObjectsSortMode.None);
+            Image[] images = UnityEngine.Object.FindObjectsByType<Image>(FindObjectsSortMode.None);
             foreach (var img in images)
             {
                 string n = img.gameObject.name.ToLowerInvariant();
@@ -104,16 +121,27 @@ namespace BattleSummoner.VisualPolish.Editor
 
         private static void AttachCullingAndPolishComponentsAcrossScene()
         {
-            // Ensure ZeroBlockerImmersionGuardian exists in scene
-            var guardian = Object.FindAnyObjectByType<BattleSummoner.Core.Diagnostics.ZeroBlockerImmersionGuardian>();
+            // Ensure ZeroBlockerImmersionGuardian exists in scene and is linked to Player & Camera
+            var guardian = UnityEngine.Object.FindAnyObjectByType<BattleSummoner.Core.Diagnostics.ZeroBlockerImmersionGuardian>();
             if (guardian == null)
             {
                 var guardianGo = new GameObject("--- ZERO BLOCKER IMMERSION GUARDIAN ---");
                 guardian = guardianGo.AddComponent<BattleSummoner.Core.Diagnostics.ZeroBlockerImmersionGuardian>();
             }
 
+            var hero = GameObject.Find("Player_Hero");
+            if (hero != null)
+            {
+                guardian.playerTransform = hero.transform;
+                guardian.playerController = hero.GetComponent<CharacterController>();
+            }
+            if (guardian.mainPortraitCamera == null)
+            {
+                guardian.mainPortraitCamera = Camera.main;
+            }
+
             // Ensure every static/dynamic prop is registered with CullableWorldProp (30ft + Frustum Culling)
-            MeshRenderer[] meshes = Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None);
+            MeshRenderer[] meshes = UnityEngine.Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None);
             foreach (var mr in meshes)
             {
                 if (mr.GetComponentInParent<CullableWorldProp>() == null && !mr.gameObject.name.ToLowerInvariant().Contains("terrain"))
