@@ -273,13 +273,13 @@ namespace BattleSummoner.EditorScripts
             // Tier 4: R = 10m to 95m,   Y = 80.06m (extends to retaining wall ledge)
             // Tier 3: R = 125m to 202m, Y = 58.06m (meets bottom of T4 stairs at 125m)
             // Tier 2: R = 232m to 316m, Y = 38.06m
-            // Tier 1: R = 348m to 468m, Y = 22.06m
+            // Tier 1: R = 348m to 448.5m, Y = 22.06m (curtain wall boundary)
             (float rStart, float rEnd, float yElev)[] tierSegments = new (float, float, float)[]
             {
                 (10f,  95f,  80.06f),
                 (125f, 202f, 58.06f),
                 (232f, 316f, 38.06f),
-                (348f, 468f, 22.06f)
+                (348f, 448.5f, 22.06f)
             };
 
             foreach (float angDeg in radialAngles)
@@ -315,29 +315,34 @@ namespace BattleSummoner.EditorScripts
                 CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T3_to_T2", dir * 217.0f, dir, perp, 30.0f, 58.06f, 38.06f, boulevardWidth, 26, curbMat);
                 CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T2_to_T1", dir * 332.0f, dir, perp, 32.0f, 38.06f, 22.06f, boulevardWidth, 26, curbMat);
 
-                // 3. Grand Town Gate at City Exit (R = 468m)
+                // 3. Grand Town Gate at City Curtain Wall Portal (R = 446m)
                 if (gatePrefab != null || archPrefab != null)
                 {
                     var pfb = gatePrefab ?? archPrefab;
-                    Vector3 gatePos = dir * 465f + Vector3.up * 22.05f;
+                    Vector3 gatePos = dir * 446.0f + Vector3.up * 22.05f;
                     var gate = (GameObject)PrefabUtility.InstantiatePrefab(pfb, archesParent);
                     gate.transform.position = gatePos;
                     gate.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
                     gate.transform.localScale = Vector3.one * 1.6f;
                 }
 
-                // 4. Streetlamps & Street Life along Radial Boulevard
-                for (float r = 90f; r <= 460f; r += 26f)
+                // 4. Streetlamps & Street Life along Radial Boulevard (strictly inside city wall, R <= 435m)
+                for (float r = 90f; r <= 435f; r += 26f)
                 {
                     // Skip transition stairs zones
                     if ((r >= 100f && r <= 116f) || (r >= 206f && r <= 224f) || (r >= 322f && r <= 342f)) continue;
 
-                    float y = (r < 105f) ? 80.06f : (r < 210f) ? 58.06f : (r < 326f) ? 38.06f : 22.06f;
+                    float y = (r < 105f) ? 80.24f : (r < 210f) ? 58.24f : (r < 326f) ? 38.24f : 22.24f;
                     Vector3 curbLeft = dir * r + perp * (boulevardWidth * 0.5f + 0.4f) + Vector3.up * y;
                     Vector3 curbRight = dir * r - perp * (boulevardWidth * 0.5f + 0.4f) + Vector3.up * y;
 
+                    bool validLeft = Physics.Raycast(new Vector3(curbLeft.x, curbLeft.y + 4f, curbLeft.z), Vector3.down, out RaycastHit hitL, 10f) && hitL.point.y >= 20.0f;
+                    if (validLeft) curbLeft.y = hitL.point.y;
+                    bool validRight = Physics.Raycast(new Vector3(curbRight.x, curbRight.y + 4f, curbRight.z), Vector3.down, out RaycastHit hitR, 10f) && hitR.point.y >= 20.0f;
+                    if (validRight) curbRight.y = hitR.point.y;
+
                     // Place Streetlamp on left
-                    if (lampPrefab != null)
+                    if (lampPrefab != null && validLeft)
                     {
                         var lamp = (GameObject)PrefabUtility.InstantiatePrefab(lampPrefab, lampsParent);
                         lamp.transform.position = curbLeft;
@@ -354,14 +359,14 @@ namespace BattleSummoner.EditorScripts
                     }
 
                     // Place Bench or Flower Urn on right
-                    if (benchPrefab != null && rng.NextDouble() < 0.45)
+                    if (benchPrefab != null && rng.NextDouble() < 0.45 && validRight)
                     {
                         var bench = (GameObject)PrefabUtility.InstantiatePrefab(benchPrefab, furnitureParent);
                         bench.transform.position = curbRight;
                         bench.transform.rotation = Quaternion.LookRotation(perp, Vector3.up);
                         bench.transform.localScale = Vector3.one * 1.1f;
                     }
-                    else if (vasePrefab != null && rng.NextDouble() < 0.55)
+                    else if (vasePrefab != null && rng.NextDouble() < 0.55 && validRight)
                     {
                         var vase = (GameObject)PrefabUtility.InstantiatePrefab(vasePrefab, furnitureParent);
                         vase.transform.position = curbRight;
@@ -369,9 +374,11 @@ namespace BattleSummoner.EditorScripts
                     }
 
                     // Occasional Merchant Cart or Crate cluster along curb
-                    if (r > 120f && rng.NextDouble() < 0.25)
+                    if (r > 120f && r <= 420f && rng.NextDouble() < 0.25)
                     {
-                        Vector3 propPos = (rng.NextDouble() < 0.5 ? curbLeft : curbRight) + dir * 3.5f;
+                        bool useLeft = rng.NextDouble() < 0.5;
+                        if ((useLeft && !validLeft) || (!useLeft && !validRight)) continue;
+                        Vector3 propPos = (useLeft ? curbLeft : curbRight) + dir * 3.5f;
                         if (cartPrefab != null && rng.NextDouble() < 0.40)
                         {
                             var cart = (GameObject)PrefabUtility.InstantiatePrefab(cartPrefab, marketParent);

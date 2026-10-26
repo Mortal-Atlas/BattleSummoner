@@ -95,7 +95,7 @@ namespace BattleSummoner.Combat
 
         private void OnDisable()
         {
-            if (SpireLoadoutAndTomeSystem.Instance != null)
+            if (SpireLoadoutAndTomeSystem.HasInstance && SpireLoadoutAndTomeSystem.Instance != null)
             {
                 SpireLoadoutAndTomeSystem.Instance.OnLoadoutReconfigured -= HandleLoadoutReconfigured;
             }

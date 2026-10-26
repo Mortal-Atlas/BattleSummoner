@@ -32,7 +32,10 @@ namespace BattleSummoner.VFX
             if (Instance == null) Instance = this;
             mainCamera = Camera.main;
             meshRenderer = GetComponentInChildren<MeshRenderer>();
-            if (meshRenderer != null) flareMaterial = meshRenderer.material;
+            if (meshRenderer != null)
+            {
+                flareMaterial = Application.isPlaying ? meshRenderer.material : meshRenderer.sharedMaterial;
+            }
             if (sunLightTransform == null) FindSunDirectionalLight();
         }
 

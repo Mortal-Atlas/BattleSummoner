@@ -720,7 +720,7 @@ namespace BattleSummoner.EditorScripts
             highGo.GetComponent<MeshRenderer>().sharedMaterial = roadMat;
             highGo.GetComponent<MeshCollider>().sharedMesh = mesh;
 
-            // Place Roadside Milestones and Lanterns along the highway
+            // Place Roadside Milestones and Lanterns along the highway (strictly on dry, solid ground)
             for (int i = 8; i < densePoints.Count - 6; i += 24)
             {
                 Vector3 pt = densePoints[i];
@@ -730,11 +730,25 @@ namespace BattleSummoner.EditorScripts
 
                 // Milestone on left
                 Vector3 milePos = pt - right * (roadWidth * 0.5f + 0.8f);
-                CreateStoneMilestone(furnishingsParent, $"{name}_Mile_{i}", milePos, right);
+                if (terrainCol != null && terrainCol.Raycast(new Ray(milePos + Vector3.up * 4f, Vector3.down), out RaycastHit hitM, 15f))
+                {
+                    if (hitM.point.y >= 20.0f && Mathf.Abs(milePos.y - hitM.point.y) < 1.2f)
+                    {
+                        milePos.y = hitM.point.y;
+                        CreateStoneMilestone(furnishingsParent, $"{name}_Mile_{i}", milePos, right);
+                    }
+                }
 
                 // Waypoint lantern on right
                 Vector3 lampPos = pt + right * (roadWidth * 0.5f + 0.8f);
-                CreateHighwayWaypointLantern(furnishingsParent, $"{name}_Lamp_{i}", lampPos, -right);
+                if (terrainCol != null && terrainCol.Raycast(new Ray(lampPos + Vector3.up * 4f, Vector3.down), out RaycastHit hitL, 15f))
+                {
+                    if (hitL.point.y >= 20.0f && Mathf.Abs(lampPos.y - hitL.point.y) < 1.2f)
+                    {
+                        lampPos.y = hitL.point.y;
+                        CreateHighwayWaypointLantern(furnishingsParent, $"{name}_Lamp_{i}", lampPos, -right);
+                    }
+                }
             }
         }
 

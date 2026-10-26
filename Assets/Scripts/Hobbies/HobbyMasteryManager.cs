@@ -16,6 +16,44 @@ namespace BattleSummoner.Hobbies
         Gardening
     }
 
+    public enum HobbyDiscipline
+    {
+        Cooking,
+        Blacksmithing,
+        Fishing,
+        Alchemy,
+        Gardening
+    }
+
+    public class HobbyMasteryEngine
+    {
+        private static HobbyMasteryEngine _instance;
+        public static HobbyMasteryEngine Instance => _instance ??= new HobbyMasteryEngine();
+
+        public void AwardHobbyExp(HobbyDiscipline discipline, float exp, float multiplier = 1.0f)
+        {
+            float finalExp = exp * multiplier;
+            if (discipline == HobbyDiscipline.Cooking)
+            {
+                if (HobbyMasteryManager.Instance != null)
+                {
+                    HobbyMasteryManager.Instance.AddCookingExp(finalExp);
+                }
+                if (HobbyMasteryAndPotluckEngine.Instance != null)
+                {
+                    HobbyMasteryAndPotluckEngine.Instance.GainCookingExp(finalExp);
+                }
+            }
+            else if (discipline == HobbyDiscipline.Blacksmithing)
+            {
+                if (HobbyMasteryManager.Instance != null)
+                {
+                    HobbyMasteryManager.Instance.AddBlacksmithExp(finalExp);
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Tracks experience, levels, titles, and gameplay bonuses for a specific hobby.
     /// </summary>

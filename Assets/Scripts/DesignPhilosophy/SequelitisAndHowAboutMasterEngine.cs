@@ -239,6 +239,11 @@ namespace BattleSummoner.DesignPhilosophy
         public bool isSevered = false;
         public GameObject severedCatalystDropPrefab;
 
+        public bool ApplyTargetedSlice(float damage, string attackElement, float temperMult = 1.0f)
+        {
+            return TrySeverLimb(damage * temperMult, seamAngleDeg, attackElement);
+        }
+
         public bool TrySeverLimb(float damage, float slashAngleDeg, string attackElement)
         {
             if (isSevered) return false;

@@ -1,6 +1,7 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using BattleSummoner.Core.DimensionalCompiler;
 
 public static class MeshyCharacterSetup
 {

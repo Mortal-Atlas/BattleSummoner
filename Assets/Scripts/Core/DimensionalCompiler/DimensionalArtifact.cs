@@ -2,119 +2,133 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PhaseState { Solid, Liquid, Gas, Plasma }
-
-[CreateAssetMenu(fileName = "NewDimensionalArtifact", menuName = "BattleSummoner/12D_Artifact")]
-public class DimensionalArtifact : ScriptableObject
+namespace BattleSummoner.Core.DimensionalCompiler
 {
-    [Header("--- VISIBLE UI LAYER (8D & 9D) ---")]
-    [Tooltip("8D: Structural Knowledge - The visible Base Class Prefab/Icon fetched from The Hollow.")]
-    public string baseClassName_8D = "Uncompiled_Construct";
-    public GameObject visualPrefab_8D;
-    public Sprite uiIcon_8D;
-
-    [Tooltip("9D: Semantic Metadata - Visible lore/incantation that dynamically mutates hidden 0D-7D, 10D, 11D stats.")]
-    [TextArea(4, 8)]
-    public string semanticDescription_9D = "A standard construct.";
-
-    // =====================================================================
-    // HIDDEN BACKEND TELEMETRY (Obfuscated from standard Player HUD)
-    // Only viewable via True Sight AR Lenses or Console Debugging
-    // =====================================================================
-    [HideInInspector] public float logicComplexity_0D;   // Math checksum & Singularity aggro
-    [HideInInspector] public Vector3 spatialGrid_1D_3D;  // X (Reach/1D), Y (Spread/2D), Z (Volume/3D)
-    [HideInInspector] public float inertialMass_4D;      // Kinetic momentum, knockback & stamina drain
-    [HideInInspector] public float densityMatrix_5D;     // Structural rigidity (m / V) & Armor Pen
-    [HideInInspector] public float thermalEnthalpy_6D;   // Internal heat flux (Q_gen)
-    [HideInInspector] public PhaseState phaseState_6D;   // Current thermodynamic phase state
-    [HideInInspector] public float temporalDecay_7D;     // Cooldown clock-cycles & Summon rot rate
-    [HideInInspector] public float carrierFrequency_10D; // Harmonic Hz anchor & Gauntlet back-EMF torque
-    [HideInInspector] public float quantumStability_11D; // 0.0 to 1.0 (Wavefunction integrity / API tolerance)
-
-    public event Action OnTelemetryRecompiled;
+    public enum PhaseState { Solid, Liquid, Gas, Plasma }
+    public enum DimensionalCollapseState { Stable3D, DegradingFlicker, Collapsed2DPaper }
 
     /// <summary>
-    /// Runtime Compiler: Scans 9D Semantic Metadata for Lexical Hash Collisions and mutates hidden dimensions.
+    /// 12-Dimensional Crafting, Spell, Golem & Heirloom Telemetry Container (0D-11D).
+    /// 8D & 9D are visible on the UI. 0D-7D, 10D, and 11D execute as the hidden backend physics engine.
     /// </summary>
-    public void Compile9DMetadata()
+    [CreateAssetMenu(fileName = "NewDimensionalArtifact", menuName = "BattleSummoner/12D/Dimensional Artifact")]
+    public class DimensionalArtifact : ScriptableObject
     {
-        // 1. Reset to 8D Base Class defaults prior to 9D lexical injection
-        logicComplexity_0D = 10f;
-        spatialGrid_1D_3D = Vector3.one;
-        inertialMass_4D = 10f;
-        thermalEnthalpy_6D = 20f; // 20°C ambient baseline
-        phaseState_6D = PhaseState.Solid;
-        temporalDecay_7D = 1.0f;  // 1.0x standard entropic decay per tick
-        carrierFrequency_10D = 60f; // 60Hz baseline hum
-        quantumStability_11D = 1.0f; // 100% stable wavefunction
+        [Header("--- VISIBLE UI LAYER (8D & 9D) ---")]
+        [Tooltip("8D: Structural Knowledge - Visible Base Class Prefab/Icon.")]
+        public string baseClassName_8D = "Iron Broadsword";
+        public GameObject visualPrefab_8D;
+        public Sprite uiIcon_8D;
 
-        if (string.IsNullOrEmpty(semanticDescription_9D)) return;
-        string parsedText = semanticDescription_9D.ToLower();
+        [Tooltip("9D: Semantic Metadata - Visible lore/incantation string that mutates hidden 0D-11D physics.")]
+        [TextArea(4, 8)]
+        public string semanticDescription_9D = "A balanced Spire-forged blade tempered for kinetic slashing.";
 
-        // 2. Lexical Hash Collision Checks (9D Semantic Injection)
-        if (parsedText.Contains("heavy") || parsedText.Contains("immovable") || parsedText.Contains("inertia"))
+        // =====================================================================
+        // HIDDEN BACKEND TELEMETRY (0D-7D, 10D, 11D)
+        // Only viewable via True Sight AR Lenses or Artificer Monocle
+        // =====================================================================
+        [HideInInspector] public float logicComplexity_0D;    // Math checksum & Singularity aggro
+        [HideInInspector] public Vector3 spatialGrid_1D_3D;   // X (Reach), Y (Spread), Z (Volume)
+        [HideInInspector] public float inertialMass_4D;       // Knockback, posture break & stamina drain
+        [HideInInspector] public float densityMatrix_5D;      // Rigidity (m / V) & Armor Penetration
+        [HideInInspector] public float thermalEnthalpy_6D;    // Heat generation (Celsius)
+        [HideInInspector] public PhaseState phaseState_6D;    // Matter state (Solid/Liquid/Gas/Plasma)
+        [HideInInspector] public float temporalDecay_7D;      // Buff duration & Summon lifespan decay rate
+        [HideInInspector] public float carrierFrequency_10D;  // Acoustic Hz resonance (Kalimba/Lute/Horn)
+        [HideInInspector] public float quantumStability_11D;  // 0.0 to 1.0 Wavefunction integrity
+        [HideInInspector] public DimensionalCollapseState collapseState = DimensionalCollapseState.Stable3D;
+
+        public event Action OnTelemetryRecompiled;
+
+        /// <summary>
+        /// Parses the 9D Semantic Description & Devoured Monster Traits to mutate hidden 0D-11D physics.
+        /// </summary>
+        public void Compile9DMetadata(bool hasTavernChorusWard = false)
         {
-            inertialMass_4D *= 3.5f;
-            carrierFrequency_10D -= 20f; // Drops carrier wave to 40Hz sub-bass growl
-            logicComplexity_0D += 15f;
+            spatialGrid_1D_3D = Vector3.one;
+            logicComplexity_0D = 10f;
+            inertialMass_4D = 12f;
+            thermalEnthalpy_6D = 20f;
+            phaseState_6D = PhaseState.Solid;
+            temporalDecay_7D = 1.0f;
+            carrierFrequency_10D = 432f; // Natural medieval lute/kalimba tuning baseline (Hz)
+            quantumStability_11D = hasTavernChorusWard ? 1.25f : 1.0f;
+
+            string parsed = string.IsNullOrEmpty(semanticDescription_9D)
+                ? string.Empty
+                : semanticDescription_9D.ToLowerInvariant();
+
+            // 4D Mass & 5D Density Lexical Triggers
+            if (parsed.Contains("heavy") || parsed.Contains("immovable") || parsed.Contains("behemoth") || parsed.Contains("iron"))
+            {
+                inertialMass_4D *= 3.25f;
+                carrierFrequency_10D -= 110f;
+                logicComplexity_0D += 15f;
+            }
+
+            // 1D-3D Compression / Pinched Air-Disc Triggers
+            if (parsed.Contains("compressed") || parsed.Contains("pinched") || parsed.Contains("razor") || parsed.Contains("disc"))
+            {
+                spatialGrid_1D_3D = new Vector3(1.8f, 0.05f, 1.8f); // Ultra-thin high-density razor disc
+                logicComplexity_0D += 25f;
+            }
+
+            // 6D Thermal Enthalpy & Industrial Magic Triggers (Release That Witch)
+            if (parsed.Contains("spite") || parsed.Contains("magma") || parsed.Contains("furnace") || parsed.Contains("seared"))
+            {
+                thermalEnthalpy_6D += 480f;
+                phaseState_6D = PhaseState.Plasma;
+                quantumStability_11D -= 0.25f;
+                logicComplexity_0D += 35f;
+            }
+            else if (parsed.Contains("steam") || parsed.Contains("pressurized"))
+            {
+                thermalEnthalpy_6D += 160f;
+                phaseState_6D = PhaseState.Gas;
+            }
+
+            // 7D Temporal Anchor Triggers
+            if (parsed.Contains("eternal") || parsed.Contains("anchor") || parsed.Contains("heirloom") || parsed.Contains("hearth"))
+            {
+                temporalDecay_7D *= 0.25f;
+                logicComplexity_0D += 30f;
+            }
+
+            // Devoured Monster Part Triggers (Shield Hero / Exiled Heavy Knight)
+            if (parsed.Contains("devoured"))
+            {
+                inertialMass_4D *= 1.35f;
+                quantumStability_11D = Mathf.Min(1.5f, quantumStability_11D + 0.15f);
+            }
+
+            // Compute 5D Density Matrix: rho = m / V
+            float volume = Mathf.Max(0.005f, spatialGrid_1D_3D.x * spatialGrid_1D_3D.y * spatialGrid_1D_3D.z);
+            densityMatrix_5D = inertialMass_4D / volume;
+
+            EvaluateDimensionalCollapseState();
+            OnTelemetryRecompiled?.Invoke();
         }
 
-        if (parsedText.Contains("spite") || parsedText.Contains("overclock") || parsedText.Contains("wrath"))
+        /// <summary>
+        /// Evaluates whether 0D Logic Complexity has overwhelmed 11D Wavefunction Stability,
+        /// triggering Reverse Plato's Cave collapse (3D Mesh -> 2D Paper Cutout).
+        /// </summary>
+        public DimensionalCollapseState EvaluateDimensionalCollapseState()
         {
-            thermalEnthalpy_6D += 150f;
-            phaseState_6D = PhaseState.Plasma;
-            carrierFrequency_10D += 80f;
-            quantumStability_11D -= 0.35f; // High risk of decoherence
-            logicComplexity_0D += 45f;
+            if (quantumStability_11D <= 0f || logicComplexity_0D > (quantumStability_11D * 180f))
+            {
+                collapseState = DimensionalCollapseState.Collapsed2DPaper;
+            }
+            else if (quantumStability_11D < 0.35f)
+            {
+                collapseState = DimensionalCollapseState.DegradingFlicker;
+            }
+            else
+            {
+                collapseState = DimensionalCollapseState.Stable3D;
+            }
+            return collapseState;
         }
-
-        if (parsedText.Contains("competition") || parsedText.Contains("spark") || parsedText.Contains("inspire"))
-        {
-            spatialGrid_1D_3D.x *= 1.75f; // +75% 1D Linear Reach
-            carrierFrequency_10D = 432f;  // Harmonic resonance lock
-            quantumStability_11D = Mathf.Min(1.0f, quantumStability_11D + 0.15f);
-        }
-
-        if (parsedText.Contains("disc") || parsedText.Contains("razor") || parsedText.Contains("compressed"))
-        {
-            // Compresses 3D Z-thickness down to 0.05 while expanding 2D radial width
-            spatialGrid_1D_3D = new Vector3(1.5f, 1.5f, 0.05f);
-            logicComplexity_0D += 30f;
-        }
-
-        if (parsedText.Contains("eternal") || parsedText.Contains("anchor") || parsedText.Contains("undying"))
-        {
-            temporalDecay_7D *= 0.2f; // Slows entropic rot by 80%
-            logicComplexity_0D += 50f;
-        }
-
-        if (parsedText.Contains("singularity") || parsedText.Contains("void") || parsedText.Contains("nuke"))
-        {
-            // Forbidden World-Breaker hash collision
-            logicComplexity_0D += 999f;
-            inertialMass_4D *= 100f;
-            spatialGrid_1D_3D = new Vector3(0.01f, 0.01f, 0.01f);
-            quantumStability_11D = 0.01f;
-        }
-
-        // 3. Deterministic 5D Density Calculation: rho = m / V
-        float volume_3D = spatialGrid_1D_3D.x * spatialGrid_1D_3D.y * spatialGrid_1D_3D.z;
-        densityMatrix_5D = inertialMass_4D / Mathf.Max(volume_3D, 0.001f);
-
-        // 4. Phase State Evaluation from 6D Thermal Enthalpy
-        if (phaseState_6D != PhaseState.Plasma)
-        {
-            if (thermalEnthalpy_6D >= 120f) phaseState_6D = PhaseState.Plasma;
-            else if (thermalEnthalpy_6D >= 80f) phaseState_6D = PhaseState.Gas;
-            else if (thermalEnthalpy_6D >= 45f) phaseState_6D = PhaseState.Liquid;
-            else phaseState_6D = PhaseState.Solid;
-        }
-
-        OnTelemetryRecompiled?.Invoke();
-
-        Debug.Log($"[COMPILER 8D->9D]: '{baseClassName_8D}' compiled. " +
-                  $"Hidden Telemetry -> 0D_Math: {logicComplexity_0D} | 4D_Mass: {inertialMass_4D} | " +
-                  $"5D_Density: {densityMatrix_5D:F1} | 6D_Temp: {thermalEnthalpy_6D}C ({phaseState_6D}) | " +
-                  $"10D_Freq: {carrierFrequency_10D}Hz | 11D_Stability: {quantumStability_11D * 100f:F0}%");
     }
 }

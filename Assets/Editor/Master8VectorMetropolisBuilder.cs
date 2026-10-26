@@ -172,9 +172,8 @@ namespace BattleSummoner.EditorScripts
             // 8. Place Player_Hero Flush on Tier 4 Acropolis Plaza
             PositionPlayerHeroOnCitadel();
 
-            // Static Batching for smooth mobile rendering
+            // Static Batching: combine row houses only; props keep original prefab meshes
             StaticBatchingUtility.Combine(rowHousesRoot.gameObject);
-            StaticBatchingUtility.Combine(streetPropsRoot.gameObject);
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -217,7 +216,7 @@ namespace BattleSummoner.EditorScripts
             grid.cathedralApexOrigin = new Vector3(0f, 85f, 0f);
             grid.outerCurtainWallRadius = 450f;
             grid.moatWaterElevationY = 18f;
-            grid.guildHallWorldPosition = new Vector3(65f, 53f, -220f);
+            grid.guildHallWorldPosition = new Vector3(65f, 38f, -220f);
             EditorUtility.SetDirty(grid);
         }
 
@@ -434,9 +433,9 @@ namespace BattleSummoner.EditorScripts
             // Cathedral & Center Acropolis
             if (radius < 88f) return true;
 
-            // Norse-Swedish Guild Hall at (65, -220) and (-65, 220)
-            if (Vector2.Distance(pos, new Vector2(65f, -220f)) < 36f) return true;
-            if (Vector2.Distance(pos, new Vector2(-65f, 220f)) < 36f) return true;
+            // Norse-Swedish Guild Hall footprint clearance at (65, -220) and (-65, 220)
+            if (Vector2.Distance(pos, new Vector2(65f, -220f)) < 16f) return true;
+            if (Vector2.Distance(pos, new Vector2(-65f, 220f)) < 16f) return true;
 
             // 5 Hover Pads
             Vector2[] hoverPads = new Vector2[]

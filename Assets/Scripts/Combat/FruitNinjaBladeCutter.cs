@@ -279,6 +279,20 @@ namespace BattleSummoner.Combat
                 // Visual hit sparks & directional Zelda crescent wave with custom blade tint
                 WarriorSwordSlashVFX.SpawnHitSpark(contactPoint, -cam.transform.forward);
                 WarriorSwordSlashVFX.SpawnSlashWave(contactPoint, worldSlashDir, swipeAngleDeg, velocity, waveColor);
+
+                // Blood & Hearth Visceral Combat Bridge Hook
+                var hearthBridge = UnityEngine.Object.FindFirstObjectByType<CombatToBloodHearthBridge>();
+                if (hearthBridge != null)
+                {
+                    col.TryGetComponent<BattleSummoner.DesignPhilosophy.SeverableBossLimb>(out var bossLimb);
+                    hearthBridge.ProcessLiveSwipeHit(contactPoint, worldSlashDir, finalKineticDamage, precision >= 0.82f, bossLimb);
+                }
+                else if (BattleSummoner.Core.BloodAndHearthMasterDirector.Instance != null)
+                {
+                    BattleSummoner.Core.BloodAndHearthMasterDirector.Instance.RegisterVisceralCombatHit(
+                        contactPoint, worldSlashDir, finalKineticDamage, precision >= 0.82f, false);
+                }
+
                 Debug.Log($"⚔️ [BLADE SLICE{(isOffHand ? " (OFF-HAND)" : "")}] Hit {col.name}! Damage={finalKineticDamage:F1} (Riposte={riposteMult:F1}x)");
             }
 

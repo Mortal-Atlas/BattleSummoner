@@ -283,7 +283,7 @@ namespace BattleSummoner.EditorScripts
                 { "Assets/Materials/Metropolis/Mat_Tier3_UpperRing.mat", new Vector2(16.0f, 16.0f) },
                 { "Assets/Materials/Metropolis/Mat_Tier4_CitadelPlateau.mat", new Vector2(12.0f, 12.0f) },
                 { "Assets/Materials/Metropolis/Mat_City_Farmland.mat", new Vector2(8.0f, 8.0f) },
-                { "Assets/Materials/Metropolis/Mat_City_PavedLimestone.mat", new Vector2(40.0f, 40.0f) },
+                { "Assets/Materials/Metropolis/Mat_City_PavedLimestone.mat", new Vector2(3.0f, 3.0f) },
                 { "Assets/Materials/Metropolis/Mat_World_TownWall.mat", new Vector2(8.0f, 8.0f) },
                 { "Assets/Materials/Metropolis/M_Metro_Limestone.mat", new Vector2(8.0f, 8.0f) },
                 { "Assets/Materials/Metropolis/M_Metro_CathedralStone.mat", new Vector2(8.0f, 16.0f) },

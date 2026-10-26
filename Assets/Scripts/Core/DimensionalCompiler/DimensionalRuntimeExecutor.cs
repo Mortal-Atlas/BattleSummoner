@@ -1,4 +1,5 @@
 using UnityEngine;
+using BattleSummoner.Core.DimensionalCompiler;
 
 [RequireComponent(typeof(AudioSource))]
 public class DimensionalRuntimeExecutor : MonoBehaviour
@@ -29,7 +30,7 @@ public class DimensionalRuntimeExecutor : MonoBehaviour
     {
         if (activeMusicDeck != null)
         {
-            activeMusicDeck.OnNotePlayed += OnKalimbaOrTurntableFrequencyReceived;
+            activeMusicDeck.OnNotePlayed += OnAcousticResonanceFrequencyReceived;
         }
 
         if (artifactData != null)
@@ -44,7 +45,7 @@ public class DimensionalRuntimeExecutor : MonoBehaviour
     {
         if (activeMusicDeck != null)
         {
-            activeMusicDeck.OnNotePlayed -= OnKalimbaOrTurntableFrequencyReceived;
+            activeMusicDeck.OnNotePlayed -= OnAcousticResonanceFrequencyReceived;
         }
     }
 
@@ -120,9 +121,9 @@ public class DimensionalRuntimeExecutor : MonoBehaviour
     }
 
     /// <summary>
-    /// Summoning Refresh Loop: Matching the summon's 10D Carrier Frequency on the Kalimba/DJ Deck halts 7D Decay.
+    /// Summoning Refresh Loop: Matching the summon's 10D Carrier Frequency on acoustic instruments (Kalimba/Lute/Horns) halts 7D Decay.
     /// </summary>
-    public void OnKalimbaOrTurntableFrequencyReceived(string noteName, float playedFrequencyHz)
+    public void OnAcousticResonanceFrequencyReceived(string noteName, float playedFrequencyHz)
     {
         if (!isSummonedFamiliar || artifactData == null) return;
 

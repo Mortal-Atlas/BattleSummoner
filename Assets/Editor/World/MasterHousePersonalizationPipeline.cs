@@ -226,42 +226,47 @@ namespace BattleSummoner.Editor.World
                     var stepMr = stepGo.AddComponent<MeshRenderer>();
                     stepMr.sharedMaterial = stoneMat;
 
-                    // 5. Warm Interior Window Glow
-                    // Add warm window glow behind front windows
-                    var windowGlow1 = new GameObject("Window_Glow_Left");
-                    windowGlow1.transform.SetParent(decorRoot.transform, false);
-                    windowGlow1.transform.localPosition = new Vector3(-dims.frontage * 0.28f, 1.7f, dims.facadeZ - 0.02f);
-                    var wgMf1 = windowGlow1.AddComponent<MeshFilter>();
-                    wgMf1.sharedMesh = sharedWindowGlowMesh;
-                    var wgMr1 = windowGlow1.AddComponent<MeshRenderer>();
-                    wgMr1.sharedMaterial = lanternGlowMat;
+                    // 5. Warm Interior Window Glow with Dark Timber Frame
+                    // Add warm window glow behind front windows with authentic timber casing
+                    void CreateWindow(string name, float posX)
+                    {
+                        var windowRoot = new GameObject(name);
+                        windowRoot.transform.SetParent(decorRoot.transform, false);
+                        windowRoot.transform.localPosition = new Vector3(posX, 1.7f, dims.facadeZ - 0.02f);
 
-                    var windowGlow2 = new GameObject("Window_Glow_Right");
-                    windowGlow2.transform.SetParent(decorRoot.transform, false);
-                    windowGlow2.transform.localPosition = new Vector3(dims.frontage * 0.28f, 1.7f, dims.facadeZ - 0.02f);
-                    var wgMf2 = windowGlow2.AddComponent<MeshFilter>();
-                    wgMf2.sharedMesh = sharedWindowGlowMesh;
-                    var wgMr2 = windowGlow2.AddComponent<MeshRenderer>();
-                    wgMr2.sharedMaterial = lanternGlowMat;
+                        // Window Glass Pane
+                        var wgMf = windowRoot.AddComponent<MeshFilter>();
+                        wgMf.sharedMesh = sharedWindowGlowMesh;
+                        var wgMr = windowRoot.AddComponent<MeshRenderer>();
+                        wgMr.sharedMaterial = lanternGlowMat;
+                        windowRoot.transform.localScale = new Vector3(0.92f, 0.92f, 1.0f);
 
-                    // 6. Doorway Sconce Lantern (70% of houses)
+                        // Exterior Timber Window Casing / Frame
+                        var frameGo = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        frameGo.name = "Window_Frame";
+                        frameGo.transform.SetParent(windowRoot.transform, false);
+                        frameGo.transform.localPosition = new Vector3(0f, 0f, -0.015f);
+                        frameGo.transform.localScale = new Vector3(1.30f, 1.50f, 0.04f);
+                        UnityEngine.Object.DestroyImmediate(frameGo.GetComponent<Collider>());
+                        if (timberMat != null) frameGo.GetComponent<MeshRenderer>().sharedMaterial = timberMat;
+                    }
+
+                    CreateWindow("Window_Glow_Left", -dims.frontage * 0.28f);
+                    CreateWindow("Window_Glow_Right", dims.frontage * 0.28f);
+
+                    // 6. Doorstep Ground Lantern (70% of houses)
+                    // Freestanding candle lantern set upright ON THE GROUND / doorstep, NOT hung from a wall
                     if (rng.NextDouble() < 0.70 && lantern1Prefab != null)
                     {
                         var lantern = (GameObject)PrefabUtility.InstantiatePrefab(lantern1Prefab, decorRoot.transform);
                         lantern.name = "Door_Sconce_Lantern";
-                        float sideX = (rng.NextDouble() < 0.5) ? 1.15f : -1.15f;
-                        lantern.transform.localPosition = new Vector3(sideX, 2.05f, dims.facadeZ + 0.18f);
+                        float sideX = (rng.NextDouble() < 0.5) ? 0.95f : -0.95f;
+                        // Set flush on ground/doorstep level (Y = 0.08f), sitting neatly on the stoop
+                        lantern.transform.localPosition = new Vector3(sideX, 0.08f, dims.facadeZ + 0.35f);
                         lantern.transform.localRotation = Quaternion.identity;
                         lantern.transform.localScale = Vector3.one * 0.28f;
 
-                        // Wrought iron wall bracket arm
-                        var bracket = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        bracket.name = "Sconce_Wall_Bracket";
-                        bracket.transform.SetParent(decorRoot.transform, false);
-                        bracket.transform.localPosition = new Vector3(sideX, 2.22f, dims.facadeZ + 0.08f);
-                        bracket.transform.localScale = new Vector3(0.04f, 0.04f, 0.20f);
-                        UnityEngine.Object.DestroyImmediate(bracket.GetComponent<Collider>());
-                        bracket.GetComponent<MeshRenderer>().sharedMaterial = ironMat;
+                        // Freestanding ground lantern: no wall bracket
 
                         // Add warm point light on 35% of street frontage houses to create nighttime brilliance
                         if (rng.NextDouble() < 0.35)
@@ -269,8 +274,8 @@ namespace BattleSummoner.Editor.World
                             var lt = lantern.AddComponent<Light>();
                             lt.type = LightType.Point;
                             lt.range = 3.5f;
-                            lt.intensity = 1.2f;
-                            lt.color = new Color(1.0f, 0.78f, 0.42f);
+                            lt.intensity = 1.0f;
+                            lt.color = new Color(1.0f, 0.82f, 0.45f);
                         }
                         lanternCount++;
                     }
@@ -334,7 +339,16 @@ namespace BattleSummoner.Editor.World
                             crate.name = "Porch_Pantry_Supply";
                             float sideX = (rng.NextDouble() < 0.5) ? 1.6f : -1.6f;
                             crate.transform.localPosition = new Vector3(sideX, 0f, dims.facadeZ + 0.35f);
-                            crate.transform.localScale = Vector3.one * 0.8f;
+                            if (crateAsset == sackPrefab)
+                            {
+                                crate.transform.localRotation = Quaternion.Euler(270f, 180f, 0f);
+                                crate.transform.localScale = Vector3.one * 0.22f;
+                            }
+                            else
+                            {
+                                crate.transform.localRotation = Quaternion.identity;
+                                crate.transform.localScale = Vector3.one * 0.8f;
+                            }
                         }
                     }
 
@@ -346,9 +360,10 @@ namespace BattleSummoner.Editor.World
                             var bench = (GameObject)PrefabUtility.InstantiatePrefab(benchPrefab, decorRoot.transform);
                             bench.name = "Front_Porch_Bench";
                             float benchSideX = (rng.NextDouble() < 0.5) ? 2.4f : -2.4f;
-                            bench.transform.localPosition = new Vector3(benchSideX, 0f, dims.facadeZ + 0.55f);
-                            bench.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-                            bench.transform.localScale = Vector3.one * 0.85f;
+                            // Bench center offset: Euler(0, -90, 90) centers bench at +1.04m from pivot
+                            bench.transform.localPosition = new Vector3(benchSideX - 1.04f, 0f, dims.facadeZ + 0.35f);
+                            bench.transform.localRotation = Quaternion.Euler(0f, -90f, 90f);
+                            bench.transform.localScale = Vector3.one * 0.16f;
                             benchCount++;
                         }
                         else if (ladderPrefab != null && rng.NextDouble() < 0.4)

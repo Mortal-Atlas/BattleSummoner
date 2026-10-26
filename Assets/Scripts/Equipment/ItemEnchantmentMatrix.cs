@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using BattleSummoner.Core.DimensionalCompiler;
 
 /// <summary>
 /// ItemEnchantmentMatrix handles 3-strike anvil forging, 12D telemetry coupling, and gem resonance matrices.

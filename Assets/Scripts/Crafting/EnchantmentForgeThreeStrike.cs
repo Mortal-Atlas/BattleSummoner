@@ -1,5 +1,6 @@
 using UnityEngine;
 using BattleSummoner.Hobbies;
+using BattleSummoner.Core.DimensionalCompiler;
 
 public class EnchantmentForgeThreeStrike : MonoBehaviour
 {

@@ -81,10 +81,10 @@ namespace BattleSummoner.EditorScripts
                 "Assets/Prefabs/Houses/PFB_House_Alchemist_Apothecary.prefab",
                 "District_II_Grand_Bazaar",
                 "Meshy_House_AlchemistApothecary_BazaarRow",
-                new Vector3(30f, 60f, -170f),
+                new Vector3(30f, 85f, -170f),
                 -110f,
                 6.49f,
-                4.28f
+                4.26f
             ),
 
             // 5. District IIIB: Eastern Artisan Quarter - Medieval Artisan Row
@@ -173,11 +173,38 @@ namespace BattleSummoner.EditorScripts
                     districtRoots[p.districtName] = dParent;
                 }
 
-                // Raycast ground
+                // Raycast highest walkable ground/floor/plaza
                 Vector3 spawnPos = p.rayOrigin;
-                if (Physics.Raycast(p.rayOrigin, Vector3.down, out RaycastHit hit, 150f))
+                var hits = Physics.RaycastAll(p.rayOrigin, Vector3.down, 150f);
+                float highestGroundY = float.MinValue;
+                bool hitValid = false;
+                foreach (var h in hits)
+                {
+                    string hn = h.collider.name;
+                    if (hn.Contains("Floor") || hn.Contains("Plaza") || hn.Contains("Continent") || hn.Contains("Terrain") || hn.Contains("Roadbed") || hn.Contains("Walk"))
+                    {
+                        if (h.point.y > highestGroundY)
+                        {
+                            highestGroundY = h.point.y;
+                            hitValid = true;
+                        }
+                    }
+                }
+                if (hitValid)
+                {
+                    spawnPos = new Vector3(p.rayOrigin.x, highestGroundY + p.groundOffset, p.rayOrigin.z);
+                }
+                else if (Physics.Raycast(p.rayOrigin, Vector3.down, out RaycastHit hit, 150f))
                 {
                     spawnPos = hit.point + new Vector3(0f, p.groundOffset, 0f);
+                }
+
+                // If placing Alchemist house, remove colliding placeholder rowhouse
+                if (p.instanceName == "Meshy_House_AlchemistApothecary_BazaarRow")
+                {
+                    var gh = GameObject.Find("8Vector_Metropolis_Root/01_Tier_Stepped_RowHouses/RowHouse_R182_Building_Guildhall_Grand");
+                    if (gh == null) gh = GameObject.Find("RowHouse_R182_Building_Guildhall_Grand");
+                    if (gh != null) Undo.DestroyObjectImmediate(gh);
                 }
 
                 var inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab, dParent);

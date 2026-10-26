@@ -16,7 +16,8 @@ public class WeaponTemper : MonoBehaviour
 
     [Header("Forged Sword Stats")]
     public float baseDamage = 45f;
-    public int maxDurability = 150;
+    public float maxDurability = 150f;
+    public float currentDurability = 150f;
     public int maxSockets = 3;
 
     public event Action<float> OnTemperChanged;

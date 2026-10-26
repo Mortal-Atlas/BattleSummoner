@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEditor;
@@ -9,62 +10,68 @@ using BattleSummoner.Optimization;
 namespace BattleSummoner.EditorScripts
 {
     /// <summary>
-    /// ImmersiveStylizedGrassPopulator eliminates all patchiness and covers every inch
-    /// of designated green floor across the continent with dense, lush, interactive anime grass and wildflowers.
-    ///
-    /// Key Upgrades:
-    /// 1. Continuous Gap-Free Lattice: High-frequency sampling (10m step with 6-10 overlapping patches per cell)
-    ///    guaranteeing 100% seamless ground coverage without bald spots.
-    /// 2. Inner-Rim Unlocking: Grass extends right up to the outer moat water bank (R >= 470m) and into city park lawns.
-    /// 3. Multi-Layer Organic Foliage: Seamless 50/50 blend between Nyxis interactive wind grass and Anime Trees meadow grass.
-    /// 4. 4-Season Wildflower Meadows: 45% of cells feature vibrant clusters of Azure Bells, Golden Marigolds, and Crimson Poppies.
-    /// 5. High-Performance Spatial Chunking: Grouped in 80m chunks on layer 6 ('Foliage_Grass') with GPU instancing
-    ///    and camera frustum unloader integration (maintains 60+ FPS).
+    /// Master Immersive Stylized Grass Populator
+    /// Completely blankets all green floor/meadows of the circular continent with dense,
+    /// interlocking, waving stylized anime grass and wildflowers (Zelda: TotK / Genshin Impact quality).
+    /// Eliminates all patchiness and bald gaps while maintaining high framerates via GPU instancing
+    /// and 80m spatial chunking with CameraFrustumPropUnloader.
     /// </summary>
     public static class ImmersiveStylizedGrassPopulator
     {
+        private const string SCENE_PATH = "Assets/Scenes/OverworldMap.unity";
         private const string ROOT_NAME = "--- DYNAMIC STYLIZED GRASS & WILDFLOWERS ---";
-        private const int LAYER_GRASS = 6; // 'Foliage_Grass'
 
-        private const string DYNAMIC_GRASS_PREFAB = "Assets/Nyxis_GrassInteractionSystem/Prefab/Grass_Patch.prefab";
+        private const string NYXIS_GRASS_PREFAB = "Assets/Nyxis_GrassInteractionSystem/Prefab/Grass_Patch.prefab";
         private const string STYLIZED_GRASS_PREFAB = "Assets/Anime Trees/Prefabs/GrassMesh.prefab";
+        private const string ALBEDO_TEX_PATH = "Assets/Textures/Environments/Continent/T_Continent_MacroAlbedo.png";
+        private const string BIOME_MASK_PATH = "Assets/Textures/Environments/Continent/T_Continent_BiomeMask.png";
 
         private static readonly string[] FLOWER_PREFAB_PATHS = new string[]
         {
-            "Assets/Prefabs/Flowers/PFB_FlowerCluster_AzureBells.prefab",
-            "Assets/Prefabs/Flowers/PFB_FlowerCluster_GoldenMarigolds.prefab",
-            "Assets/Prefabs/Flowers/PFB_FlowerCluster_CrimsonPoppies.prefab",
-            "Assets/Prefabs/Flowers/PFB_FlowerCluster_MixedWildflowers.prefab"
+            "Assets/Prefabs/Flowers/PFB_Flower_01.prefab",
+            "Assets/Prefabs/Flowers/PFB_Flower_03.prefab",
+            "Assets/Prefabs/Flowers/PFB_Flower_05.prefab",
+            "Assets/Prefabs/Flowers/PFB_FlowerCluster_MixedWildflowers.prefab",
+            "Assets/Anime Trees/Prefabs/Bush_01.prefab",
+            "Assets/Anime Trees/Prefabs/Bush_02.prefab"
         };
 
-        [MenuItem("BattleSummoner/World Refinement/Populate Immersive Stylized Grass (Every Inch Covered)", false, 15)]
+        private const int LAYER_GRASS = 6; // Foliage_Grass
+
+        [MenuItem("BattleSummoner/World Refinement/Populate Immersive Stylized Grass (Every Inch Covered)", false, 1)]
         public static string PopulateEveryInchOfGrass()
         {
+            return PopulateEveryInchOfGrass(true);
+        }
+
+        public static string PopulateEveryInchOfGrass(bool saveScene)
+        {
             var scene = EditorSceneManager.GetActiveScene();
-            if (scene.path != "Assets/Scenes/OverworldMap.unity")
+            if (scene.path != SCENE_PATH)
             {
-                EditorSceneManager.OpenScene("Assets/Scenes/OverworldMap.unity");
+                scene = EditorSceneManager.OpenScene(SCENE_PATH, OpenSceneMode.Single);
             }
 
-            var terrainObj = GameObject.Find("CircularContinent_MacroLevel1");
-            if (terrainObj == null)
+            var continentObj = GameObject.Find("CircularContinent_MacroLevel1");
+            if (continentObj == null)
             {
-                return "Error: CircularContinent_MacroLevel1 not found in scene!";
+                Debug.LogError("[Immersive Grass Engine] CircularContinent_MacroLevel1 not found in scene!");
+                return "Failed: CircularContinent_MacroLevel1 missing";
             }
 
-            var terrainCollider = terrainObj.GetComponent<MeshCollider>();
+            var terrainCollider = continentObj.GetComponent<MeshCollider>();
             if (terrainCollider == null)
             {
-                return "Error: Terrain MeshCollider missing on CircularContinent_MacroLevel1!";
+                terrainCollider = continentObj.GetComponentInChildren<MeshCollider>();
             }
-
-            var dynamicGrassPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(DYNAMIC_GRASS_PREFAB);
-            var stylizedGrassPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(STYLIZED_GRASS_PREFAB);
-
-            if (dynamicGrassPrefab == null && stylizedGrassPrefab == null)
+            if (terrainCollider == null)
             {
-                return "Error: Neither Grass_Patch.prefab nor GrassMesh.prefab found!";
+                Debug.LogError("[Immersive Grass Engine] No MeshCollider found on CircularContinent_MacroLevel1!");
+                return "Failed: MeshCollider missing";
             }
+
+            var dynamicGrassPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(NYXIS_GRASS_PREFAB);
+            var stylizedGrassPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(STYLIZED_GRASS_PREFAB);
 
             var flowerPrefabs = new List<GameObject>();
             foreach (var path in FLOWER_PREFAB_PATHS)
@@ -73,20 +80,21 @@ namespace BattleSummoner.EditorScripts
                 if (p != null) flowerPrefabs.Add(p);
             }
 
-            // Load and ensure readable terrain maps
-            Texture2D biomeMaskTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Environments/Continent/T_Continent_BiomeMask.png");
-            Texture2D albedoTex = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Environments/Continent/T_Continent_MacroAlbedo.png");
+            var albedoTex = AssetDatabase.LoadAssetAtPath<Texture2D>(ALBEDO_TEX_PATH);
+            var biomeMaskTex = AssetDatabase.LoadAssetAtPath<Texture2D>(BIOME_MASK_PATH);
 
-            EnsureReadableTexture(biomeMaskTex);
             EnsureReadableTexture(albedoTex);
+            EnsureReadableTexture(biomeMaskTex);
 
-            // Clean up existing grass roots
-            var existingRoot = GameObject.Find(ROOT_NAME);
-            if (existingRoot != null)
-            {
-                Undo.DestroyObjectImmediate(existingRoot);
-            }
-            var oldWindGrass = GameObject.Find("--- WORLD WIND GRASS ---");
+            Color32[] aPix = (albedoTex != null) ? albedoTex.GetPixels32() : null;
+            Color32[] mPix = (biomeMaskTex != null) ? biomeMaskTex.GetPixels32() : null;
+            int aW = (albedoTex != null) ? albedoTex.width : 0;
+            int aH = (albedoTex != null) ? albedoTex.height : 0;
+            int mW = (biomeMaskTex != null) ? biomeMaskTex.width : 0;
+            int mH = (biomeMaskTex != null) ? biomeMaskTex.height : 0;
+
+            // Destroy any previous grass root cleanly
+            var oldWindGrass = GameObject.Find(ROOT_NAME);
             if (oldWindGrass != null)
             {
                 Undo.DestroyObjectImmediate(oldWindGrass);
@@ -104,61 +112,74 @@ namespace BattleSummoner.EditorScripts
                 {
                     driver = Undo.AddComponent<BattleSummoner.Environment.WindGrassInteractionDriver>(hero);
                 }
-                driver.SetInteractionRadius(3.2f);
+                driver.SetInteractionRadius(3.5f);
             }
 
             var grassChunks = new Dictionary<Vector2Int, Transform>();
             int totalGrassSpawned = 0;
             int totalFlowersSpawned = 0;
 
-            UnityEngine.Random.InitState(54321);
+            UnityEngine.Random.InitState(424242);
 
-            // Dense continuous sampling grid: 10m step covering the continent (radius 470m to 2600m)
-            float step = 10.0f;
-            float maxCoverageRadius = 2650f;
+            // Two-tier dense population system:
+            // Tier 1: Inhabited & Active Exploration Realm (Radius <= 1280m) at 8.0m step with 4-patch interlocking clusters (Center + 3 Satellites)
+            // Tier 2: Outer Mountain Horizon & Wilderness (1280m < Radius <= 2250m) at 16.0m step for background parallax
+            float innerStep = 8.0f;
+            float outerStep = 16.0f;
+            float realmRadius = 1280f;
+            float maxCoverageRadius = 2250f;
             float innerMoatRadius = 470f;
 
-            for (float x = -maxCoverageRadius; x <= maxCoverageRadius; x += step)
+            // --- TIER 1: ACTIVE PLAYABLE REALM (DENSE INTERLOCKING CARPET) ---
+            for (float x = -realmRadius; x <= realmRadius; x += innerStep)
             {
-                for (float z = -maxCoverageRadius; z <= maxCoverageRadius; z += step)
-                {
-                    float dist = Mathf.Sqrt(x * x + z * z);
+                float rowOffset = ((Mathf.FloorToInt((x + 10000f) / innerStep) % 2) != 0) ? (0.5f * innerStep) : 0f;
 
-                    // Skip center citadel/moat water (dist < 470m) and ocean perimeter
-                    if (dist < innerMoatRadius || dist > maxCoverageRadius) continue;
+                for (float z = -realmRadius; z <= realmRadius; z += innerStep)
+                {
+                    float jx = UnityEngine.Random.Range(-0.20f, 0.20f) * innerStep;
+                    float jz = UnityEngine.Random.Range(-0.20f, 0.20f) * innerStep;
+
+                    float candidateX = x + jx;
+                    float candidateZ = z + rowOffset + jz;
+
+                    float distSq = candidateX * candidateX + candidateZ * candidateZ;
+
+                    // Skip central citadel/moat water (dist < 470m) and outer boundary
+                    if (distSq < innerMoatRadius * innerMoatRadius || distSq > realmRadius * realmRadius) continue;
 
                     // Exclude volcano crater and lava fields around (-1140, 1360)
-                    float volcDist = Mathf.Sqrt((x + 1140f) * (x + 1140f) + (z - 1360f) * (z - 1360f));
-                    if (volcDist < 460f) continue;
+                    float vx = candidateX + 1140f;
+                    float vz = candidateZ - 1360f;
+                    if (vx * vx + vz * vz < 460f * 460f) continue;
 
                     // Exclude main cardinal bridge stone approaches (N, S, E, W within 470m - 520m and width 16m)
-                    if (dist <= 520f)
+                    if (distSq <= 520f * 520f)
                     {
-                        if ((Mathf.Abs(x) < 14f && Mathf.Abs(z) < 520f) || (Mathf.Abs(z) < 14f && Mathf.Abs(x) < 520f))
+                        if ((Mathf.Abs(candidateX) < 14f && Mathf.Abs(candidateZ) < 520f) || (Mathf.Abs(candidateZ) < 14f && Mathf.Abs(candidateX) < 520f))
                         {
                             continue;
                         }
                     }
 
-                    // Hexagonal row offset for continuous organic distribution
-                    float rowOffset = ((Mathf.FloorToInt((z + 10000f) / step) % 2) != 0) ? (0.5f * step) : 0f;
-                    float jx = UnityEngine.Random.Range(-0.25f, 0.25f) * step;
-                    float jz = UnityEngine.Random.Range(-0.25f, 0.25f) * step;
+                    // Green floor detection using raw Color32 arrays
+                    bool isAlbedoGreen = false;
+                    if (aPix != null && aW > 0 && aH > 0)
+                    {
+                        int px = Mathf.Clamp((int)((candidateX + 4096f) / 8192f * aW), 0, aW - 1);
+                        int py = Mathf.Clamp((int)((candidateZ + 4096f) / 8192f * aH), 0, aH - 1);
+                        Color32 a = aPix[py * aW + px];
+                        isAlbedoGreen = (a.g > 38 && a.g > (int)(a.r * 0.90f) && a.g > (int)(a.b * 0.90f));
+                    }
 
-                    float candidateX = x + rowOffset + jx;
-                    float candidateZ = z + jz;
-
-                    // Sample biome and albedo maps
-                    float u = Mathf.Clamp01((candidateX + 4096f) / 8192f);
-                    float v = Mathf.Clamp01((candidateZ + 4096f) / 8192f);
-                    Color maskCol = (biomeMaskTex != null) ? biomeMaskTex.GetPixelBilinear(u, v) : Color.black;
-                    Color albedoCol = (albedoTex != null) ? albedoTex.GetPixelBilinear(u, v) : Color.black;
-
-                    // GREEN FLOOR DETECTION:
-                    // 1. Albedo green channel is elevated (grass/meadow tint)
-                    bool isAlbedoGreen = (albedoCol.g > 0.16f && albedoCol.g > albedoCol.r * 0.94f && albedoCol.g > albedoCol.b * 0.94f);
-                    // 2. Biome mask designates grass channel
-                    bool isMaskGrass = (maskCol.r > 0.10f && maskCol.b < 0.50f);
+                    bool isMaskGrass = false;
+                    if (mPix != null && mW > 0 && mH > 0)
+                    {
+                        int mx = Mathf.Clamp((int)((candidateX + 4096f) / 8192f * mW), 0, mW - 1);
+                        int my = Mathf.Clamp((int)((candidateZ + 4096f) / 8192f * mH), 0, mH - 1);
+                        Color32 m = mPix[my * mW + mx];
+                        isMaskGrass = (m.r > 25 && m.b < 128);
+                    }
 
                     if (!isAlbedoGreen && !isMaskGrass) continue;
 
@@ -173,7 +194,7 @@ namespace BattleSummoner.EditorScripts
                     if (hitCenter.normal.y < 0.50f) continue;
 
                     // Spatial chunk key (80m chunks)
-                    Vector2Int chunkKey = new Vector2Int(Mathf.FloorToInt(candidateX / 80f), Mathf.FloorToInt(candidateZ / 80f));
+                    Vector2Int chunkKey = new Vector2Int(Mathf.FloorToInt(hitCenter.point.x / 80f), Mathf.FloorToInt(hitCenter.point.z / 80f));
                     if (!grassChunks.TryGetValue(chunkKey, out Transform chunkTr))
                     {
                         GameObject chunkGo = new GameObject($"GrassChunk_{chunkKey.x}_{chunkKey.y}");
@@ -182,91 +203,147 @@ namespace BattleSummoner.EditorScripts
                         grassChunks[chunkKey] = chunkTr;
                     }
 
-                    // DENSE LUSH CLUSTERING: 6 to 9 interlocking patches per 10m cell (guarantees zero gaps)
-                    int patchCount = UnityEngine.Random.Range(6, 10);
-                    for (int p = 0; p < patchCount; p++)
+                    // 1. PRIMARY CENTER PATCH (Delicate, slender anime blades, knee-to-waist height)
+                    bool isDynamic = (dynamicGrassPrefab != null) && (stylizedGrassPrefab == null || UnityEngine.Random.value < 0.50f);
+                    GameObject primaryPrefab = isDynamic ? dynamicGrassPrefab : stylizedGrassPrefab;
+
+                    var p1 = (GameObject)PrefabUtility.InstantiatePrefab(primaryPrefab, chunkTr);
+                    p1.layer = LAYER_GRASS;
+                    p1.transform.position = hitCenter.point;
+
+                    Quaternion slopeRot = Quaternion.FromToRotation(Vector3.up, hitCenter.normal);
+                    Quaternion yawRot1 = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+                    p1.transform.rotation = Quaternion.Slerp(yawRot1, slopeRot * yawRot1, 0.40f);
+
+                    float sc1 = isDynamic ? UnityEngine.Random.Range(1.20f, 1.65f) : UnityEngine.Random.Range(1.15f, 1.50f);
+                    p1.transform.localScale = Vector3.one * sc1;
+
+                    OptimizeGrassRenderers(p1);
+                    totalGrassSpawned++;
+
+                    // 2. INTERLOCKING 3-SATELLITE RING (angles 0, 120, 240 deg, alternating prefab for rich bi-color depth)
+                    float clusterBaseAngle = UnityEngine.Random.Range(0f, 360f);
+                    for (int s = 0; s < 3; s++)
                     {
-                        float pAngle = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
-                        float pDist = UnityEngine.Random.Range(0f, 6.2f);
-                        Vector3 gPos = hitCenter.point + new Vector3(Mathf.Cos(pAngle) * pDist, 0f, Mathf.Sin(pAngle) * pDist);
+                        float angleDeg = clusterBaseAngle + s * 120f + UnityEngine.Random.Range(-18f, 18f);
+                        float dist = UnityEngine.Random.Range(2.0f, 3.4f);
+                        float rad = angleDeg * Mathf.Deg2Rad;
+                        Vector3 satOffset = new Vector3(Mathf.Cos(rad) * dist, 0f, Mathf.Sin(rad) * dist);
 
-                        Ray patchRay = new Ray(gPos + Vector3.up * 35f, Vector3.down);
-                        if (!terrainCollider.Raycast(patchRay, out RaycastHit hitG, 70f)) continue;
-
-                        if (hitG.point.y <= 18.6f || hitG.normal.y < 0.48f) continue;
-
-                        float gDist = Mathf.Sqrt(hitG.point.x * hitG.point.x + hitG.point.z * hitG.point.z);
-                        if (gDist < innerMoatRadius) continue;
-
-                        // 50/50 organic blend between interactive wind grass and dense stylized anime grass
-                        bool useDynamic = (dynamicGrassPrefab != null) && (stylizedGrassPrefab == null || UnityEngine.Random.value < 0.50f);
-                        GameObject chosenPrefab = useDynamic ? dynamicGrassPrefab : stylizedGrassPrefab;
-
-                        var gPatch = (GameObject)PrefabUtility.InstantiatePrefab(chosenPrefab, chunkTr);
-                        gPatch.layer = LAYER_GRASS;
-                        gPatch.transform.position = hitG.point;
-
-                        Quaternion slopeRot = Quaternion.FromToRotation(Vector3.up, hitG.normal);
-                        Quaternion yawRot = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                        gPatch.transform.rotation = Quaternion.Slerp(yawRot, slopeRot * yawRot, 0.45f);
-
-                        // Generous scale for full interlocking canopy
-                        float gScale = useDynamic ? UnityEngine.Random.Range(3.8f, 5.6f) : UnityEngine.Random.Range(2.8f, 4.4f);
-                        gPatch.transform.localScale = Vector3.one * gScale;
-
-                        // High performance: disable shadows, enable GPU instancing
-                        var renderers = gPatch.GetComponentsInChildren<MeshRenderer>();
-                        for (int r = 0; r < renderers.Length; r++)
+                        Ray raySat = new Ray(hitCenter.point + satOffset + Vector3.up * 25f, Vector3.down);
+                        if (terrainCollider.Raycast(raySat, out RaycastHit hitSat, 50f) && hitSat.point.y > 18.6f && hitSat.normal.y >= 0.48f)
                         {
-                            renderers[r].shadowCastingMode = ShadowCastingMode.Off;
-                            renderers[r].receiveShadows = false;
-                            var mats = renderers[r].sharedMaterials;
-                            for (int m = 0; m < mats.Length; m++)
-                            {
-                                if (mats[m] != null) mats[m].enableInstancing = true;
-                            }
-                        }
+                            var satPrefab = (s % 2 == 0) ? (isDynamic ? stylizedGrassPrefab : dynamicGrassPrefab) : primaryPrefab;
+                            if (satPrefab == null) satPrefab = primaryPrefab;
 
-                        totalGrassSpawned++;
+                            var pSat = (GameObject)PrefabUtility.InstantiatePrefab(satPrefab, chunkTr);
+                            pSat.layer = LAYER_GRASS;
+                            pSat.transform.position = hitSat.point;
+                            Quaternion yawRotSat = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+                            pSat.transform.rotation = Quaternion.Slerp(yawRotSat, Quaternion.FromToRotation(Vector3.up, hitSat.normal) * yawRotSat, 0.40f);
+
+                            float scSat = (satPrefab == dynamicGrassPrefab) ? UnityEngine.Random.Range(1.10f, 1.50f) : UnityEngine.Random.Range(1.05f, 1.45f);
+                            pSat.transform.localScale = Vector3.one * scSat;
+
+                            OptimizeGrassRenderers(pSat);
+                            totalGrassSpawned++;
+                        }
                     }
 
-                    // WILDFLOWERS: 40% of cells spawn a natural cluster of 2 to 4 wildflowers
-                    if (flowerPrefabs.Count > 0 && UnityEngine.Random.value < 0.40f)
+                    // 3. WILDFLOWERS & BLOOMS (20% probability)
+                    if (flowerPrefabs.Count > 0 && UnityEngine.Random.value < 0.20f)
                     {
-                        int flowerCount = UnityEngine.Random.Range(2, 5);
-                        for (int f = 0; f < flowerCount; f++)
+                        var fPrefab = flowerPrefabs[UnityEngine.Random.Range(0, flowerPrefabs.Count)];
+                        Vector3 fOffset = new Vector3(UnityEngine.Random.Range(-2.2f, 2.2f), 0f, UnityEngine.Random.Range(-2.2f, 2.2f));
+                        Ray rayF = new Ray(hitCenter.point + fOffset + Vector3.up * 30f, Vector3.down);
+                        if (terrainCollider.Raycast(rayF, out RaycastHit hitF, 60f) && hitF.point.y > 18.6f && hitF.normal.y >= 0.48f)
                         {
-                            float fAngle = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
-                            float fDist = UnityEngine.Random.Range(0.5f, 5.5f);
-                            Vector3 fPos = hitCenter.point + new Vector3(Mathf.Cos(fAngle) * fDist, 0f, Mathf.Sin(fAngle) * fDist);
+                            var fInst = (GameObject)PrefabUtility.InstantiatePrefab(fPrefab, chunkTr);
+                            fInst.layer = LAYER_GRASS;
+                            fInst.transform.position = hitF.point;
+                            fInst.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+                            fInst.transform.localScale = Vector3.one * UnityEngine.Random.Range(0.75f, 1.20f);
 
-                            Ray flowerRay = new Ray(fPos + Vector3.up * 35f, Vector3.down);
-                            if (!terrainCollider.Raycast(flowerRay, out RaycastHit hitF, 70f)) continue;
-
-                            if (hitF.point.y <= 18.6f || hitF.normal.y < 0.48f) continue;
-
-                            var flowerPrefab = flowerPrefabs[UnityEngine.Random.Range(0, flowerPrefabs.Count)];
-                            var flowerInst = (GameObject)PrefabUtility.InstantiatePrefab(flowerPrefab, chunkTr);
-                            flowerInst.layer = LAYER_GRASS;
-                            flowerInst.transform.position = hitF.point;
-                            flowerInst.transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
-                            flowerInst.transform.localScale = Vector3.one * UnityEngine.Random.Range(1.1f, 1.9f);
-
-                            var flowerRenderers = flowerInst.GetComponentsInChildren<MeshRenderer>();
-                            for (int r = 0; r < flowerRenderers.Length; r++)
-                            {
-                                flowerRenderers[r].shadowCastingMode = ShadowCastingMode.Off;
-                                flowerRenderers[r].receiveShadows = false;
-                                var mats = flowerRenderers[r].sharedMaterials;
-                                for (int m = 0; m < mats.Length; m++)
-                                {
-                                    if (mats[m] != null) mats[m].enableInstancing = true;
-                                }
-                            }
-
+                            OptimizeGrassRenderers(fInst);
                             totalFlowersSpawned++;
                         }
                     }
+                }
+            }
+
+            // --- TIER 2: OUTER MOUNTAIN HORIZON & RIM WILDERNESS (PARALLAX COVERAGE) ---
+            for (float x = -maxCoverageRadius; x <= maxCoverageRadius; x += outerStep)
+            {
+                float rowOffset = ((Mathf.FloorToInt((x + 10000f) / outerStep) % 2) != 0) ? (0.5f * outerStep) : 0f;
+
+                for (float z = -maxCoverageRadius; z <= maxCoverageRadius; z += outerStep)
+                {
+                    float jx = UnityEngine.Random.Range(-0.25f, 0.25f) * outerStep;
+                    float jz = UnityEngine.Random.Range(-0.25f, 0.25f) * outerStep;
+
+                    float candidateX = x + jx;
+                    float candidateZ = z + rowOffset + jz;
+
+                    float distSq = candidateX * candidateX + candidateZ * candidateZ;
+
+                    // Skip inner realm (already populated with high density) and outer perimeter
+                    if (distSq <= realmRadius * realmRadius || distSq > maxCoverageRadius * maxCoverageRadius) continue;
+
+                    // Exclude volcano crater and lava fields around (-1140, 1360)
+                    float vx = candidateX + 1140f;
+                    float vz = candidateZ - 1360f;
+                    if (vx * vx + vz * vz < 460f * 460f) continue;
+
+                    // Green floor detection using raw Color32 arrays
+                    bool isAlbedoGreen = false;
+                    if (aPix != null && aW > 0 && aH > 0)
+                    {
+                        int px = Mathf.Clamp((int)((candidateX + 4096f) / 8192f * aW), 0, aW - 1);
+                        int py = Mathf.Clamp((int)((candidateZ + 4096f) / 8192f * aH), 0, aH - 1);
+                        Color32 a = aPix[py * aW + px];
+                        isAlbedoGreen = (a.g > 38 && a.g > (int)(a.r * 0.90f) && a.g > (int)(a.b * 0.90f));
+                    }
+
+                    bool isMaskGrass = false;
+                    if (mPix != null && mW > 0 && mH > 0)
+                    {
+                        int mx = Mathf.Clamp((int)((candidateX + 4096f) / 8192f * mW), 0, mW - 1);
+                        int my = Mathf.Clamp((int)((candidateZ + 4096f) / 8192f * mH), 0, mH - 1);
+                        Color32 m = mPix[my * mW + mx];
+                        isMaskGrass = (m.r > 25 && m.b < 128);
+                    }
+
+                    if (!isAlbedoGreen && !isMaskGrass) continue;
+
+                    Ray ray = new Ray(new Vector3(candidateX, 1500f, candidateZ), Vector3.down);
+                    if (!terrainCollider.Raycast(ray, out RaycastHit hitCenter, 2000f)) continue;
+
+                    if (hitCenter.point.y <= 18.6f || hitCenter.normal.y < 0.50f) continue;
+
+                    Vector2Int chunkKey = new Vector2Int(Mathf.FloorToInt(hitCenter.point.x / 80f), Mathf.FloorToInt(hitCenter.point.z / 80f));
+                    if (!grassChunks.TryGetValue(chunkKey, out Transform chunkTr))
+                    {
+                        GameObject chunkGo = new GameObject($"GrassChunk_{chunkKey.x}_{chunkKey.y}");
+                        chunkGo.transform.SetParent(grassRoot.transform);
+                        chunkTr = chunkGo.transform;
+                        grassChunks[chunkKey] = chunkTr;
+                    }
+
+                    bool isDynamic = (dynamicGrassPrefab != null) && (stylizedGrassPrefab == null || UnityEngine.Random.value < 0.50f);
+                    GameObject outPrefab = isDynamic ? dynamicGrassPrefab : stylizedGrassPrefab;
+
+                    var pOut = (GameObject)PrefabUtility.InstantiatePrefab(outPrefab, chunkTr);
+                    pOut.layer = LAYER_GRASS;
+                    pOut.transform.position = hitCenter.point;
+                    Quaternion slopeRot = Quaternion.FromToRotation(Vector3.up, hitCenter.normal);
+                    Quaternion yawRotOut = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+                    pOut.transform.rotation = Quaternion.Slerp(yawRotOut, slopeRot * yawRotOut, 0.40f);
+
+                    float scOut = isDynamic ? UnityEngine.Random.Range(1.30f, 1.70f) : UnityEngine.Random.Range(1.20f, 1.60f);
+                    pOut.transform.localScale = Vector3.one * scOut;
+
+                    OptimizeGrassRenderers(pOut);
+                    totalGrassSpawned++;
                 }
             }
 
@@ -282,14 +359,32 @@ namespace BattleSummoner.EditorScripts
                 unloader.RefreshPropRegistry();
             }
 
-            // Save scene
+            // Save scene if requested
             EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
-            AssetDatabase.SaveAssets();
+            if (saveScene)
+            {
+                EditorSceneManager.SaveScene(scene);
+                AssetDatabase.SaveAssets();
+            }
 
             string resultMsg = $"[Immersive Grass Engine] Populated {totalGrassSpawned} grass patches and {totalFlowersSpawned} wildflowers across {grassChunks.Count} chunks! Every green inch is now densely covered.";
             Debug.Log(resultMsg);
             return resultMsg;
+        }
+
+        private static void OptimizeGrassRenderers(GameObject go)
+        {
+            var renderers = go.GetComponentsInChildren<MeshRenderer>();
+            for (int r = 0; r < renderers.Length; r++)
+            {
+                renderers[r].shadowCastingMode = ShadowCastingMode.Off;
+                renderers[r].receiveShadows = false;
+                var mats = renderers[r].sharedMaterials;
+                for (int m = 0; m < mats.Length; m++)
+                {
+                    if (mats[m] != null) mats[m].enableInstancing = true;
+                }
+            }
         }
 
         private static void EnsureReadableTexture(Texture2D tex)

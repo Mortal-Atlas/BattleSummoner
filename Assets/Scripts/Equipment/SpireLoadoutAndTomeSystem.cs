@@ -79,14 +79,19 @@ public class SpireEquippableItem
 public class SpireLoadoutAndTomeSystem : MonoBehaviour
 {
     private static SpireLoadoutAndTomeSystem _instance;
+    private static bool _isQuitting = false;
+
+    public static bool HasInstance => _instance != null;
+
     public static SpireLoadoutAndTomeSystem Instance
     {
         get
         {
+            if (_isQuitting) return null;
             if (_instance == null)
             {
                 _instance = UnityEngine.Object.FindAnyObjectByType<SpireLoadoutAndTomeSystem>();
-                if (_instance == null && Application.isPlaying)
+                if (_instance == null && Application.isPlaying && !_isQuitting)
                 {
                     var go = new GameObject("SpireLoadoutAndTomeSystem");
                     _instance = go.AddComponent<SpireLoadoutAndTomeSystem>();
@@ -157,6 +162,11 @@ public class SpireLoadoutAndTomeSystem : MonoBehaviour
     private void Start()
     {
         RecalculateStanceCapabilities();
+    }
+
+    private void OnApplicationQuit()
+    {
+        _isQuitting = true;
     }
 
     private void OnDestroy()

@@ -58,7 +58,7 @@ namespace BattleSummoner.EditorScripts
             DressDistrictV_SeawardHarborVista(masterRoot.transform);
             DressDistrictVI_GrandGuildhall(masterRoot.transform);
             DressDistrictVII_SouthernGatehouseBastion(masterRoot.transform);
-            DressRadialAvenuesAndBoulevards(masterRoot.transform);
+            // DressRadialAvenuesAndBoulevards(masterRoot.transform); // Deprecated: Avenue trees & lamps are handled with precision by Raised_Flagstone_Sidewalks & Avenue_StreetLamps to prevent floating trees
 
             // 4. Save scene
             EditorSceneManager.MarkSceneDirty(activeScene);
@@ -105,6 +105,13 @@ namespace BattleSummoner.EditorScripts
                         removedSky++;
                     }
                 }
+            }
+
+            // Clean any floating avenue flora/lamp roots
+            var strayFlora = GameObject.Find("--- METROPOLIS_DISTRICT_DETAILS ---/Metropolis_Radial_Avenues_Flora_And_Lamps");
+            if (strayFlora != null)
+            {
+                Undo.DestroyObjectImmediate(strayFlora);
             }
 
             Debug.Log($"🧹 [CITY HYGIENE] Cleaned {removedSwords} orphan swords, {removedDecor} duplicate decor roots, {removedSky} duplicate sky roots.");
@@ -284,43 +291,43 @@ namespace BattleSummoner.EditorScripts
 
             // Merchant Booths & Pavilions
             float boothOffset = 0.87f * 1.35f;
-            SpawnSnapped(boothPrefab, dRoot, new Vector3(10.5f, 40.68f + boothOffset, -164.0f), 0f, 1.35f);
-            SpawnSnapped(boothPrefab, dRoot, new Vector3(18.5f, 40.43f + boothOffset, -164.5f), 0f, 1.35f);
-            SpawnSnapped(tentPrefab, dRoot, new Vector3(22.0f, 40f, -174.0f), -45f, 1.1f);
-            SpawnSnapped(handcartPrefab, dRoot, new Vector3(7.5f, 40f, -165.0f), 35f, 1.0f);
-            SpawnSnapped(handcartPrefab, dRoot, new Vector3(16.0f, 40f, -179.5f), 170f, 1.0f);
+            SpawnSnapped(boothPrefab, dRoot, new Vector3(10.5f, 58.0f + boothOffset, -164.0f), 0f, 1.35f);
+            SpawnSnapped(boothPrefab, dRoot, new Vector3(18.5f, 58.0f + boothOffset, -164.5f), 0f, 1.35f);
+            SpawnSnapped(tentPrefab, dRoot, new Vector3(22.0f, 58.0f, -174.0f), -45f, 1.1f);
+            SpawnSnapped(handcartPrefab, dRoot, new Vector3(7.5f, 58.24f, -165.0f), 35f, 1.0f);
+            SpawnSnapped(handcartPrefab, dRoot, new Vector3(16.0f, 58.0f, -179.5f), 170f, 1.0f);
 
             // Pottery & Artisan display table
-            SpawnSnapped(tablePrefab, dRoot, new Vector3(11.0f, 40f, -172.0f), -45f, 1.0f);
-            SpawnSnapped(clayPotPrefab, dRoot, new Vector3(11.2f, 40f, -171.8f), 0f, 0.9f);
-            SpawnSnapped(ropePrefab, dRoot, new Vector3(7.0f, 40f, -163.5f), 0f, 1.0f);
+            SpawnSnapped(tablePrefab, dRoot, new Vector3(11.0f, 58.0f, -172.0f), -45f, 1.0f);
+            SpawnSnapped(clayPotPrefab, dRoot, new Vector3(11.2f, 58.0f, -171.8f), 0f, 0.9f);
+            SpawnSnapped(ropePrefab, dRoot, new Vector3(7.0f, 58.24f, -163.5f), 0f, 1.0f);
 
             // Cargo crates & wine barrels
-            SpawnSnapped(barrelPrefab, dRoot, new Vector3(12.8f, 40f, -162.8f), 0f, 1.0f);
-            SpawnSnapped(barrelPrefab, dRoot, new Vector3(13.5f, 40f, -163.2f), 45f, 1.0f);
-            SpawnSnapped(cratePrefab, dRoot, new Vector3(19.2f, 40f, -163.0f), 15f, 1.0f);
-            SpawnSnapped(crate2Prefab, dRoot, new Vector3(19.8f, 40f, -163.5f), -30f, 1.0f);
+            SpawnSnapped(barrelPrefab, dRoot, new Vector3(12.8f, 58.0f, -162.8f), 0f, 1.0f);
+            SpawnSnapped(barrelPrefab, dRoot, new Vector3(13.5f, 58.0f, -163.2f), 45f, 1.0f);
+            SpawnSnapped(cratePrefab, dRoot, new Vector3(19.2f, 58.0f, -163.0f), 15f, 1.0f);
+            SpawnSnapped(crate2Prefab, dRoot, new Vector3(19.8f, 58.0f, -163.5f), -30f, 1.0f);
 
             // Produce sets
-            SpawnSnapped(cratesPrefab, dRoot, new Vector3(12.5f, 40f, -167.5f), 10f, 1.0f);
-            SpawnSnapped(cratesPrefab, dRoot, new Vector3(17.8f, 40f, -168.0f), -25f, 1.0f);
-            SpawnSnapped(cratesPrefab, dRoot, new Vector3(9.2f, 40f, -172.0f), 45f, 1.0f);
-            SpawnSnapped(cratesPrefab, dRoot, new Vector3(14.0f, 40f, -176.0f), 180f, 1.0f);
+            SpawnSnapped(cratesPrefab, dRoot, new Vector3(12.5f, 58.0f, -167.5f), 10f, 1.0f);
+            SpawnSnapped(cratesPrefab, dRoot, new Vector3(17.8f, 58.0f, -168.0f), -25f, 1.0f);
+            SpawnSnapped(cratesPrefab, dRoot, new Vector3(9.2f, 58.0f, -172.0f), 45f, 1.0f);
+            SpawnSnapped(cratesPrefab, dRoot, new Vector3(14.0f, 58.0f, -176.0f), 180f, 1.0f);
 
             // Bakery storefront
-            SpawnSnapped(pastryPrefab, dRoot, new Vector3(24.5f, 40f, -168.0f), -80f, 1.0f);
-            SpawnSnapped(chalkboardPrefab, dRoot, new Vector3(25.8f, 40f, -166.5f), -60f, 1.0f);
+            SpawnSnapped(pastryPrefab, dRoot, new Vector3(24.5f, 58.0f, -168.0f), -80f, 1.0f);
+            SpawnSnapped(chalkboardPrefab, dRoot, new Vector3(25.8f, 58.0f, -166.5f), -60f, 1.0f);
 
             // Shoppers rest area & lamps
-            SpawnSnapped(benchPrefab, dRoot, new Vector3(8.0f, 40f, -170.0f), 85f, 0.95f);
-            SpawnSnapped(benchPrefab, dRoot, new Vector3(8.0f, 40f, -177.0f), 85f, 0.95f);
-            SpawnSnapped(lampPrefab, dRoot, new Vector3(10.5f, 40f, -161.0f), 30f, 0.85f);
-            SpawnSnapped(lampPrefab, dRoot, new Vector3(19.5f, 40f, -161.0f), -30f, 0.85f);
-            SpawnSnapped(lampPrefab, dRoot, new Vector3(14.5f, 40f, -183.0f), 180f, 0.85f);
+            SpawnSnapped(benchPrefab, dRoot, new Vector3(8.0f, 58.0f, -170.0f), 85f, 0.95f);
+            SpawnSnapped(benchPrefab, dRoot, new Vector3(8.0f, 58.0f, -177.0f), 85f, 0.95f);
+            SpawnSnapped(lampPrefab, dRoot, new Vector3(10.5f, 58.0f, -161.0f), 30f, 0.85f);
+            SpawnSnapped(lampPrefab, dRoot, new Vector3(19.5f, 58.0f, -161.0f), -30f, 0.85f);
+            SpawnSnapped(lampPrefab, dRoot, new Vector3(14.5f, 58.0f, -183.0f), 180f, 0.85f);
 
             // Floral accents
-            SpawnSnapped(crimsonFlowersPrefab, dRoot, new Vector3(6.5f, 40f, -167.0f), 0f, 1.0f);
-            SpawnSnapped(mixedFlowersPrefab, dRoot, new Vector3(6.5f, 40f, -175.0f), 45f, 1.0f);
+            SpawnSnapped(crimsonFlowersPrefab, dRoot, new Vector3(6.5f, 58.24f, -167.0f), 0f, 1.0f);
+            SpawnSnapped(mixedFlowersPrefab, dRoot, new Vector3(6.5f, 58.24f, -175.0f), 45f, 1.0f);
         }
         #endregion
 
@@ -654,11 +661,11 @@ namespace BattleSummoner.EditorScripts
             foreach (var h in hits)
             {
                 string n = h.collider.name.ToLower();
-                // Filter out non-ground obstacles
+                // Filter out non-ground obstacles (allow floor/plaza surfaces)
                 if (n.Contains("npc") || n.Contains("character") || n.Contains("roof") || 
                     n.Contains("wall") || n.Contains("astrolabe") || n.Contains("bench") || 
                     n.Contains("gate") || n.Contains("curtain") || n.Contains("door") ||
-                    n.Contains("drum") || n.Contains("foundation"))
+                    n.Contains("drum") || (n.Contains("foundation") && !n.Contains("floor") && !n.Contains("plaza")))
                 {
                     continue;
                 }

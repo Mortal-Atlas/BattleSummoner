@@ -385,7 +385,7 @@ namespace BattleSummoner.World
 
             // 7. Populate 8 Grand Boulevards with Mondstadt Streetlamps & Royal Banners
             float[] boulevardAngles = { 0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f };
-            float[] lampRadii = { 90f, 140f, 190f, 240f, 290f, 340f, 390f };
+            float[] lampRadii = { 90f, 140f, 190f, 240f, 290f, 370f, 410f };
 
             int lampCount = 0;
             foreach (float ang in boulevardAngles)
@@ -396,12 +396,16 @@ namespace BattleSummoner.World
 
                 foreach (float r in lampRadii)
                 {
-                    float y = r > 310f ? 22.06f : (r > 210f ? 38.06f : 58.06f);
+                    float y = r > 310f ? 22.24f : (r > 210f ? 38.24f : 58.24f);
 
                     for (int side = -1; side <= 1; side += 2)
                     {
                         // Mondstadt streetlamp upright prefab: base is at Y=0, height is 3.8m tall.
                         Vector3 lampPos = dir * r + perp * (7.2f * side) + Vector3.up * y;
+                        if (Physics.Raycast(new Vector3(lampPos.x, lampPos.y + 4f, lampPos.z), Vector3.down, out RaycastHit gHit, 10f))
+                        {
+                            lampPos.y = gHit.point.y;
+                        }
                         if (streetLampPrefab != null)
                         {
                             var lamp = UnityEngine.Object.Instantiate(streetLampPrefab, lampPos, Quaternion.LookRotation(-perp * side), decorRoot.transform);

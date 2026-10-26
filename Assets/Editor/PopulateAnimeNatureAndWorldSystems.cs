@@ -32,14 +32,6 @@ namespace BattleSummoner.EditorScripts
         private static readonly Vector3 FORT_LOC = new Vector3(-850f, 0f, -480f);
         private static readonly Vector3 CAMP2_LOC = new Vector3(380f, 0f, -920f);
 
-        private struct GateConfig
-        {
-            public string Name;
-            public Vector3 GateCenter;
-            public Vector3 Direction;
-            public Quaternion Rotation;
-            public int Spans;
-        }
 
         [MenuItem("BattleSummoner/Populate Anime Nature and Complete World Systems", false, 1)]
         public static void RunFullPopulation()
@@ -281,81 +273,106 @@ namespace BattleSummoner.EditorScripts
                 return;
             }
 
-            // 4 Ordinal Gates: span across moat to the 4 continental mainlands (NE, SE, SW, NW)
-            float startRadius = 462.0f;
-            Vector3 neDir = new Vector3(1f, 0f, 1f).normalized;
-            Vector3 seDir = new Vector3(1f, 0f, -1f).normalized;
-            Vector3 swDir = new Vector3(-1f, 0f, -1f).normalized;
-            Vector3 nwDir = new Vector3(-1f, 0f, 1f).normalized;
-
-            GateConfig[] gates = new GateConfig[]
+            Vector3[] dirs = new Vector3[]
             {
-                new GateConfig { Name = "NorthEast", GateCenter = neDir * startRadius, Direction = neDir, Rotation = Quaternion.Euler(0f, 315f, 0f), Spans = 5 },
-                new GateConfig { Name = "SouthEast", GateCenter = seDir * startRadius, Direction = seDir, Rotation = Quaternion.Euler(0f, 45f, 0f),  Spans = 8 },
-                new GateConfig { Name = "SouthWest", GateCenter = swDir * startRadius, Direction = swDir, Rotation = Quaternion.Euler(0f, 135f, 0f), Spans = 5 },
-                new GateConfig { Name = "NorthWest", GateCenter = nwDir * startRadius, Direction = nwDir, Rotation = Quaternion.Euler(0f, 225f, 0f), Spans = 8 }
+                new Vector3(1f, 0f, 1f).normalized,
+                new Vector3(1f, 0f, -1f).normalized,
+                new Vector3(-1f, 0f, -1f).normalized,
+                new Vector3(-1f, 0f, 1f).normalized
             };
+            string[] names = new string[] { "NorthEast", "SouthEast", "SouthWest", "NorthWest" };
+            float[] bluffRadii = new float[] { 550.0f, 605.0f, 545.0f, 595.0f };
+            float[] bluffHeights = new float[] { 25.38f, 23.25f, 25.50f, 24.50f };
 
-            float moduleLength = 17.0f;
-
-            foreach (var g in gates)
+            for (int d = 0; d < 4; d++)
             {
-                GameObject gateBridgeRoot = new GameObject($"MoatBridge_{g.Name}Gate");
+                Vector3 dir = dirs[d];
+                string name = names[d];
+
+                // Gate threshold (where city gate meets moat)
+                float gateR = 464.0f;
+                Vector3 pStart = dir * gateR;
+                pStart.y = 22.18f;
+
+                // Mainland dry land bluff
+                float landR = bluffRadii[d];
+                Vector3 pEnd = dir * landR;
+                pEnd.y = bluffHeights[d];
+
+                if (Physics.Raycast(new Vector3(pEnd.x, 150f, pEnd.z), Vector3.down, out RaycastHit hitEnd, 200f))
+                {
+                    if (hitEnd.collider.name.Contains("CircularContinent"))
+                    {
+                        pEnd.y = hitEnd.point.y;
+                    }
+                }
+
+                Vector3 pMid = (pStart + pEnd) * 0.5f;
+                Vector3 spanVec = pEnd - pStart;
+                float spanLen = spanVec.magnitude;
+                Vector3 forwardDir = spanVec.normalized;
+
+                // Build strictly upright basis matrix: localX = length, localY = width, localZ = up
+                Vector3 rightDir = Vector3.Cross(Vector3.up, forwardDir).normalized;
+                Vector3 upDir = Vector3.Cross(forwardDir, rightDir).normalized;
+
+                Matrix4x4 m = new Matrix4x4();
+                m.SetColumn(0, new Vector4(forwardDir.x, forwardDir.y, forwardDir.z, 0));
+                m.SetColumn(1, new Vector4(rightDir.x, rightDir.y, rightDir.z, 0));
+                m.SetColumn(2, new Vector4(upDir.x, upDir.y, upDir.z, 0));
+                m.SetColumn(3, new Vector4(0, 0, 0, 1));
+
+                GameObject gateBridgeRoot = new GameObject($"MoatBridge_{name}Gate");
                 gateBridgeRoot.transform.SetParent(bridgesRoot.transform);
 
-                for (int s = 0; s < g.Spans; s++)
+                // Instantiate ONLY ONE single bridge asset to span across the entire water gap
+                var singleBridge = UnityEngine.Object.Instantiate(bridgeModel, gateBridgeRoot.transform);
+                singleBridge.name = $"SingleSpan_ArchBridge_{name}";
+                singleBridge.transform.position = pMid;
+                singleBridge.transform.rotation = m.rotation;
+
+                // Native bridge length = 17.20m, width = 5.0m, height = 9.35m
+                float scaleX = spanLen / 17.20f;
+                float scaleY = 2.0f; // 10m wide causeway roadbed
+                float scaleZ = 1.4f; // Arch height
+                singleBridge.transform.localScale = new Vector3(scaleX, scaleY, scaleZ);
+
+                // Assign materials
+                foreach (var mr in singleBridge.GetComponentsInChildren<MeshRenderer>())
                 {
-                    Vector3 spanPos = new Vector3(g.GateCenter.x, 22.0f, g.GateCenter.z) + g.Direction * (s * moduleLength + moduleLength * 0.5f);
-                    var span = UnityEngine.Object.Instantiate(bridgeModel, gateBridgeRoot.transform);
-                    span.name = $"Span_{s + 1}";
-                    span.transform.position = spanPos;
-                    span.transform.rotation = g.Rotation;
-                    span.transform.localScale = new Vector3(1.0f, 1.35f, 1.25f);
-
-                    // Assign materials
-                    foreach (var mr in span.GetComponentsInChildren<MeshRenderer>())
+                    var mats = mr.sharedMaterials;
+                    if (mats.Length >= 4)
                     {
-                        var mats = mr.sharedMaterials;
-                        if (mats.Length >= 4)
-                        {
-                            mats[0] = deckMat != null ? deckMat : mats[0];
-                            mats[1] = stoneMat != null ? stoneMat : mats[1];
-                            mats[2] = trimMat != null ? trimMat : mats[2];
-                            mats[3] = lanternMat != null ? lanternMat : mats[3];
-                            mr.sharedMaterials = mats;
-                        }
-                    }
-
-                    // Add MeshCollider to road deck
-                    foreach (var mf in span.GetComponentsInChildren<MeshFilter>())
-                    {
-                        if (mf.sharedMesh != null && span.GetComponent<MeshCollider>() == null)
-                        {
-                            var mc = span.AddComponent<MeshCollider>();
-                            mc.sharedMesh = mf.sharedMesh;
-                        }
+                        mats[0] = deckMat != null ? deckMat : mats[0];
+                        mats[1] = stoneMat != null ? stoneMat : mats[1];
+                        mats[2] = trimMat != null ? trimMat : mats[2];
+                        mats[3] = lanternMat != null ? lanternMat : mats[3];
+                        mr.sharedMaterials = mats;
                     }
                 }
 
-                // Add stone landfall abutment ramp connecting the bridge deck to the mainland ground
-                float endRadius = startRadius + g.Spans * moduleLength;
-                Vector3 abutmentPos = g.Direction * (endRadius + 4.0f);
-                abutmentPos.y = 21.6f;
+                // MeshCollider for player physics
+                var mf = singleBridge.GetComponentInChildren<MeshFilter>();
+                if (mf != null && mf.sharedMesh != null)
+                {
+                    var col = singleBridge.AddComponent<MeshCollider>();
+                    col.sharedMesh = mf.sharedMesh;
+                }
 
+                // Stone landfall ramp connecting bridge deck to mainland road
+                Vector3 rampPos = pEnd + dir * 3.5f;
+                rampPos.y = pEnd.y;
                 GameObject abutment = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                abutment.name = $"Landfall_Abutment_{g.Name}";
+                abutment.name = $"Landfall_Abutment_{name}";
                 abutment.transform.SetParent(gateBridgeRoot.transform);
-                abutment.transform.position = abutmentPos;
-                abutment.transform.rotation = g.Rotation;
-                abutment.transform.localScale = new Vector3(8.0f, 1.5f, 11.5f);
-                var abutmentRenderer = abutment.GetComponent<MeshRenderer>();
-                if (abutmentRenderer != null && deckMat != null)
-                {
-                    abutmentRenderer.sharedMaterial = deckMat;
-                }
+                abutment.transform.position = rampPos;
+                abutment.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
+                abutment.transform.localScale = new Vector3(10.0f, 1.2f, 8.0f);
+                var abMr = abutment.GetComponent<MeshRenderer>();
+                if (abMr != null && deckMat != null) abMr.sharedMaterial = deckMat;
             }
 
-            Debug.Log("🏰 Constructed 4 noble stone arch causeways connecting the kingdom to the 4 continental mainlands (NE, SE, SW, NW).");
+            Debug.Log("🏰 Constructed 4 noble single-span fantasy stone arch bridges connecting the kingdom to the 4 continental mainlands (NE, SE, SW, NW).");
         }
 
         // =========================================================================

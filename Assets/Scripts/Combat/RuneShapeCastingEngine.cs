@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using BattleSummoner.Core.DimensionalCompiler;
 
 public enum SpellElement { Healing, Fire, Rock, Water, Lightning, Arcane, Protection }
 
