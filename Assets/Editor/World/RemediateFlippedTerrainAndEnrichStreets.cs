@@ -564,17 +564,17 @@ namespace BattleSummoner.EditorScripts
                 step.GetComponent<MeshRenderer>().sharedMaterial = mat;
             }
 
-            // Top Landing Threshold Platform (for top tier stairs reaching the ledge at R = 95m)
+            // Top Landing Threshold Platform (for top tier stairs reaching the ledge at R = 86m)
             if (isTopTier)
             {
                 float landingThickness = 0.5f;
-                Vector3 landingPos = forward * 94.6f + Vector3.up * (yTop - landingThickness * 0.5f);
+                Vector3 landingPos = forward * 86.0f + Vector3.up * (yTop - landingThickness * 0.5f);
                 GameObject topLanding = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 topLanding.name = "Top_Landing_Threshold";
                 topLanding.transform.SetParent(stairsGroup.transform, false);
                 topLanding.transform.position = landingPos;
                 topLanding.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-                topLanding.transform.localScale = new Vector3(width, landingThickness, 2.8f);
+                topLanding.transform.localScale = new Vector3(width, landingThickness, 2.5f);
                 topLanding.GetComponent<MeshRenderer>().sharedMaterial = mat;
             }
 
@@ -609,7 +609,7 @@ namespace BattleSummoner.EditorScripts
             {
                 for (int side = -1; side <= 1; side += 2)
                 {
-                    Vector3 pierPos = forward * 94.6f + right * (side * (width * 0.5f + balustradeWidth * 0.5f)) + Vector3.up * (yTop + 0.65f);
+                    Vector3 pierPos = forward * 86.0f + right * (side * (width * 0.5f + balustradeWidth * 0.5f)) + Vector3.up * (yTop + 0.65f);
                     GameObject pier = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     pier.name = side == -1 ? "Newel_Pier_Top_Left" : "Newel_Pier_Top_Right";
                     pier.transform.SetParent(stairsGroup.transform, false);
@@ -618,7 +618,7 @@ namespace BattleSummoner.EditorScripts
                     pier.transform.localScale = new Vector3(balustradeWidth * 1.3f, 1.5f, balustradeWidth * 1.3f);
                     pier.GetComponent<MeshRenderer>().sharedMaterial = mat;
 
-                    Vector3 btmPierPos = forward * 125.5f + right * (side * (width * 0.5f + balustradeWidth * 0.5f)) + Vector3.up * (yBottom + 0.65f);
+                    Vector3 btmPierPos = forward * 116.0f + right * (side * (width * 0.5f + balustradeWidth * 0.5f)) + Vector3.up * (yBottom + 0.65f);
                     GameObject btmPier = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     btmPier.name = side == -1 ? "Newel_Pier_Btm_Left" : "Newel_Pier_Btm_Right";
                     btmPier.transform.SetParent(stairsGroup.transform, false);

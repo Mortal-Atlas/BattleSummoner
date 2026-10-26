@@ -1,0 +1,274 @@
+=== DETAILED SKY INSPECTION REPORT (OverworldMap) ===
+Found terrain: CircularContinent_MacroLevel1
+Found island colliders: 43
+
+Total renderers with Y >= 85m: 136225
+
+=== FLOATING ITEMS IN AIR (distToGround > 5m): 893 ===
+
+--- Root: Mountain_AnimeNature_SwitchbackAndGorge_Root (count=426) ---
+   'LOD0' pos=(-120.6, 573.3, 1284.1) | distGround=573.3m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_363d_R/Stone_Big_01/LOD0
+   'LOD1' pos=(-476.8, 221.4, 1056.4) | distGround=24.3m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/Switchback_CliffOverhang_403d_L/Stone_Big_02/LOD1
+   'LOD0' pos=(-299.4, 536.2, 1289.2) | distGround=536.2m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_603d_2_L/LOD0
+   'AnimBush_03_LOD0' pos=(-239.8, 560.3, 1295.4) | distGround=560.3m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_623d_1_L/AnimeBush_03/AnimBush_03_LOD0
+   'AnimeNature_TrailBush_973d_0_L' pos=(-378.6, 373.8, 1784.0) | distGround=373.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_973d_0_L
+   'LOD1' pos=(-119.9, 572.6, 1270.5) | distGround=572.6m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_363d_R/Stone_Medium_03/LOD1
+   'AnimeNature_TrailBush_983d_0_L' pos=(-401.4, 370.0, 1800.7) | distGround=370.0m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_983d_0_L
+   'LOD2' pos=(-38.2, 530.0, 1640.1) | distGround=530.0m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_853d_0_L/LOD2
+   'LOD1' pos=(-528.5, 236.3, 1896.1) | distGround=236.3m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/Switchback_CliffOverhang_1103d_L/Stone_Medium_01/LOD1
+   'LOD0' pos=(-29.2, 547.8, 1623.1) | distGround=547.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_843d_2_L/LOD0
+   'LOD0' pos=(-466.7, 341.9, 1826.2) | distGround=341.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1013d_1_L/LOD0
+   'AnimBush_02_LOD0' pos=(-486.1, 367.9, 1175.4) | distGround=367.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_523d_1_L/AnimeBush_02/AnimBush_02_LOD0
+   'AnimBush_01_LOD0' pos=(-508.6, 345.9, 1155.4) | distGround=345.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_503d_0_L/AnimeBush_01/AnimBush_01_LOD0
+   'AnimeNature_TrailBush_343d_0_R' pos=(-365.1, 128.8, 956.3) | distGround=128.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_343d_0_R
+   'LOD0' pos=(-97.7, 486.1, 1720.8) | distGround=486.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/BroadleafTree_01_Green/LOD0
+   'LOD1' pos=(-374.1, 515.6, 1289.9) | distGround=7.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/Switchback_CliffOverhang_583d_R/LOD1
+   'LOD0' pos=(-87.9, 379.5, 1224.2) | distGround=8.3m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/BlossomTree_02/LOD0
+   'LOD1' pos=(-405.7, 182.2, 2004.9) | distGround=182.2m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/Switchback_CliffOverhang_1183d_L/Stone_Medium_01/LOD1
+   'LOD0' pos=(-517.6, 328.5, 1139.5) | distGround=328.5m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_483d_1_L/LOD0
+   'LOD1' pos=(-505.6, 176.2, 1986.8) | distGround=176.2m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1143d_1_R/LOD1
+   'LOD0' pos=(124.1, 282.6, 2189.0) | distGround=282.6m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_823d_R/Stone_Medium_01/LOD0
+   'AnimeNature_TrailBush_793d_1_L' pos=(52.2, 593.3, 1552.6) | distGround=593.3m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_793d_1_L
+   'LOD1' pos=(-313.8, 136.6, 993.0) | distGround=136.6m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_333d_1_L/LOD1
+   'AnimBush_01_LOD1' pos=(-263.9, 166.9, 2120.8) | distGround=166.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1243d_1_R/AnimeBush_01/AnimBush_01_LOD1
+   'LOD0' pos=(-112.1, 394.6, 1222.0) | distGround=394.6m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_333d_R/Stone_Medium_02/LOD0
+   'AnimeNature_TrailBush_1233d_1_R' pos=(-288.3, 173.6, 2098.7) | distGround=173.6m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1233d_1_R
+   'LOD0' pos=(-516.3, 223.2, 1930.8) | distGround=223.2m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1123d_1_L/LOD0
+   'AnimBush_03_LOD0' pos=(-524.0, 316.8, 1127.0) | distGround=316.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_453d_1_L/AnimeBush_03/AnimBush_03_LOD0
+   'LOD2' pos=(84.5, 331.1, 2117.9) | distGround=331.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/WillowTree_01_Pink/LOD2
+   'LOD1' pos=(-232.2, 104.9, 918.8) | distGround=5.5m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/Switchback_CliffOverhang_303d_R/Stone_Medium_01/LOD1
+   'AnimeNature_TrailBush_1063d_1_L' pos=(-515.9, 268.9, 1871.7) | distGround=268.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1063d_1_L
+   'LOD0' pos=(-50.0, 578.9, 1557.7) | distGround=578.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_503d_R/Stone_Medium_02/LOD0
+   'LOD1' pos=(-7.2, 503.8, 1682.1) | distGround=503.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/BroadleafTree_01_Purple/LOD1
+   'LOD0' pos=(-362.1, 533.2, 1316.2) | distGround=533.2m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_593d_0_R/LOD0
+   'LOD1' pos=(48.4, 585.1, 1565.8) | distGround=585.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_803d_2_L/LOD1
+   'AnimBush_03_LOD1' pos=(-50.7, 167.0, 2220.2) | distGround=167.0m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1323d_2_R/AnimeBush_03/AnimBush_03_LOD1
+   'AnimeNature_TrailBush_993d_1_L' pos=(-421.9, 358.8, 1812.6) | distGround=358.8m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_993d_1_L
+   'LOD0' pos=(20.5, 491.7, 1763.0) | distGround=491.7m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/BlossomTree_03/LOD0
+   'LOD0' pos=(84.5, 331.1, 2117.9) | distGround=331.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/WillowTree_01_Pink/LOD0
+   'AnimBush_01_LOD0' pos=(-173.6, 200.1, 2088.6) | distGround=200.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1263d_1_L/AnimeBush_01/AnimBush_01_LOD0
+   'LOD1' pos=(-102.7, 393.1, 1214.4) | distGround=13.5m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_333d_R/Stone_Medium_03/LOD1
+   'LOD0' pos=(-27.2, 552.4, 1625.3) | distGround=5.2m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_533d_R/Stone_Medium_01/LOD0
+   'LOD1' pos=(-559.8, 267.1, 1069.6) | distGround=267.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_433d_2_R/LOD1
+   'LOD1' pos=(-112.8, 597.4, 1363.2) | distGround=597.4m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/WillowTree_05_Blue/LOD1
+   'LOD1' pos=(-301.8, 204.1, 2060.0) | distGround=6.6m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/Switchback_CliffOverhang_1223d_L/Stone_Medium_02/LOD1
+   'LOD1' pos=(-50.0, 578.9, 1557.7) | distGround=578.9m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/RiverGorge_BankBoulder_503d_R/Stone_Medium_02/LOD1
+   'AnimBush_04_LOD0' pos=(-516.8, 315.1, 1817.2) | distGround=315.1m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_1033d_2_R/AnimeBush_04/AnimBush_04_LOD0
+   'LOD0' pos=(44.2, 440.5, 1965.1) | distGround=440.5m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/WillowTree_01_Blue/LOD0
+   'LOD2' pos=(-102.6, 94.5, 1060.3) | distGround=94.5m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/BroadleafTree_03_Blue/LOD2
+   'LOD2' pos=(-269.0, 546.5, 1292.8) | distGround=546.5m | path=Mountain_AnimeNature_SwitchbackAndGorge_Root/AnimeNature_TrailBush_613d_0_L/LOD2
+   ... and 376 more
+
+--- Root: World_AnimeNature_Foliage (count=44) ---
+   'Pine_B_LOD1' pos=(-413.0, 399.6, 1812.6) | distGround=38.3m | path=World_AnimeNature_Foliage/Pine_B/Pine_B_LOD1
+   'LOD0' pos=(-121.7, 136.6, 565.8) | distGround=120.6m | path=World_AnimeNature_Foliage/BroadleafTree_05_Blue/LOD0
+   'LOD1' pos=(-147.4, 147.4, 599.1) | distGround=125.7m | path=World_AnimeNature_Foliage/WillowTree_03_Purple/LOD1
+   'LOD0' pos=(-107.9, 131.1, 558.6) | distGround=118.7m | path=World_AnimeNature_Foliage/BroadleafTree_01_Blue/LOD0
+   'LOD0' pos=(-19.3, 225.4, 2224.2) | distGround=47.1m | path=World_AnimeNature_Foliage/WillowTree_05_Blue/LOD0
+   'LOD2' pos=(-323.0, 192.1, 1020.4) | distGround=34.0m | path=World_AnimeNature_Foliage/WillowTree_01_Green/LOD2
+   'LOD1' pos=(58.1, 118.5, 2342.9) | distGround=9.8m | path=World_AnimeNature_Foliage/WillowTree_02_Green/LOD1
+   'LOD2' pos=(-107.9, 131.1, 558.6) | distGround=118.7m | path=World_AnimeNature_Foliage/BroadleafTree_01_Blue/LOD2
+   'Pine_C_LOD2' pos=(96.1, 109.1, 2409.8) | distGround=59.9m | path=World_AnimeNature_Foliage/Pine_C/Pine_C_LOD2
+   'AnimTree_02_LOD1' pos=(-152.5, 146.0, 586.0) | distGround=124.4m | path=World_AnimeNature_Foliage/Tree_02/AnimeTree_02/AnimTree_02_LOD1
+   'LOD0' pos=(58.1, 118.5, 2342.9) | distGround=9.8m | path=World_AnimeNature_Foliage/WillowTree_02_Green/LOD0
+   'Pine_B_LOD2' pos=(-413.0, 399.6, 1812.6) | distGround=38.3m | path=World_AnimeNature_Foliage/Pine_B/Pine_B_LOD2
+   'LOD1' pos=(101.0, 109.3, 2388.3) | distGround=43.3m | path=World_AnimeNature_Foliage/WillowTree_04_Green/LOD1
+   'Pine_A_LOD0' pos=(-347.3, 166.1, 1008.7) | distGround=9.1m | path=World_AnimeNature_Foliage/Pine_A/Pine_A_LOD0
+   'Pine_A_LOD2' pos=(-347.3, 166.1, 1008.7) | distGround=9.1m | path=World_AnimeNature_Foliage/Pine_A/Pine_A_LOD2
+   'Pine_C_LOD0' pos=(96.1, 109.1, 2409.8) | distGround=59.9m | path=World_AnimeNature_Foliage/Pine_C/Pine_C_LOD0
+   'LOD0' pos=(101.0, 109.3, 2388.3) | distGround=43.3m | path=World_AnimeNature_Foliage/WillowTree_04_Green/LOD0
+   'LOD2' pos=(101.0, 109.3, 2388.3) | distGround=43.3m | path=World_AnimeNature_Foliage/WillowTree_04_Green/LOD2
+   'LOD2' pos=(55.3, 212.2, 2233.0) | distGround=17.8m | path=World_AnimeNature_Foliage/WillowTree_01_Purple/LOD2
+   'LOD2' pos=(-121.7, 136.6, 565.8) | distGround=120.6m | path=World_AnimeNature_Foliage/BroadleafTree_05_Blue/LOD2
+   'LOD2' pos=(58.1, 118.5, 2342.9) | distGround=9.8m | path=World_AnimeNature_Foliage/WillowTree_02_Green/LOD2
+   'LOD0' pos=(-147.4, 147.4, 599.1) | distGround=125.7m | path=World_AnimeNature_Foliage/WillowTree_03_Purple/LOD0
+   'LOD1' pos=(55.3, 212.2, 2233.0) | distGround=17.8m | path=World_AnimeNature_Foliage/WillowTree_01_Purple/LOD1
+   'LOD1' pos=(-19.3, 225.4, 2224.2) | distGround=47.1m | path=World_AnimeNature_Foliage/WillowTree_05_Blue/LOD1
+   'Pine_A_LOD1' pos=(-347.3, 166.1, 1008.7) | distGround=9.1m | path=World_AnimeNature_Foliage/Pine_A/Pine_A_LOD1
+   'Human_FallenTree' pos=(-103.7, 130.7, 561.5) | distGround=118.6m | path=World_AnimeNature_Foliage/Human_FallenTree
+   'LOD0' pos=(55.3, 212.2, 2233.0) | distGround=17.8m | path=World_AnimeNature_Foliage/WillowTree_01_Purple/LOD0
+   'LOD1' pos=(-121.7, 136.6, 565.8) | distGround=120.6m | path=World_AnimeNature_Foliage/BroadleafTree_05_Blue/LOD1
+   'LOD2' pos=(-19.3, 225.4, 2224.2) | distGround=47.1m | path=World_AnimeNature_Foliage/WillowTree_05_Blue/LOD2
+   'LOD1' pos=(-107.9, 131.1, 558.6) | distGround=118.7m | path=World_AnimeNature_Foliage/BroadleafTree_01_Blue/LOD1
+   'AnimTree_02_LOD0' pos=(-152.5, 146.0, 586.0) | distGround=124.4m | path=World_AnimeNature_Foliage/Tree_02/AnimeTree_02/AnimTree_02_LOD0
+   'LOD0' pos=(42.2, 384.7, 2089.7) | distGround=29.1m | path=World_AnimeNature_Foliage/WillowTree_03_Pink/LOD0
+   'LOD1' pos=(42.2, 384.7, 2089.7) | distGround=29.1m | path=World_AnimeNature_Foliage/WillowTree_03_Pink/LOD1
+   'LOD0' pos=(-323.0, 192.1, 1020.4) | distGround=34.0m | path=World_AnimeNature_Foliage/WillowTree_01_Green/LOD0
+   'Pine_C_LOD1' pos=(96.1, 109.1, 2409.8) | distGround=59.9m | path=World_AnimeNature_Foliage/Pine_C/Pine_C_LOD1
+   'Pine_C_LOD3' pos=(96.1, 109.1, 2409.8) | distGround=59.9m | path=World_AnimeNature_Foliage/Pine_C/Pine_C_LOD3
+   'Pine_B_LOD0' pos=(-413.0, 399.6, 1812.6) | distGround=38.3m | path=World_AnimeNature_Foliage/Pine_B/Pine_B_LOD0
+   'LOD2' pos=(42.2, 384.7, 2089.7) | distGround=29.1m | path=World_AnimeNature_Foliage/WillowTree_03_Pink/LOD2
+   'AnimTree_07_LOD0' pos=(-573.9, 323.6, 1967.7) | distGround=146.5m | path=World_AnimeNature_Foliage/Tree_07/AnimeTree_07/AnimTree_07_LOD0
+   'Pine_B_LOD3' pos=(-413.0, 399.6, 1812.6) | distGround=38.3m | path=World_AnimeNature_Foliage/Pine_B/Pine_B_LOD3
+   'Pine_A_LOD3' pos=(-347.3, 166.1, 1008.7) | distGround=9.1m | path=World_AnimeNature_Foliage/Pine_A/Pine_A_LOD3
+   'LOD1' pos=(-323.0, 192.1, 1020.4) | distGround=34.0m | path=World_AnimeNature_Foliage/WillowTree_01_Green/LOD1
+   'AnimTree_07_LOD1' pos=(-573.9, 323.6, 1967.7) | distGround=146.5m | path=World_AnimeNature_Foliage/Tree_07/AnimeTree_07/AnimTree_07_LOD1
+   'LOD2' pos=(-147.4, 147.4, 599.1) | distGround=125.7m | path=World_AnimeNature_Foliage/WillowTree_03_Purple/LOD2
+
+--- Root: --- WORLD & SKY ACTIVITIES & POIs --- (count=89) ---
+   'Temple_01_SunkenChalice_NE_GiantMasterChest_015s' pos=(740.0, 100.4, 434.0) | distGround=7.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_01_SunkenChalice_NE_Root/Temple_01_SunkenChalice_NE_GiantMasterChest_015s
+   'Temple_01_SunkenChalice_NE_LandmarkBeaconSpire' pos=(740.0, 117.6, 442.0) | distGround=24.1m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_01_SunkenChalice_NE_Root/Temple_01_SunkenChalice_NE_LandmarkBeaconSpire
+   'Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_00' pos=(105.0, 87.7, -1168.0) | distGround=12.7m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_00
+   'Village_04_SunScree_Oasis_RowHouse_00' pos=(-1153.6, 149.0, -762.0) | distGround=10.3m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowHouse_00
+   'Village_02_Oakhaven_Sylvan_RowRoof_05' pos=(1002.4, 148.7, 898.0) | distGround=24.0m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_05
+   'Temple_04_AshenCaldera_NW_DestructibleArenaPillar_00' pos=(-995.0, 550.1, 1002.0) | distGround=17.7m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_04_AshenCaldera_NW_Root/Temple_04_AshenCaldera_NW_DestructibleArenaPillar_00
+   'Temple_04_AshenCaldera_NW_DestructibleArenaPillar_07' pos=(-965.0, 550.1, 1038.0) | distGround=9.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_04_AshenCaldera_NW_Root/Temple_04_AshenCaldera_NW_DestructibleArenaPillar_07
+   'Village_02_Oakhaven_Sylvan_RowHouse_02' pos=(968.8, 138.9, 898.0) | distGround=18.2m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowHouse_02
+   'Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_03' pos=(105.0, 87.7, -1132.0) | distGround=18.0m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_03
+   'Village_04_SunScree_Oasis_RowRoof_13' pos=(-1086.4, 158.8, -718.0) | distGround=10.6m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_13
+   'Village_03_FrostAnvil_Mine_RowHouse_08' pos=(168.8, 583.4, 1402.0) | distGround=583.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_03_FrostAnvil_Mine_Root/Village_03_FrostAnvil_Mine_RowHouse_08
+   'Village_02_Oakhaven_Sylvan_RowRoof_09' pos=(980.0, 143.1, 942.0) | distGround=5.1m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_09
+   'Temple_04_AshenCaldera_NW_DestructibleArenaPillar_03' pos=(-995.0, 550.1, 1038.0) | distGround=550.1m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_04_AshenCaldera_NW_Root/Temple_04_AshenCaldera_NW_DestructibleArenaPillar_03
+   'Temple_04_AshenCaldera_NW_DestructibleArenaPillar_05' pos=(-965.0, 550.1, 1014.0) | distGround=26.7m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_04_AshenCaldera_NW_Root/Temple_04_AshenCaldera_NW_DestructibleArenaPillar_05
+   'Village_03_FrostAnvil_Mine_RowHouse_07' pos=(157.6, 582.0, 1402.0) | distGround=582.0m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_03_FrostAnvil_Mine_Root/Village_03_FrostAnvil_Mine_RowHouse_07
+   'Outpost_PortalGolemCamp_05_StealableGolemRideArmor_Chassis' pos=(-483.5, 105.8, -1187.2) | distGround=105.8m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Outpost_PortalGolemCamp_05_Root/Outpost_PortalGolemCamp_05_StealableGolemRideArmor_Chassis
+   'Village_03_FrostAnvil_Mine_RowRoof_08' pos=(168.8, 593.2, 1402.0) | distGround=593.2m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_03_FrostAnvil_Mine_Root/Village_03_FrostAnvil_Mine_RowRoof_08
+   'Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_04' pos=(135.0, 87.7, -1168.0) | distGround=7.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_04
+   'Village_04_SunScree_Oasis_RowRoof_08' pos=(-1142.4, 161.6, -718.0) | distGround=17.5m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_08
+   'Village_02_Oakhaven_Sylvan_RowRoof_07' pos=(957.6, 145.9, 942.0) | distGround=10.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_07
+   'Village_04_SunScree_Oasis_RowRoof_06' pos=(-1086.4, 156.0, -762.0) | distGround=11.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_06
+   'Village_04_SunScree_Oasis_RowHouse_03' pos=(-1120.0, 149.0, -762.0) | distGround=6.5m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowHouse_03
+   'Village_04_SunScree_Oasis_RowRoof_12' pos=(-1097.6, 156.0, -718.0) | distGround=8.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_12
+   'Temple_01_SunkenChalice_NE_DestructibleArenaPillar_00' pos=(725.0, 105.6, 402.0) | distGround=13.8m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_01_SunkenChalice_NE_Root/Temple_01_SunkenChalice_NE_DestructibleArenaPillar_00
+   'Village_04_SunScree_Oasis_RowRoof_05' pos=(-1097.6, 161.6, -762.0) | distGround=17.3m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_05
+   'Outpost_GuildWatchtower_04_WatchtowerAndHawkRoost' pos=(-758.4, 115.0, -311.8) | distGround=12.0m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Outpost_GuildWatchtower_04_Root/Outpost_GuildWatchtower_04_WatchtowerAndHawkRoost
+   'Village_02_Oakhaven_Sylvan_RowRoof_10' pos=(991.2, 145.9, 942.0) | distGround=10.2m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_10
+   'Farmhouse_Homestead_01_WindmillTower' pos=(513.6, 89.0, 801.7) | distGround=11.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Farmhouse_Homestead_01_Root/Farmhouse_Homestead_01_WindmillTower
+   'Village_04_SunScree_Oasis_RowRoof_07' pos=(-1153.6, 158.8, -718.0) | distGround=15.6m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_07
+   'Outpost_PortalGolemCamp_01_WatchtowerAndHawkRoost' pos=(493.0, 294.4, 1181.2) | distGround=12.0m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Outpost_PortalGolemCamp_01_Root/Outpost_PortalGolemCamp_01_WatchtowerAndHawkRoost
+   'Temple_06_ResonanceAbbey_S_LandmarkBeaconSpire' pos=(120.0, 99.7, -1128.0) | distGround=28.6m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_LandmarkBeaconSpire
+   'Village_02_Oakhaven_Sylvan_RowHouse_11' pos=(1002.4, 138.9, 942.0) | distGround=7.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowHouse_11
+   'Outpost_GuildWatchtower_00_WatchtowerAndHawkRoost' pos=(758.4, 90.6, 311.8) | distGround=12.0m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Outpost_GuildWatchtower_00_Root/Outpost_GuildWatchtower_00_WatchtowerAndHawkRoost
+   'Village_03_FrostAnvil_Mine_RowHouse_06' pos=(146.4, 580.6, 1402.0) | distGround=580.6m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_03_FrostAnvil_Mine_Root/Village_03_FrostAnvil_Mine_RowHouse_06
+   'Village_04_SunScree_Oasis_RowHouse_05' pos=(-1097.6, 151.8, -762.0) | distGround=7.5m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowHouse_05
+   'Village_04_SunScree_Oasis_RowHouse_02' pos=(-1131.2, 151.8, -762.0) | distGround=10.5m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowHouse_02
+   'Village_04_SunScree_Oasis_RowRoof_00' pos=(-1153.6, 156.0, -762.0) | distGround=17.3m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_00
+   'Village_02_Oakhaven_Sylvan_RowRoof_08' pos=(968.8, 148.7, 942.0) | distGround=10.6m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_08
+   'Village_04_SunScree_Oasis_RowRoof_11' pos=(-1108.8, 161.6, -718.0) | distGround=14.7m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_11
+   'Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_02' pos=(105.0, 87.7, -1144.0) | distGround=16.2m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_02
+   'Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_06' pos=(135.0, 87.7, -1144.0) | distGround=11.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_06
+   'Village_03_FrostAnvil_Mine_RowRoof_00' pos=(146.4, 587.6, 1358.0) | distGround=587.6m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_03_FrostAnvil_Mine_Root/Village_03_FrostAnvil_Mine_RowRoof_00
+   'Temple_04_AshenCaldera_NW_GiantMasterChest_015s' pos=(-980.0, 544.9, 1034.0) | distGround=544.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_04_AshenCaldera_NW_Root/Temple_04_AshenCaldera_NW_GiantMasterChest_015s
+   'Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_01' pos=(105.0, 87.7, -1156.0) | distGround=14.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_06_ResonanceAbbey_S_Root/Temple_06_ResonanceAbbey_S_DestructibleArenaPillar_01
+   'Temple_01_SunkenChalice_NE_DestructibleArenaPillar_03' pos=(725.0, 105.6, 438.0) | distGround=11.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_01_SunkenChalice_NE_Root/Temple_01_SunkenChalice_NE_DestructibleArenaPillar_03
+   'Village_03_FrostAnvil_Mine_RowRoof_07' pos=(157.6, 590.4, 1402.0) | distGround=590.4m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_03_FrostAnvil_Mine_Root/Village_03_FrostAnvil_Mine_RowRoof_07
+   'Village_04_SunScree_Oasis_RowRoof_09' pos=(-1131.2, 156.0, -718.0) | distGround=10.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_04_SunScree_Oasis_Root/Village_04_SunScree_Oasis_RowRoof_09
+   'Temple_04_AshenCaldera_NW_DestructibleArenaPillar_06' pos=(-965.0, 550.1, 1026.0) | distGround=18.7m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Temple_04_AshenCaldera_NW_Root/Temple_04_AshenCaldera_NW_DestructibleArenaPillar_06
+   'Village_02_Oakhaven_Sylvan_RowRoof_00' pos=(946.4, 143.1, 898.0) | distGround=28.9m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_00
+   'Village_02_Oakhaven_Sylvan_RowRoof_04' pos=(991.2, 145.9, 898.0) | distGround=19.8m | path=--- WORLD & SKY ACTIVITIES & POIs ---/World_And_Sky_Activities_POIs_Model/Village_02_Oakhaven_Sylvan_Root/Village_02_Oakhaven_Sylvan_RowRoof_04
+   ... and 39 more
+
+--- Root: Grand_Sky_Archipelago_System (count=121) ---
+   'LOD2' pos=(635.5, 517.4, -1351.8) | distGround=38.2m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_09_Medium/Island_SacredTree/LOD2
+   'LowDrift_Puff_11' pos=(-137.3, 303.6, -1610.2) | distGround=327.5m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_11
+   'IslandMeshModel' pos=(-460.0, 520.0, -280.0) | distGround=489.9m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_15_Stepping/IslandMeshModel
+   'LowDrift_Puff_08' pos=(-1862.5, 379.4, -212.4) | distGround=317.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_08
+   'LOD2' pos=(488.8, 505.2, 264.0) | distGround=28.2m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_01_Grand/Island_SacredTree_Auxiliary/LOD2
+   'LOD1' pos=(488.8, 505.2, 264.0) | distGround=28.2m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_01_Grand/Island_SacredTree_Auxiliary/LOD1
+   'LOD2' pos=(1158.8, 634.1, -776.0) | distGround=32.1m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_03_Grand/Island_SacredTree_Auxiliary/LOD2
+   'Island_CelestialChest_Plinth' pos=(820.5, 483.5, 922.5) | distGround=34.5m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_07_Medium/Island_CelestialChest_Plinth
+   'LOD1' pos=(-1288.0, 599.6, -593.2) | distGround=30.0m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_04_Grand/Island_SacredTree/LOD1
+   'LOD2' pos=(255.5, 414.8, 538.2) | distGround=35.7m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_05_Medium/Island_SacredTree/LOD2
+   'HighCirrus_Streamer_04' pos=(-570.4, 725.5, 2307.3) | distGround=680.4m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/HighCirrus_Streamer_04
+   'Stratocumulus_Bank_05' pos=(-596.7, 531.7, 2104.5) | distGround=388.6m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Stratocumulus_Bank_05
+   'IslandMeshModel' pos=(-120.0, 375.0, 440.0) | distGround=393.8m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_12_Stepping/IslandMeshModel
+   'Island_AncientRuin_Arch' pos=(636.0, 517.4, -1343.6) | distGround=38.5m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_09_Medium/Island_AncientRuin_Arch
+   'LOD2' pos=(-1288.0, 599.6, -593.2) | distGround=30.0m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_04_Grand/Island_SacredTree/LOD2
+   'Stratocumulus_Bank_07' pos=(-1567.9, 489.4, 924.7) | distGround=208.5m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Stratocumulus_Bank_07
+   'IslandMeshModel' pos=(-510.0, 460.0, 120.0) | distGround=502.6m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_14_Stepping/IslandMeshModel
+   'IslandMeshModel' pos=(480.0, 440.0, 260.0) | distGround=58.5m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_01_Grand/IslandMeshModel
+   'Towering_Cumulonimbus_09' pos=(-1059.7, 430.1, -2386.7) | distGround=463.7m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Towering_Cumulonimbus_09
+   'LowDrift_Puff_13' pos=(848.0, 356.0, -1198.6) | distGround=541.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_13
+   'HighCirrus_Streamer_02' pos=(1718.6, 729.5, 965.0) | distGround=653.0m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/HighCirrus_Streamer_02
+   'LOD1' pos=(-424.5, 544.8, -881.8) | distGround=35.7m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_10_Medium/Island_SacredTree/LOD1
+   'LowDrift_Puff_06' pos=(-866.1, 409.5, 1361.1) | distGround=409.5m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_06
+   'Towering_Cumulonimbus_12' pos=(2590.2, 469.1, -832.2) | distGround=417.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Towering_Cumulonimbus_12
+   'IslandMeshModel' pos=(-1280.0, 530.0, -590.0) | distGround=62.5m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_04_Grand/IslandMeshModel
+   'Stratocumulus_Bank_03' pos=(1420.7, 570.6, 2276.9) | distGround=534.3m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Stratocumulus_Bank_03
+   'LOD1' pos=(815.5, 483.4, 918.2) | distGround=34.4m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_07_Medium/Island_SacredTree/LOD1
+   'Island_CelestialChest_Plinth' pos=(640.5, 517.6, -1347.5) | distGround=38.5m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_09_Medium/Island_CelestialChest_Plinth
+   'Island_AncientRuin_Arch' pos=(-687.5, 557.4, 732.0) | distGround=29.4m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_02_Grand/Island_AncientRuin_Arch
+   'Island_AncientRuin_Arch' pos=(-344.0, 446.1, 1056.4) | distGround=37.1m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_06_Medium/Island_AncientRuin_Arch
+   'LOD1' pos=(1158.8, 634.1, -776.0) | distGround=32.1m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_03_Grand/Island_SacredTree_Auxiliary/LOD1
+   'LowDrift_Puff_01' pos=(1827.6, 361.1, 110.9) | distGround=231.6m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_01
+   'Horizon_MegaBank_02' pos=(841.9, 531.8, 3080.6) | distGround=562.3m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Horizon_MegaBank_02
+   'LowDrift_Puff_05' pos=(-282.8, 354.1, 956.1) | distGround=238.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_05
+   'IslandMeshModel' pos=(-380.0, 420.0, 380.0) | distGround=437.4m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_13_Stepping/IslandMeshModel
+   'Towering_Cumulonimbus_05' pos=(-1899.2, 601.1, 1945.5) | distGround=627.0m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Towering_Cumulonimbus_05
+   'LOD1' pos=(-924.5, 506.1, 218.2) | distGround=37.0m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_08_Medium/Island_SacredTree/LOD1
+   'Towering_Cumulonimbus_06' pos=(-2218.3, 561.0, 389.0) | distGround=505.9m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Towering_Cumulonimbus_06
+   'LOD2' pos=(815.5, 483.4, 918.2) | distGround=34.4m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_07_Medium/Island_SacredTree/LOD2
+   'Stratocumulus_Bank_13' pos=(1610.2, 671.5, -2087.0) | distGround=829.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/Stratocumulus_Bank_13
+   'HighCirrus_Streamer_09' pos=(947.4, 783.0, -1767.2) | distGround=1006.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/HighCirrus_Streamer_09
+   'LOD2' pos=(-344.5, 446.1, 1048.2) | distGround=37.2m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_06_Medium/Island_SacredTree/LOD2
+   'LowDrift_Puff_03' pos=(654.1, 351.4, 744.7) | distGround=261.1m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_03
+   'Island_AncientRuin_Arch' pos=(816.0, 483.4, 926.4) | distGround=34.3m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_07_Medium/Island_AncientRuin_Arch
+   'HighCirrus_Streamer_06' pos=(-2722.7, 753.3, 535.7) | distGround=751.8m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/HighCirrus_Streamer_06
+   'Island_CelestialChest_Plinth' pos=(480.5, 505.3, 262.5) | distGround=28.5m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_01_Grand/Island_CelestialChest_Plinth
+   'LOD1' pos=(635.5, 517.4, -1351.8) | distGround=38.2m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_09_Medium/Island_SacredTree/LOD1
+   'LowDrift_Puff_10' pos=(-1073.1, 275.3, -1090.3) | distGround=207.4m | path=Grand_Sky_Archipelago_System/Shinkai_Anime_Cumulus_Clouds/LowDrift_Puff_10
+   'LOD0' pos=(-924.5, 506.1, 218.2) | distGround=37.0m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_08_Medium/Island_SacredTree/LOD0
+   'LOD0' pos=(-424.5, 544.8, -881.8) | distGround=35.7m | path=Grand_Sky_Archipelago_System/Celestial_Floating_Islands/Celestial_SkyIsland_10_Medium/Island_SacredTree/LOD0
+   ... and 71 more
+
+--- Root: ENVIRONMENT_ROOT (count=208) ---
+   'Cylinder.005' pos=(45.2, 88.0, 42.5) | distGround=29.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.005
+   'Lantern_2' pos=(24.5, 88.4, -23.6) | distGround=27.8m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_2
+   'Cylinder.005' pos=(62.0, 88.0, -1.9) | distGround=29.9m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.005
+   'Lantern_4' pos=(-25.4, 88.5, -22.7) | distGround=27.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_4
+   'Cylinder.004' pos=(62.0, 87.9, -0.6) | distGround=29.7m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.004
+   'Lantern_0' pos=(34.0, 88.8, 3.2) | distGround=28.3m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_0
+   'Lantern_4' pos=(-1.9, 88.5, -34.0) | distGround=27.7m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_4
+   'Lantern_5' pos=(3.2, 88.8, 62.0) | distGround=29.6m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_5
+   'Lantern_0' pos=(-34.0, 88.8, -3.2) | distGround=27.6m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_0
+   'Lantern_5' pos=(-21.8, 88.8, 26.3) | distGround=27.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_5
+   'Lantern_2' pos=(44.3, 88.4, -43.4) | distGround=29.8m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_2
+   'Lantern_5' pos=(-34.0, 88.8, 3.2) | distGround=27.6m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_5
+   'Lantern_0' pos=(-3.2, 88.8, 34.0) | distGround=27.7m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_0
+   'Lantern_2' pos=(0.6, 88.4, -62.0) | distGround=29.1m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_2
+   'Cylinder.005' pos=(-1.9, 88.0, -34.0) | distGround=27.2m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.005
+   'Cylinder.001' pos=(-3.2, 88.3, 34.0) | distGround=27.2m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.001
+   'Lantern_0' pos=(41.6, 88.8, 46.1) | distGround=30.2m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_0
+   'Cylinder.004' pos=(-0.6, 87.9, -34.0) | distGround=27.1m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.004
+   'Cylinder' pos=(43.8, 89.5, -43.8) | distGround=31.0m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder
+   'Cylinder.001' pos=(-26.3, 88.3, 21.8) | distGround=27.0m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.001
+   'Lantern_3' pos=(0.6, 88.4, 62.0) | distGround=29.0m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_3
+   'Cylinder.001' pos=(3.2, 88.3, -62.0) | distGround=29.1m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.001
+   'Cylinder.006' pos=(3.2, 88.3, 62.0) | distGround=29.1m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.006
+   'Cylinder.002' pos=(-42.5, 88.0, -45.2) | distGround=27.8m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.002
+   'Cylinder.006' pos=(-46.1, 88.3, -41.6) | distGround=28.0m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.006
+   'Cylinder.002' pos=(-45.2, 88.0, 42.5) | distGround=27.4m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.002
+   'Lantern_5' pos=(46.1, 88.8, 41.6) | distGround=30.3m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_5
+   'Lantern_0' pos=(-26.3, 88.8, 21.8) | distGround=27.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_0
+   'Cylinder.005' pos=(34.0, 88.0, -1.9) | distGround=27.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.005
+   'Cylinder.006' pos=(62.0, 88.3, -3.2) | distGround=30.2m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.006
+   'Cylinder' pos=(24.0, 89.5, 24.0) | distGround=28.7m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder
+   'Cylinder.003' pos=(24.5, 87.9, -23.6) | distGround=27.3m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Cylinder.002' pos=(-1.9, 88.0, 34.0) | distGround=26.9m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.002
+   'Cylinder.002' pos=(62.0, 88.0, 1.9) | distGround=29.9m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.002
+   'Cylinder.003' pos=(44.3, 87.9, -43.4) | distGround=29.3m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Cylinder.003' pos=(-44.3, 87.9, 43.4) | distGround=27.2m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Cylinder' pos=(0.0, 89.5, 62.0) | distGround=30.1m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder
+   'Cylinder.003' pos=(0.6, 87.9, -34.0) | distGround=27.1m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Cylinder' pos=(0.0, 89.5, 34.0) | distGround=28.3m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder
+   'Lantern_5' pos=(-3.2, 88.8, -62.0) | distGround=29.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_5
+   'Cylinder.003' pos=(62.0, 87.9, 0.6) | distGround=29.7m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Cylinder' pos=(-43.8, 89.5, 43.8) | distGround=28.8m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder
+   'Cylinder.004' pos=(0.6, 87.9, 62.0) | distGround=28.5m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.004
+   'Cylinder.003' pos=(0.6, 87.9, -62.0) | distGround=28.6m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Lantern_4' pos=(1.9, 88.5, 62.0) | distGround=29.2m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_4
+   'Cylinder.003' pos=(-43.4, 87.9, -44.3) | distGround=27.6m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.003
+   'Cylinder.001' pos=(26.3, 88.3, -21.8) | distGround=27.8m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.001
+   'Cylinder.002' pos=(-22.7, 88.0, -25.4) | distGround=27.0m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.002
+   'Cylinder.005' pos=(-1.9, 88.0, -62.0) | distGround=28.7m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Cylinder.005
+   'Lantern_1' pos=(34.0, 88.5, 1.9) | distGround=28.0m | path=ENVIRONMENT_ROOT/METROPOLIS_INFRASTRUCTURE/07_Detailed_Street_Scenes/04_Overhead_Festoon_Lanterns/Prop_PaperLanterns_String/Lantern_1
+   ... and 158 more
+
+--- Root: Boss_Kaelen_The_Unforged (count=3) ---
+   'Cylinder.001' pos=(-1.1, 86.3, -22.9) | distGround=25.3m | path=Boss_Kaelen_The_Unforged/Golem_IndustrialRustedIron/Cylinder.001
+   'Cylinder' pos=(1.1, 86.3, -22.9) | distGround=25.4m | path=Boss_Kaelen_The_Unforged/Golem_IndustrialRustedIron/Cylinder
+   'IronAuto_Head' pos=(0.0, 85.7, -22.0) | distGround=24.7m | path=Boss_Kaelen_The_Unforged/Golem_IndustrialRustedIron/IronAuto_Head
+
+--- Root: NPC_Catherine_GuildhallClerk (count=2) ---
+   'Nameplate_TMP' pos=(2.4, 136.8, 7.2) | distGround=75.7m | path=NPC_Catherine_GuildhallClerk/Nameplate_TMP
+   'Character_Mesh' pos=(2.4, 135.8, 7.2) | distGround=74.6m | path=NPC_Catherine_GuildhallClerk/HumanoidBody/Character_Mesh
