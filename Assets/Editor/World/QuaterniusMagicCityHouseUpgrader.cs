@@ -63,11 +63,12 @@ namespace BattleSummoner.World.Editor
         public static void ExecuteUpgrade()
         {
             var activeScene = EditorSceneManager.GetActiveScene();
-            if (activeScene.path != ScenePath)
+            if (string.IsNullOrEmpty(activeScene.path) || (!activeScene.name.Equals("OverworldMap", StringComparison.OrdinalIgnoreCase) && !activeScene.path.EndsWith("OverworldMap.unity", StringComparison.OrdinalIgnoreCase)))
             {
                 activeScene = EditorSceneManager.OpenScene(ScenePath);
             }
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             Debug.Log("<color=#00E5FF><b>🏰 [MAGIC CITY HOUSES] Starting Quaternius Model Upgrade for Magic City...</b></color>");
 
             // 1. Ensure Materials are loaded
@@ -90,20 +91,19 @@ namespace BattleSummoner.World.Editor
             }
 
             // 3. Upgrade all 1,454 Row Houses in 8Vector_Metropolis_Root/01_Tier_Stepped_RowHouses
-            int rowHousesUpdated = UpgradeRowHouses(rowMeshes);
+            int rowHousesUpdated = UpgradeRowHouses(rowMeshes, activeScene);
 
             // 4. Upgrade Landmark Houses in --- METROPOLIS_MESHY_HOUSES ---
-            int landmarksUpdated = UpgradeLandmarkHouses(landmarkMeshes);
+            int landmarksUpdated = UpgradeLandmarkHouses(landmarkMeshes, activeScene);
 
             // 5. Upgrade Crafting / District Stalls in Step3_TownAndCrafting if present
-            int craftingUpdated = UpgradeTownAndCrafting(landmarkMeshes);
+            int craftingUpdated = UpgradeTownAndCrafting(landmarkMeshes, activeScene);
 
-            // 6. Save Scene and Assets
+            // 6. Mark Scene Dirty
             EditorSceneManager.MarkSceneDirty(activeScene);
-            EditorSceneManager.SaveScene(activeScene);
-            AssetDatabase.SaveAssets();
 
-            Debug.Log($"<color=#76FF03><b>🎉 [MAGIC CITY HOUSES] SUCCESS! Upgraded {rowHousesUpdated} Row Houses, {landmarksUpdated} Landmark Houses, and {craftingUpdated} Crafting Buildings with Quaternius models!</b></color>");
+            sw.Stop();
+            Debug.Log($"<color=#76FF03><b>🎉 [MAGIC CITY HOUSES] SUCCESS! Upgraded {rowHousesUpdated} Row Houses, {landmarksUpdated} Landmark Houses, and {craftingUpdated} Crafting Buildings with Quaternius models in {sw.ElapsedMilliseconds}ms!</b></color>");
         }
 
         private static void LoadMaterials()
@@ -433,15 +433,50 @@ namespace BattleSummoner.World.Editor
             return finalMesh;
         }
 
-        private static int UpgradeRowHouses(Mesh[] rowMeshes)
+        private static int UpgradeRowHouses(Mesh[] rowMeshes, UnityEngine.SceneManagement.Scene activeScene)
         {
-            var rowHousesRoot = GameObject.Find("8Vector_Metropolis_Root/01_Tier_Stepped_RowHouses");
-            if (rowHousesRoot == null) rowHousesRoot = GameObject.Find("01_Tier_Stepped_RowHouses");
+            GameObject rowHousesRoot = null;
+            var roots = activeScene.GetRootGameObjects();
+            foreach (var r in roots)
+            {
+                if (r.name == "8Vector_Metropolis_Root")
+                {
+                    Transform t = r.transform.Find("01_Tier_Stepped_RowHouses");
+                    if (t != null) { rowHousesRoot = t.gameObject; break; }
+                }
+                if (r.name == "01_Tier_Stepped_RowHouses")
+                {
+                    rowHousesRoot = r;
+                    break;
+                }
+            }
             if (rowHousesRoot == null)
             {
-                Debug.LogWarning("[MAGIC CITY HOUSES] 01_Tier_Stepped_RowHouses root not found!");
+                foreach (var r in roots)
+                {
+                    var allT = r.GetComponentsInChildren<Transform>(true);
+                    foreach (var t in allT)
+                    {
+                        if (t.name == "01_Tier_Stepped_RowHouses")
+                        {
+                            rowHousesRoot = t.gameObject;
+                            break;
+                        }
+                    }
+                    if (rowHousesRoot != null) break;
+                }
+            }
+
+            if (rowHousesRoot == null)
+            {
+                Debug.LogWarning("[MAGIC CITY HOUSES] 01_Tier_Stepped_RowHouses root not found in scene!");
                 return 0;
             }
+
+            // Ensure hierarchy is active
+            rowHousesRoot.SetActive(true);
+            if (rowHousesRoot.transform.parent != null)
+                rowHousesRoot.transform.parent.gameObject.SetActive(true);
 
             Material[] rowMaterials = new Material[]
             {
@@ -466,8 +501,6 @@ namespace BattleSummoner.World.Editor
                 Mesh chosenMesh = rowMeshes[styleIdx];
                 if (chosenMesh == null) continue;
 
-                Undo.RecordObject(houseT.gameObject, "Upgrade Row House Mesh");
-
                 // Update MeshFilter
                 if (!houseT.TryGetComponent<MeshFilter>(out var mf))
                 {
@@ -490,7 +523,7 @@ namespace BattleSummoner.World.Editor
                 }
                 mr.sharedMaterials = mats;
 
-                // Ensure solid collider
+                // Ensure fast solid BoxCollider (vastly higher performance than MeshCollider)
                 var collider = houseT.GetComponent<Collider>();
                 if (collider is BoxCollider box)
                 {
@@ -499,7 +532,10 @@ namespace BattleSummoner.World.Editor
                 }
                 else if (collider is MeshCollider mc)
                 {
-                    mc.sharedMesh = chosenMesh;
+                    UnityEngine.Object.DestroyImmediate(mc);
+                    var newBox = houseT.gameObject.AddComponent<BoxCollider>();
+                    newBox.center = chosenMesh.bounds.center;
+                    newBox.size = chosenMesh.bounds.size;
                 }
 
                 updated++;
@@ -509,14 +545,8 @@ namespace BattleSummoner.World.Editor
             return updated;
         }
 
-        private static int UpgradeLandmarkHouses(Mesh[] landmarkMeshes)
+        private static int UpgradeLandmarkHouses(Mesh[] landmarkMeshes, UnityEngine.SceneManagement.Scene activeScene)
         {
-            var landmarksRoot = GameObject.Find("--- METROPOLIS_MESHY_HOUSES ---");
-            if (landmarksRoot == null)
-            {
-                Debug.LogWarning("[MAGIC CITY HOUSES] --- METROPOLIS_MESHY_HOUSES --- root not found, searching direct landmarks...");
-            }
-
             Material[] landmarkMaterials = new Material[]
             {
                 _woodTrimMat,
@@ -528,56 +558,57 @@ namespace BattleSummoner.World.Editor
             };
 
             int updated = 0;
+            var roots = activeScene.GetRootGameObjects();
 
-            // Search both under landmarksRoot and entire scene for any Meshy_House objects
-            GameObject[] allSceneObjects = UnityEngine.Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
-            foreach (var go in allSceneObjects)
+            foreach (var root in roots)
             {
-                if (go == null) continue;
-                string n = go.name.ToLowerInvariant();
-                if (!n.Contains("meshy_house") && !n.Contains("meshyhouses")) continue;
-
-                var mf = go.GetComponentInChildren<MeshFilter>(true);
-                var mr = go.GetComponentInChildren<MeshRenderer>(true);
-                if (mf == null || mr == null) continue;
-
-                // Choose a style based on name
-                int styleIdx = 0; // TownHome
-                if (n.Contains("apothecary") || n.Contains("alchemist")) styleIdx = 1; // SmallCottage
-                else if (n.Contains("forge") || n.Contains("blacksmith")) styleIdx = 3; // ArtisanForge
-                else if (n.Contains("guild") || n.Contains("scholar") || n.Contains("spire")) styleIdx = 4; // TwoStoryManor
-                else if (n.Contains("merchant") || n.Contains("harbor")) styleIdx = 2; // LongLodge
-
-                Mesh chosenMesh = landmarkMeshes[styleIdx % landmarkMeshes.Length];
-                if (chosenMesh == null) continue;
-
-                Undo.RecordObject(mf.gameObject, "Upgrade Landmark House");
-                mf.sharedMesh = chosenMesh;
-                mr.enabled = true;
-
-                Material[] mats = new Material[chosenMesh.subMeshCount];
-                for (int m = 0; m < mats.Length; m++)
+                var allTransforms = root.GetComponentsInChildren<Transform>(true);
+                foreach (var t in allTransforms)
                 {
-                    mats[m] = landmarkMaterials[m % landmarkMaterials.Length];
-                }
-                mr.sharedMaterials = mats;
+                    if (t == null) continue;
+                    string n = t.name.ToLowerInvariant();
+                    if (!n.Contains("meshy_house") && !n.Contains("meshyhouses") && !n.Contains("alchemistapothecary") && !n.Contains("medievalartisanrow") && !n.Contains("gothicscholarspire") && !n.Contains("merchantharbor")) continue;
 
-                // If landmark had small localScale (e.g. 1.0f or 6.0f), ensure it sits proportionally
-                if (go.transform.localScale.x < 1.5f)
-                {
-                    go.transform.localScale = Vector3.one * 1.8f;
-                }
+                    var mf = t.GetComponent<MeshFilter>();
+                    var mr = t.GetComponent<MeshRenderer>();
+                    if (mf == null || mr == null) continue;
 
-                updated++;
-                Debug.Log($"[MAGIC CITY HOUSES] Upgraded Landmark '{go.name}' with {chosenMesh.name}");
+                    // Choose a style based on name
+                    int styleIdx = 0; // TownHome
+                    if (n.Contains("apothecary") || n.Contains("alchemist")) styleIdx = 1; // SmallCottage
+                    else if (n.Contains("forge") || n.Contains("blacksmith")) styleIdx = 3; // ArtisanForge
+                    else if (n.Contains("guild") || n.Contains("scholar") || n.Contains("spire")) styleIdx = 4; // TwoStoryManor
+                    else if (n.Contains("merchant") || n.Contains("harbor")) styleIdx = 2; // LongLodge
+
+                    Mesh chosenMesh = landmarkMeshes[styleIdx % landmarkMeshes.Length];
+                    if (chosenMesh == null) continue;
+
+                    Undo.RecordObject(t.gameObject, "Upgrade Landmark House");
+                    mf.sharedMesh = chosenMesh;
+                    mr.enabled = true;
+
+                    Material[] mats = new Material[chosenMesh.subMeshCount];
+                    for (int m = 0; m < mats.Length; m++)
+                    {
+                        mats[m] = landmarkMaterials[m % landmarkMaterials.Length];
+                    }
+                    mr.sharedMaterials = mats;
+
+                    updated++;
+                    Debug.Log($"[MAGIC CITY HOUSES] Upgraded Landmark '{t.name}' with {chosenMesh.name}");
+                }
             }
 
             return updated;
         }
 
-        private static int UpgradeTownAndCrafting(Mesh[] landmarkMeshes)
+        private static int UpgradeTownAndCrafting(Mesh[] landmarkMeshes, UnityEngine.SceneManagement.Scene activeScene)
         {
-            var craftingRoot = GameObject.Find("Step3_TownAndCrafting");
+            GameObject craftingRoot = null;
+            foreach (var r in activeScene.GetRootGameObjects())
+            {
+                if (r.name == "Step3_TownAndCrafting") { craftingRoot = r; break; }
+            }
             if (craftingRoot == null) return 0;
 
             int updated = 0;
@@ -591,20 +622,20 @@ namespace BattleSummoner.World.Editor
                 _unevenBrickMat
             };
 
-            foreach (Transform t in craftingRoot.transform)
+            foreach (Transform t in craftingRoot.GetComponentsInChildren<Transform>(true))
             {
                 string n = t.name.ToLowerInvariant();
                 if (n.Contains("house") || n.Contains("shop") || n.Contains("forge") || n.Contains("building"))
                 {
-                    var mf = t.GetComponentInChildren<MeshFilter>(true);
-                    var mr = t.GetComponentInChildren<MeshRenderer>(true);
+                    var mf = t.GetComponent<MeshFilter>();
+                    var mr = t.GetComponent<MeshRenderer>();
                     if (mf == null || mr == null) continue;
 
                     int style = n.Contains("forge") ? 3 : (n.Contains("shop") ? 5 : 0);
                     Mesh m = landmarkMeshes[style % landmarkMeshes.Length];
                     if (m != null)
                     {
-                        Undo.RecordObject(mf.gameObject, "Upgrade Crafting Building");
+                        Undo.RecordObject(t.gameObject, "Upgrade Crafting Building");
                         mf.sharedMesh = m;
                         mr.enabled = true;
                         Material[] assignedMats = new Material[m.subMeshCount];

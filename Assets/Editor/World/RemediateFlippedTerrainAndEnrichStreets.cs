@@ -270,14 +270,14 @@ namespace BattleSummoner.EditorScripts
             float curbWidth = 1.5f;
 
             // Exact Tier spans matching sculpted continent terrain:
-            // Tier 4: R = 10m to 95m,   Y = 80.06m (extends to retaining wall ledge)
-            // Tier 3: R = 125m to 202m, Y = 58.06m (meets bottom of T4 stairs at 125m)
+            // Tier 4: R = 10m to 86m,   Y = 80.06m (extends to retaining wall ledge)
+            // Tier 3: R = 116m to 202m, Y = 58.06m (meets bottom of T4 stairs at 116m)
             // Tier 2: R = 232m to 316m, Y = 38.06m
             // Tier 1: R = 348m to 448.5m, Y = 22.06m (curtain wall boundary)
             (float rStart, float rEnd, float yElev)[] tierSegments = new (float, float, float)[]
             {
-                (10f,  95f,  80.06f),
-                (125f, 202f, 58.06f),
+                (10f,  86f,  80.06f),
+                (116f, 202f, 58.06f),
                 (232f, 316f, 38.06f),
                 (348f, 448.5f, 22.06f)
             };
@@ -310,8 +310,8 @@ namespace BattleSummoner.EditorScripts
                 }
 
                 // 2. Grand Stone Flight of Stairs at Tier Transitions with solid foundations & balustrades
-                // T4 to T3: Centered at 110m (length 30m) -> top reaches R=95m ledge at Y=80.06m, bottom lands at R=125m at Y=58.06m
-                CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T4_to_T3", dir * 110.0f, dir, perp, 30.0f, 80.06f, 58.06f, boulevardWidth, 28, curbMat, true);
+                // T4 to T3: Centered at 101m (length 30m) -> top reaches R=86m platform ledge at Y=80.06m, bottom lands at R=116m at Y=58.06m
+                CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T4_to_T3", dir * 101.0f, dir, perp, 30.0f, 80.06f, 58.06f, boulevardWidth, 28, curbMat, true);
                 CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T3_to_T2", dir * 217.0f, dir, perp, 30.0f, 58.06f, 38.06f, boulevardWidth, 26, curbMat);
                 CreateFlightOfStairs(stairsParent, $"Stairs_{angDeg:F0}_T2_to_T1", dir * 332.0f, dir, perp, 32.0f, 38.06f, 22.06f, boulevardWidth, 26, curbMat);
 
