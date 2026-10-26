@@ -101,6 +101,12 @@ namespace BattleSummoner.VisualPolish.Editor
             foreach (GameObject go in allObjects)
             {
                 if (go == null || go == catherineNpc) continue;
+                string goName = go.name.ToLowerInvariant();
+                bool isActualNpc = goName.StartsWith("npc_") || goName.Contains("_npc") || 
+                                   goName.Contains("citizen") || goName.Contains("villager") || 
+                                   goName.Contains("townfolk") || goName.Contains("wanderer");
+                if (!isActualNpc) continue;
+
                 if (go.name.Contains("Player_Hero") || go.name == "Player") continue;
                 if (go.transform.Find("HumanoidBody") != null) continue;
                 if (go.GetComponentInChildren<SkinnedMeshRenderer>() != null) continue;
