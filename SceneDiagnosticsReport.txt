@@ -1,0 +1,99 @@
+=== MAGIC CITY SCENE DIAGNOSTICS ===
+Active Scene: OverworldMap (path: Assets/Scenes/OverworldMap.unity)
+Total Root GameObjects: 74
+  Root[0]: 'Sun_DirectionalLight', active: True, children: 0
+  Root[1]: 'SceneTransitionManager', active: True, children: 0
+  Root[2]: 'Main Camera', active: True, children: 1
+  Root[3]: 'EventSystem', active: True, children: 0
+  Root[4]: '[LifeSimDirector]', active: True, children: 0
+  Root[5]: 'InsectCelebrationManager', active: True, children: 0
+  Root[6]: 'FishingCelebrationManager', active: True, children: 0
+  Root[7]: 'FishingCelebrationCanvas', active: True, children: 2
+  Root[8]: 'InsectCelebrationCanvas', active: True, children: 2
+  Root[9]: 'WorldMapExplorationModal', active: True, children: 0
+  Root[10]: '[VerticalSliceSandboxController]', active: True, children: 0
+  Root[11]: 'SpireSpatialCullingManager', active: True, children: 0
+  Root[12]: '--- OPTIMIZATION & SYSTEMS ROOT ---', active: True, children: 0
+  Root[13]: 'CircularContinent_MacroLevel1', active: True, children: 0
+  Root[14]: 'Seaward_Port_Town_Lively', active: True, children: 3
+  Root[15]: 'Ambient_Glowing_Motes_System', active: True, children: 0
+  Root[16]: 'GuildHall_Tavern_Chandelier_Light', active: True, children: 0
+  Root[17]: 'GuildHall_Barrels_Hearth_Light', active: True, children: 0
+  Root[18]: '8Vector_Metropolis_Root', active: True, children: 7
+  Root[19]: 'Outerwilds_Ocean_Water', active: True, children: 0
+  Root[20]: 'Landmark_CathedralGothic_OpenDoors', active: True, children: 1
+  Root[21]: 'PlayerHUDCanvas', active: True, children: 3
+  Root[22]: 'Arena_Destructible_Pillars_Root', active: True, children: 4
+  Root[23]: 'Stealable_Golem_RideArmor_Unit', active: True, children: 1
+  Root[24]: 'Enemy_Pilot_AnvilGuard', active: True, children: 1
+  Root[25]: 'Central_Giant_Master_Chest', active: True, children: 1
+  Root[26]: 'PreBoss_ManaCrystalline_Larvae_Cluster', active: True, children: 1
+  Root[27]: 'Boss_Kaelen_The_Unforged', active: True, children: 2
+  Root[28]: 'Player_Hero', active: True, children: 2
+  Root[29]: 'ENVIRONMENT_ROOT', active: True, children: 1
+  Root[30]: 'LIVELY_METROPOLIS_NPCS', active: True, children: 7
+  Root[31]: '--- SCATTERED CONTINENTAL ROCK FORMATIONS ---', active: True, children: 427
+  Root[32]: '--- ANIME NATURE & VEGETATION ---', active: True, children: 256
+  Root[33]: '--- GOLDEN FIELD SPORE PARTICLES ---', active: True, children: 7
+  Root[34]: '--- ENEMY OUTPOSTS & DUNGEON PORTAL ---', active: True, children: 4
+  Root[35]: 'Global_PostProcess_Volume', active: True, children: 0
+  Root[36]: '--- BEAUTIFIED SCENIC CITY PARKS ---', active: True, children: 21
+  Root[37]: '--- QUALITY_OF_LIFE_MASTER ---', active: True, children: 0
+  Root[38]: 'NPC_Catherine_GuildhallClerk', active: True, children: 2
+  Root[39]: 'Genshin_Meshy_PlazaSetDressing', active: True, children: 12
+  Root[40]: 'Grand_Metropolis_StreetLife_And_Decor', active: True, children: 148
+  Root[41]: 'Grand_Mainland_Nature_And_Outskirts', active: True, children: 2
+  Root[42]: 'Marker_Overworld_TavernDoor', active: True, children: 0
+  Root[43]: 'Marker_Overworld_GuildHallDoor', active: True, children: 0
+  Root[44]: 'Marker_Overworld_ShopDoor', active: True, children: 0
+  Root[45]: 'Marker_Overworld_CampfireDoor', active: True, children: 0
+  Root[46]: 'Marker_Overworld_NorthernPortal', active: True, children: 0
+  Root[47]: 'Marker_Spawn_CitadelCenter', active: True, children: 0
+  Root[48]: '--- METROPOLIS_DISTRICT_DETAILS ---', active: True, children: 9
+  Root[49]: '--- DEMO_VERTICAL_SLICE_SYSTEM ---', active: True, children: 4
+  Root[50]: 'NPC_Catherine', active: True, children: 1
+  Root[51]: 'NPC_Margo_Courtyard', active: True, children: 1
+  Root[52]: '--- CONTINENTAL_RURAL_TOWNS_AND_RUINS ---', active: True, children: 7
+  Root[53]: '--- ZERO BLOCKER IMMERSION GUARDIAN ---', active: True, children: 0
+  Root[54]: '--- WORLD & SKY ACTIVITIES & POIs ---', active: True, children: 1
+  Root[55]: '--- NOBLE ORDINAL MOAT BRIDGES ---', active: True, children: 4
+  Root[56]: '--- AQUATIC FLORA & PROTRUDING WATER ROCKS ---', active: True, children: 5
+  Root[57]: '[ProceduralDungeonDirector]', active: True, children: 14
+  Root[58]: 'DungeonCrawlerFloorMaster', active: True, children: 0
+  Root[59]: '--- DYNAMIC STYLIZED GRASS & WILDFLOWERS ---', active: True, children: 1727
+  Root[60]: 'BloodAndHearthMasterDirector_Root', active: True, children: 0
+  Root[61]: 'Grand_Sky_Archipelago_System', active: True, children: 2
+  Root[62]: '--- DESERT & BEACH ECOSYSTEMS AND INTERACTIONS ---', active: True, children: 4
+  Root[63]: 'Kingdom_CrispMasonryTiers', active: True, children: 4
+  Root[64]: 'Mountain_Traversal_Paths_And_Obstacles', active: True, children: 54
+  Root[65]: 'City_Structural_Masonry', active: True, children: 4
+  Root[66]: 'City_Perimeter_16Towers', active: True, children: 32
+  Root[67]: 'Sky_Layer_Aetherion', active: True, children: 12
+  Root[68]: 'World_AnimeNature_Foliage', active: True, children: 1013
+  Root[69]: 'Mountain_AnimeNature_SwitchbackAndGorge_Root', active: True, children: 1613
+  Root[70]: 'METROPOLIS_STREET_PROPS', active: True, children: 49
+  Root[71]: 'Cathedral_Appraisal_Orb', active: True, children: 0
+  Root[72]: 'WILDERNESS_MONSTER_CAMPS', active: True, children: 4
+  Root[73]: 'TestNurture', active: True, children: 0
+Found 01_Tier_Stepped_RowHouses: childCount = 1454
+  Child[0]: 'RowHouse_R418_Building_Inn_Lodge', Mesh: 'Quaternius_House_TownHome_RowHouseScale', Mats: 5, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[1]: 'RowHouse_R418_Building_Inn_Lodge', Mesh: 'Quaternius_House_SmallCottage_RowHouseScale', Mats: 6, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[2]: 'RowHouse_R418_Building_Inn_Lodge', Mesh: 'Quaternius_House_LongLodge_RowHouseScale', Mats: 6, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[3]: 'RowHouse_R418_Building_House_Residential', Mesh: 'Quaternius_House_ArtisanForge_RowHouseScale', Mats: 6, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[4]: 'RowHouse_R418_Building_Inn_Lodge', Mesh: 'Quaternius_House_TwoStoryManor_RowHouseScale', Mats: 5, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[5]: 'RowHouse_R418_Building_MagicItemStore', Mesh: 'Quaternius_House_WoodGridShop_RowHouseScale', Mats: 5, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[6]: 'RowHouse_R418_Building_House_LowDistrict', Mesh: 'Quaternius_House_TownHome_RowHouseScale', Mats: 5, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[7]: 'RowHouse_R418_Building_GuildArmory', Mesh: 'Quaternius_House_SmallCottage_RowHouseScale', Mats: 6, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[8]: 'RowHouse_R418_Building_Inn_Lodge', Mesh: 'Quaternius_House_LongLodge_RowHouseScale', Mats: 6, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+  Child[9]: 'RowHouse_R418_Building_Tavern_Open', Mesh: 'Quaternius_House_ArtisanForge_RowHouseScale', Mats: 6, Shader[0]: 'Universal Render Pipeline/Lit', Active: True
+    SubChild[0]: 'Foundation_Plinth_Stone', Active: True
+Total GameObjects in scene with 'window': 0, with 'lantern': 1544

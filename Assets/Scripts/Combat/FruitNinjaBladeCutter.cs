@@ -280,6 +280,13 @@ namespace BattleSummoner.Combat
                 WarriorSwordSlashVFX.SpawnHitSpark(contactPoint, -cam.transform.forward);
                 WarriorSwordSlashVFX.SpawnSlashWave(contactPoint, worldSlashDir, swipeAngleDeg, velocity, waveColor);
 
+                // Zero-GC Micro-VFX & Floating Tabular Damage Number
+                if (ZeroGCMicroVFXDirector.Instance != null)
+                {
+                    ZeroGCMicroVFXDirector.Instance.PlaySlashSpark(contactPoint, worldSlashDir, waveColor);
+                    ZeroGCMicroVFXDirector.Instance.SpawnDamageNumber(contactPoint, finalKineticDamage, precisionMultiplier > 1.2f);
+                }
+
                 // Blood & Hearth Visceral Combat Bridge Hook
                 var hearthBridge = UnityEngine.Object.FindFirstObjectByType<CombatToBloodHearthBridge>();
                 if (hearthBridge != null)

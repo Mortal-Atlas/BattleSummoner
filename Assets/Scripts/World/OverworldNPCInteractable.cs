@@ -44,7 +44,7 @@ namespace BattleSummoner.World
 
         [Header("Overhead Visuals")]
         public float overheadBadgeHeight = 2.1f;
-        public Color nameplateColor = new Color(0.2f, 0.95f, 1.0f);
+        public Color nameplateColor = new Color(1.0f, 0.94f, 0.82f, 1.0f); // Warm ivory gold (replaces neon cyan)
 
         private Transform _playerTransform;
         private GameObject _overheadCanvasObj;
@@ -115,21 +115,30 @@ namespace BattleSummoner.World
             nameObj.transform.SetParent(_overheadCanvasObj.transform, false);
             nameObj.transform.localPosition = new Vector3(0f, 0.28f, 0f);
             _nameplateTMP = nameObj.AddComponent<TextMeshPro>();
-            _nameplateTMP.text = $"<color=#{ColorUtility.ToHtmlStringRGB(nameplateColor)}><b>{npcName}</b></color>\n<size=70%><color=#FFE070>〈 {npcRole} 〉</color></size>";
+            _nameplateTMP.text = $"<color=#F8FAFC><b>{npcName}</b></color>\n<size=75%><color=#E6C88A>〈 {npcRole} 〉</color></size>";
             _nameplateTMP.fontSize = 1.6f;
             _nameplateTMP.alignment = TextAlignmentOptions.Center;
             _nameplateTMP.sortingOrder = 50;
+            _nameplateTMP.outlineColor = new Color32(14, 18, 28, 255);
+            _nameplateTMP.outlineWidth = 0.22f;
 
             // Interaction Prompt Badge
             var promptObj = new GameObject("Prompt_Text");
             promptObj.transform.SetParent(_overheadCanvasObj.transform, false);
             promptObj.transform.localPosition = new Vector3(0f, -0.22f, 0f);
             _promptTMP = promptObj.AddComponent<TextMeshPro>();
-            _promptTMP.text = "<color=#FFFF55><b>[E] TALK</b></color>";
+            _promptTMP.text = "<color=#FFDF6D><b>[E]</b></color> <color=#FFFFFF>Talk</color>";
             _promptTMP.fontSize = 1.4f;
             _promptTMP.alignment = TextAlignmentOptions.Center;
             _promptTMP.sortingOrder = 51;
+            _promptTMP.outlineColor = new Color32(14, 18, 28, 255);
+            _promptTMP.outlineWidth = 0.18f;
             _promptTMP.gameObject.SetActive(false);
+
+            // Ensure scale is positive (never mirrored)
+            Vector3 canvasScale = _overheadCanvasObj.transform.localScale;
+            if (canvasScale.x < 0f) canvasScale.x = Mathf.Abs(canvasScale.x);
+            _overheadCanvasObj.transform.localScale = canvasScale;
 
             // Hide by default until player approaches
             _overheadCanvasObj.SetActive(false);
@@ -155,9 +164,11 @@ namespace BattleSummoner.World
                     _overheadCanvasObj.SetActive(nearPlayer);
                 }
 
-                // Billboard overhead prompt toward Camera only when visible
+                // Billboard overhead prompt toward Camera with proper forward billboarding (never backwards)
                 if (nearPlayer && Camera.main != null)
                 {
+                    Vector3 s = _overheadCanvasObj.transform.localScale;
+                    if (s.x < 0f) _overheadCanvasObj.transform.localScale = new Vector3(Mathf.Abs(s.x), s.y, s.z);
                     _overheadCanvasObj.transform.rotation = Camera.main.transform.rotation;
                 }
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using BattleSummoner.Combat;
 using BattleSummoner.Mounts;
@@ -64,6 +65,71 @@ namespace BattleSummoner.Combat
         private static readonly int HashCraftingAction = Animator.StringToHash("CraftingAction");
         private static readonly int HashDanceAction = Animator.StringToHash("DanceAction");
 
+        private readonly HashSet<int> _cachedParamHashes = new HashSet<int>();
+        private readonly Dictionary<int, AnimatorControllerParameterType> _cachedParamTypes = new Dictionary<int, AnimatorControllerParameterType>();
+
+        public void CacheParameters()
+        {
+            _cachedParamHashes.Clear();
+            _cachedParamTypes.Clear();
+            if (animator == null) return;
+            var ctrl = animator.runtimeAnimatorController;
+            if (ctrl == null) return;
+
+            foreach (var p in animator.parameters)
+            {
+                _cachedParamHashes.Add(p.nameHash);
+                _cachedParamTypes[p.nameHash] = p.type;
+            }
+        }
+
+        private void SafeSetInteger(int hash, int val)
+        {
+            if (!IsAnimatorPlayable) return;
+            if (_cachedParamHashes.Contains(hash))
+            {
+                if (_cachedParamTypes.TryGetValue(hash, out var type))
+                {
+                    if (type == AnimatorControllerParameterType.Int)
+                        animator.SetInteger(hash, val);
+                    else if (type == AnimatorControllerParameterType.Trigger && val > 0)
+                        animator.SetTrigger(hash);
+                    else if (type == AnimatorControllerParameterType.Bool)
+                        animator.SetBool(hash, val > 0);
+                }
+            }
+        }
+
+        private void SafeSetTrigger(int hash)
+        {
+            if (!IsAnimatorPlayable) return;
+            if (_cachedParamHashes.Contains(hash))
+            {
+                animator.SetTrigger(hash);
+            }
+        }
+
+        private void SafeSetBool(int hash, bool val)
+        {
+            if (!IsAnimatorPlayable) return;
+            if (_cachedParamHashes.Contains(hash))
+            {
+                animator.SetBool(hash, val);
+            }
+        }
+
+        private void SafeSetFloat(int hash, float val, float dampTime = 0f, float deltaTime = 0f)
+        {
+            if (!IsAnimatorPlayable) return;
+            if (_cachedParamHashes.Contains(hash))
+            {
+                if (dampTime > 0f)
+                    animator.SetFloat(hash, val, dampTime, deltaTime);
+                else
+                    animator.SetFloat(hash, val);
+            }
+        }
+
         private void Awake()
         {
             if (Instance == null && gameObject.name.Contains("Player_Hero"))
@@ -120,6 +186,9 @@ namespace BattleSummoner.Combat
                 }
             }
 #endif
+
+            // Cache available parameters to prevent missing parameter console warnings
+            CacheParameters();
 
             // 4. Resolve Humanoid bones for secondary physics / spine banking
             if (animator != null && animator.isHuman)
@@ -189,18 +258,18 @@ namespace BattleSummoner.Combat
             }
 
             // 2. Feed parameters into Animator with smooth dampening
-            animator.SetFloat(HashSpeed, targetSpeedNorm, speedDampTime, Time.deltaTime);
+            SafeSetFloat(HashSpeed, targetSpeedNorm, speedDampTime, Time.deltaTime);
 
             bool grounded = movement != null ? movement.IsGrounded : true;
-            animator.SetBool(HashIsGrounded, grounded);
-            animator.SetFloat(HashVerticalSpeed, vel.y);
+            SafeSetBool(HashIsGrounded, grounded);
+            SafeSetFloat(HashVerticalSpeed, vel.y);
 
             bool dashing = movement != null && movement.IsDashing;
-            animator.SetBool(HashIsDashing, dashing);
+            SafeSetBool(HashIsDashing, dashing);
 
             // Mount Riding check
             bool isMounted = PlayerMountController.Instance != null && PlayerMountController.Instance.IsMounted;
-            animator.SetBool(HashIsMountRiding, isMounted);
+            SafeSetBool(HashIsMountRiding, isMounted);
         }
 
         private void LateUpdate()
@@ -228,27 +297,27 @@ namespace BattleSummoner.Combat
         private void HandleJump()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetBool(HashIsGrounded, false);
-            animator.SetFloat(HashVerticalSpeed, 8.5f);
+            SafeSetBool(HashIsGrounded, false);
+            SafeSetFloat(HashVerticalSpeed, 8.5f);
         }
 
         private void HandleDash(Vector3 direction)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashDashTrigger);
-            animator.SetBool(HashIsDashing, true);
+            SafeSetTrigger(HashDashTrigger);
+            SafeSetBool(HashIsDashing, true);
         }
 
         private void HandleBladeSlash(Vector2 direction, float velocity)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashSlashTrigger);
+            SafeSetTrigger(HashSlashTrigger);
         }
 
         private void HandleSpellCast(Vector2 screenPos)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashCastTrigger);
+            SafeSetTrigger(HashCastTrigger);
         }
 
         /// <summary>
@@ -257,7 +326,7 @@ namespace BattleSummoner.Combat
         public void PlaySlashAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashSlashTrigger);
+            SafeSetTrigger(HashSlashTrigger);
         }
 
         /// <summary>
@@ -266,7 +335,7 @@ namespace BattleSummoner.Combat
         public void PlayCastAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashCastTrigger);
+            SafeSetTrigger(HashCastTrigger);
         }
 
         /// <summary>
@@ -275,7 +344,7 @@ namespace BattleSummoner.Combat
         public void PlayDashAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashDashTrigger);
+            SafeSetTrigger(HashDashTrigger);
         }
 
         /// <summary>
@@ -284,7 +353,7 @@ namespace BattleSummoner.Combat
         public void PlayParryAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashParryTrigger);
+            SafeSetTrigger(HashParryTrigger);
         }
 
         /// <summary>
@@ -293,8 +362,8 @@ namespace BattleSummoner.Combat
         public void PlaySwordCombo(int comboIndex = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashSwordCombo, Mathf.Clamp(comboIndex, 1, 3));
-            animator.SetTrigger(HashSlashTrigger);
+            SafeSetInteger(HashSwordCombo, Mathf.Clamp(comboIndex, 1, 3));
+            SafeSetTrigger(HashSlashTrigger);
         }
 
         /// <summary>
@@ -303,7 +372,7 @@ namespace BattleSummoner.Combat
         public void PlayBrawlerStrike(int strikeType = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashBrawlerStrike, Mathf.Clamp(strikeType, 1, 3));
+            SafeSetInteger(HashBrawlerStrike, Mathf.Clamp(strikeType, 1, 3));
         }
 
         /// <summary>
@@ -312,7 +381,7 @@ namespace BattleSummoner.Combat
         public void PlayCookingAction(int actionType = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashCookingAction, Mathf.Clamp(actionType, 1, 4));
+            SafeSetInteger(HashCookingAction, Mathf.Clamp(actionType, 1, 4));
         }
 
         /// <summary>
@@ -323,12 +392,12 @@ namespace BattleSummoner.Combat
             if (!IsAnimatorPlayable) return;
             if (isAiming)
             {
-                animator.SetBool(HashArcheryAim, true);
+                SafeSetBool(HashArcheryAim, true);
             }
             else
             {
-                animator.SetBool(HashArcheryAim, false);
-                animator.SetTrigger(HashArcheryRelease);
+                SafeSetBool(HashArcheryAim, false);
+                SafeSetTrigger(HashArcheryRelease);
             }
         }
 
@@ -338,7 +407,7 @@ namespace BattleSummoner.Combat
         public void PlayThrowAction()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashThrowTrigger);
+            SafeSetTrigger(HashThrowTrigger);
         }
 
         /// <summary>
@@ -347,7 +416,7 @@ namespace BattleSummoner.Combat
         public void PlayMartialArtsStrike(int strikeType = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashMartialArtStrike, Mathf.Clamp(strikeType, 1, 3));
+            SafeSetInteger(HashMartialArtStrike, Mathf.Clamp(strikeType, 1, 3));
         }
 
         /// <summary>
@@ -356,13 +425,13 @@ namespace BattleSummoner.Combat
         public void PlayCraftingAnimation(int craftType = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashCraftingAction, Mathf.Clamp(craftType, 1, 4));
+            SafeSetInteger(HashCraftingAction, Mathf.Clamp(craftType, 1, 4));
         }
 
         public void StopCraftingAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashCraftingAction, 0);
+            SafeSetInteger(HashCraftingAction, 0);
         }
 
         /// <summary>
@@ -371,13 +440,13 @@ namespace BattleSummoner.Combat
         public void PlayDanceAnimation(int danceType = 1)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashDanceAction, Mathf.Clamp(danceType, 1, 6));
+            SafeSetInteger(HashDanceAction, Mathf.Clamp(danceType, 1, 6));
         }
 
         public void StopDanceAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetInteger(HashDanceAction, 0);
+            SafeSetInteger(HashDanceAction, 0);
         }
 
         /// <summary>
@@ -386,7 +455,7 @@ namespace BattleSummoner.Combat
         public void SetDefending(bool isDefending)
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetBool(HashIsDefending, isDefending);
+            SafeSetBool(HashIsDefending, isDefending);
         }
 
         /// <summary>
@@ -395,7 +464,7 @@ namespace BattleSummoner.Combat
         public void PlayHitReactionAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashHitTrigger);
+            SafeSetTrigger(HashHitTrigger);
         }
 
         /// <summary>
@@ -404,7 +473,7 @@ namespace BattleSummoner.Combat
         public void PlayDeathAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashDieTrigger);
+            SafeSetTrigger(HashDieTrigger);
         }
 
         /// <summary>
@@ -413,7 +482,7 @@ namespace BattleSummoner.Combat
         public void PlayVictoryAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashVictoryTrigger);
+            SafeSetTrigger(HashVictoryTrigger);
         }
 
         /// <summary>
@@ -422,7 +491,7 @@ namespace BattleSummoner.Combat
         public void PlayLevelUpAnimation()
         {
             if (!IsAnimatorPlayable) return;
-            animator.SetTrigger(HashLevelUpTrigger);
+            SafeSetTrigger(HashLevelUpTrigger);
         }
     }
 }

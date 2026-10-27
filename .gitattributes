@@ -244,3 +244,10 @@ LightingData.asset     binary
 /Assets/TextMesh[[:space:]]Pro/Fonts/InterRegular.asset filter=lfs diff=lfs merge=lfs -text
 /Assets/TextMesh[[:space:]]Pro/Examples[[:space:]]&[[:space:]]Extras/Resources/Fonts[[:space:]]&[[:space:]]Materials/Unity[[:space:]]SDF.asset filter=lfs diff=lfs merge=lfs -text
 /Assets/_Recovery/0.unity filter=lfs diff=lfs merge=lfs -text
+
+# GitHub Linguist Overrides - Ensure 0% Wolfram Language and 100% C# / ShaderLab
+*.m linguist-detectable=false
+*.nb linguist-detectable=false
+*.wl linguist-detectable=false
+*.unity linguist-detectable=false
+*.asset linguist-detectable=false

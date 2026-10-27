@@ -1,0 +1,12 @@
+=== APPLY USER SCULPTED CONTINENT REPORT ===
+Timestamp: 2026-10-26 20:45:56
+Active Scene: Assets/Scenes/OverworldMap.unity
+Terrain Mesh: 'Floor01_MacroContinent_Terrain' (641601 vertices, 1280000 triangles)
+  Bounds: Center=(0.02, 413.26, -0.04), Extents=(4096.06, 779.10, 4096.25)
+  Peak: Height Y=1192.36m at (X=-1138.86m, Z=1357.03m)
+  Lowest: Depth Y=-365.84m at (X=1109.67m, Z=-1278.78m)
+  Normals: Avg Y=0.9556, Upward Faces=641283/641601 (100.0%)
+  ORIENTATION CHECK: Northwest (X<0, Z>0)? True | Height ~1192m? True
+  Material configured with Albedo='T_Continent_MacroAlbedo', Normal='T_Continent_MacroNormal', Splat='T_Continent_BiomeMask'
+Scene Saved: True
+=== ALL VERIFICATION TASKS COMPLETED SUCCESSFULLY ===

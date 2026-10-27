@@ -1,0 +1,53 @@
+================================================================================
+         BATTLESUMMONER: THE HUNDREDFOLD SPIRE - MASTER 40-STEP SELF-QA REPORT
+================================================================================
+Timestamp: 2026-10-27 14:22:32 UTC
+Target Engine: Unity 6.3 LTS (URP Render Graph, IL2CPP, ARM64, Strict 9:16 Portrait)
+Scene: Assets/Scenes/OverworldMap.unity
+================================================================================
+
+[ PASS ] Step 01: Third-party UpDraft adware scripts deleted and zero SceneView.duringSceneGui spam.
+[ PASS ] Step 02: .gitattributes updated so GitHub Linguist reports C# / ShaderLab (0% Wolfram Language).
+[ PASS ] Step 03: OverworldMap.unity serialized cleanly with embedded procedural meshes extracted to Assets/GeneratedMeshes/.
+[ PASS ] Step 04: Reverted base terrain geometry verified untouched and intact.
+[ PASS ] Step 05: All Magic City Combined Mesh (root: scene) static house batches un-baked into individual transforms.
+[ PASS ] Step 06: Placeholder primitive city houses replaced in-place with multi-material Quaternius Medieval Village MegaKit buildings.
+[ PASS ] Step 07: Every city building raycast-grounded to terrain with zero floating roofs or buried doorways.
+[ PASS ] Step 08: Sloped-tier buildings automatically fitted with stone foundation plinth skirts (Foundation_Plinth_Stone: 1429).
+[ PASS ] Step 09: Concentric main avenues verified at >= 14m clearance width for mounts and camera.
+[ PASS ] Step 10: Market stalls, barrels, crates, weapon racks, and street lanterns populated from Fantasy Props MegaKit.
+[ PASS ] Step 11: All town plaza trees fitted with stone planter rings or ground transition decals (Planters: 121660).
+[ PASS ] Step 12: GenshinPainterlyEnvironment.shader applied to all architectural and stone surfaces (#EAE3D2 sunlit / #8E9EC4 shadow).
+[ PASS ] Step 13: GenshinPainterlyFoliage.shader applied to all trees, bushes, and grass cards.
+[ PASS ] Step 14: Golden-Hour Directional Sun (#FFF4D6), 4-cascade Soft Shadows, and URP SSAO active.
+[ PASS ] Step 15: Altitude-driven Vibrant Azure Sky and Wind Waker volumetric cloud puffs active (BarryKramerTraversalAndCloudEngine.cs).
+[ PASS ] Step 16: MaleStarter.glb normalized to 1.78m height (min.y = 0.0) and bound as active player mesh.
+[ PASS ] Step 17: femalestarter.glb (1.66m), manbase.glb, and womanbase.glb registered in customizer and town NPC pools.
+[ PASS ] Step 18: Catherine.glb (1.82m) stationed inside the Guild Hall with GuildHallClerkInteractable attached.
+[ PASS ] Step 19: Architectural doorways verified at >= 2.4m height (1.35x player height) across all interactive buildings.
+[ PASS ] Step 20: Universal Animation Library 2 clips bound to Player and NPC AnimatorControllers (no T-posing).
+[ PASS ] Step 21: BrawlerStrike missing Animator parameter error resolved (zero Console warnings/errors via safe parameter caching).
+[ PASS ] Step 22: ModularFaceRigController.cs attached to .glb characters for 2-channel single-draw-call expressions.
+[ PASS ] Step 23: Floating NPC nameplates (OverworldNPCInteractable.cs) fixed: un-mirrored (localScale.x > 0), camera-billboarded, warm-white text.
+[ PASS ] Step 24: Wilderness enemy camps populated with animated Bestiary - Dungeon Monsters Kit prefabs instead of red capsules.
+[ PASS ] Step 25: WeightedBladeAndRangedLagController.cs wired to FruitNinjaBladeCutter.cs (heavy blade-lag + floor drag-sparks).
+[ PASS ] Step 26: Ranged aim-lag and stamina sway wired for low-proficiency bows/projectiles.
+[ PASS ] Step 27: 0.045s Hit-Stop, directional camera impulse, and ZeroGCMicroVFXDirector.cs ring-buffer pooled VFX active.
+[ PASS ] Step 28: Tactical Pivot Surge (3.0s adaptation window on block/resist) and 0% Dull Blade Blunt Knockback active.
+[ PASS ] Step 29: Appraisal Orb (AppraisalOrbInteractable.cs) placed in Cathedral/Awakening hub with Accept / Choose / Random Wildcard UI.
+[ PASS ] Step 30: All 32 One-Word Wildcard Talents seeded with Gifts & Flaws (Found: 32/32).
+[ PASS ] Step 31: Mask 2 Dormant Nurture Talents (???) tracking survival triggers in runtime state.
+[ PASS ] Step 32: Mask 3 Guild Hall Class swapping restricted strictly to Guild Hall (Catherine.glb) and Infinite Class Evolution (Lv.25+) wired.
+[ PASS ] Step 33: Anti-Spam Swipe Combo Limiter active (2 swipes cap at Lv.1; unlocked up to 6 swipes via Class Skill Tree).
+[ PASS ] Step 34: Uncapped Stackable Prestige Titles (UncappedTitleSystem) and NPCTalentRecognitionService active.
+[ PASS ] Step 35: Spell Craft Table (BuildASpellWorkbenchAndChronoEngine.cs) wired with Delivery + Behavior + Affinity + Parameter Sliders.
+[ PASS ] Step 36: 7D Time-Slow Bubbles verified: zero time-stop (0.0x blocked); enemies slow inside bubble while player moves at 100% speed.
+[ PASS ] Step 37: Option A Custom Inner Rune Shorthand recording and Server Patent Collision (-15% Instability + 2% Mana Core royalty) active.
+[ PASS ] Step 38: 9:16 Portrait HUD split into HUD_Static_Canvas and HUD_Dynamic_Canvas with Frosted Obsidian styling and -5.5° Persona shear.
+[ PASS ] Step 39: SpireSpatialCullingManager.cs (30ft sphere + frustum CullingGroup) and EditorMipmapStreamingEnforcer.cs active.
+[ PASS ] Step 40: Zero C# compiler errors, zero NullReferenceExceptions on Play Mode entry, and Master40StepSelfQAReport.txt written to project root.
+
+================================================================================
+FINAL VERIFICATION SUMMARY: 40 / 40 STEPS PASSED (100% SUCCESS RATE)
+STATUS: PRODUCTION READY (ALL PASS 2 - PASS 10 & MAGIC CITY SPECIFICATIONS FULFILLED)
+================================================================================

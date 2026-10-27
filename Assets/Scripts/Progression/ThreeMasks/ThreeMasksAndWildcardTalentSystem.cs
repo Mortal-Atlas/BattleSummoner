@@ -116,8 +116,13 @@ namespace BattleSummoner.Progression.ThreeMasks
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            if (Instance != null && Instance != this && Application.isPlaying) { Destroy(gameObject); return; }
             Instance = this;
+            InitializeForEditorOrPlay();
+        }
+
+        public void InitializeForEditorOrPlay()
+        {
             SeedTalentRegistry();
             SeedDormantNurtureTalents();
             SeedDefaultComboSkillTree();
@@ -127,6 +132,7 @@ namespace BattleSummoner.Progression.ThreeMasks
         {
             if (masterTalentRegistry.Count > 0) return;
 
+            // BASELINE TALENTS
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
                 wordId = TalentWordID.Chef, displayWord = "[ CHEF ]", isWildcardRandomPool = false,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.SlicingCulinary },
@@ -137,51 +143,275 @@ namespace BattleSummoner.Progression.ThreeMasks
             });
 
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
-                wordId = TalentWordID.TimeWeaver, displayWord = "[ TIME ]", isWildcardRandomPool = true,
+                wordId = TalentWordID.SeaLover, displayWord = "[ SEA LOVER ]", isWildcardRandomPool = false,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Water },
+                giftDescription = "+40% swim speed, water exploration stamina drain halved, aquatic harvest yield doubled.",
+                favoredExpMultiplier = 1.30f,
+                flawDescription = "Arid desert environments drain stamina 20% faster; -15% Fire resistance.",
+                unproficientArea = AffinityElement.Fire, unproficientWeaponLagPenalty = 0.15f
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Blacksmith, displayWord = "[ BLACKSMITH ]", isWildcardRandomPool = false,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Rock, AffinityElement.Fire },
+                giftDescription = "+30% weapon durability, forge reinforcement grants extra sub-slot, +30% Mining EXP.",
+                favoredExpMultiplier = 1.35f, weaponLagReductionBonus = -0.20f,
+                flawDescription = "Delicate ranged instruments and bows feel uncoordinated (+20% aim lag).",
+                unproficientArea = AffinityElement.Wind, unproficientWeaponLagPenalty = 0.20f
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.TimeWeaver, displayWord = "[ TIME ]", isWildcardRandomPool = false,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.Time },
                 giftDescription = "-30% Mana & Instability when crafting 7D Time-Slow Bubbles, Limb-Drag, or Fast-Forward Decay spells.",
                 favoredExpMultiplier = 1.30f, spellCraftStabilityDiscount = 0.30f,
-                flawDescription = "Cannot ever freeze time (0x); raw physical shield-tanking drains stamina 25% faster.",
+                flawDescription = "Golden Law of 7D Time: Cannot freeze time (0x blocked); physical tanking drains stamina 25% faster.",
                 unproficientArea = AffinityElement.Rock, unproficientWeaponLagPenalty = 0.20f
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.BloodVessel, displayWord = "[ BLOOD VESSEL ]", isWildcardRandomPool = false,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Blood },
+                giftDescription = "Siphon vitality on heavy lacerations; bleed ticks heal the player for 25% of bleed damage.",
+                favoredExpMultiplier = 1.30f, critOrSpecialMultiplier = 1.4f,
+                flawDescription = "Purification draughts and holy healing potions are 25% less potent.",
+                unproficientArea = AffinityElement.Healing, unproficientWeaponLagPenalty = 0.15f
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.VoidWalker, displayWord = "[ VOID WALKER ]", isWildcardRandomPool = false,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Void },
+                giftDescription = "Dashing phases through enemy collision; gravity lag reduced by 40% during aerial combat.",
+                favoredExpMultiplier = 1.35f,
+                flawDescription = "Holy light and radiant shrine sanctuaries cause 20% increased vulnerability.",
+                unproficientArea = AffinityElement.Protection, unproficientWeaponLagPenalty = 0.20f
+            });
+
+            // 32 ONE-WORD WILDCARD TALENTS (Option A Appraisal Orb Pool)
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Ferryman, displayWord = "[ FERRYMAN ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Water },
+                giftDescription = "Effortlessly glide over ethereal and aquatic surfaces (+40% traversal speed near water).",
+                favoredExpMultiplier = 1.25f, flawDescription = "Movement speed reduced by 15% across dry desert terrain."
             });
 
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
                 wordId = TalentWordID.Gambler, displayWord = "[ GAMBLER ]", isWildcardRandomPool = true,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.ChaosLuck },
-                giftDescription = "No normal hits: every attack or craft is either a 0-damage graze or a 300% Critical Jackpot!",
-                critOrSpecialMultiplier = 3.0f,
-                flawDescription = "Incapable of steady, predictable baseline damage or safe crafting grades."
+                giftDescription = "All attacks and crafts bypass baseline grades: either a 0-damage graze or a 300% Critical Jackpot!",
+                critOrSpecialMultiplier = 3.0f, flawDescription = "Incapable of steady baseline damage or safe crafting outcomes."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Juggernaut, displayWord = "[ JUGGERNAUT ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Rock, AffinityElement.Protection },
+                giftDescription = "Unstoppable poise during heavy strikes; cannot be staggered by light monster attacks.",
+                favoredExpMultiplier = 1.25f, flawDescription = "+30% blade lag on high-speed directional recovery."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Plantmancy, displayWord = "[ PLANTMANCY ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Plant },
+                giftDescription = "Strikes sprout grasping brambles that root enemies for 1.8s; +40% forage yield.",
+                favoredExpMultiplier = 1.30f, flawDescription = "-25% fire resistance; burns tick for double duration."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Summoning, displayWord = "[ SUMMONING ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.ArcaneKnowledge },
+                giftDescription = "Summoned familiars and spire companions deal +35% damage and hold 50% more aggro.",
+                favoredExpMultiplier = 1.35f, flawDescription = "Player direct blade kinetic damage reduced by 15%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Futurist, displayWord = "[ FUTURIST ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Time, AffinityElement.ArcaneKnowledge },
+                giftDescription = "Spellcraft workbench reveals exact formula outcome previews; -20% spell instability.",
+                spellCraftStabilityDiscount = 0.20f, flawDescription = "-20% EXP gained from ancient non-mechanical relics."
             });
 
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
                 wordId = TalentWordID.VesselOfKnowledge, displayWord = "[ VESSEL OF KNOWLEDGE ]", isWildcardRandomPool = true,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.ArcaneKnowledge },
-                giftDescription = "Total Recall: Any spell witnessed or cast once is permanently memorized and swappable at any Inn.",
+                giftDescription = "Total Recall: Any spell or rune witnessed once is permanently memorized and swappable at any Inn.",
                 favoredExpMultiplier = 1.40f, spellCraftStabilityDiscount = 0.20f,
                 flawDescription = "Overcrowded Mind: Heavy physical weapons suffer +40% blade lag behind your finger.",
                 unproficientWeaponLagPenalty = 0.40f
             });
 
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.TaxCollector, displayWord = "[ TAX COLLECTOR ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.ChaosLuck },
+                giftDescription = "Defeated foes drop +45% mana cores and gold coins; bounties pay 30% higher rewards.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Shopkeeper prices in foreign settlements increase by 15%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Trike, displayWord = "[ TRIKE ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Wind },
+                giftDescription = "Mounted riding and sprint acceleration increased by +35%; ramming impact deals kinetic knockback.",
+                favoredExpMultiplier = 1.20f, flawDescription = "Cornering turning circle during high-speed sprint widened by 25%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Breaker, displayWord = "[ BREAKER ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Rock },
+                giftDescription = "+50% shield-break and posture impact against guarded or armored opponents.",
+                critOrSpecialMultiplier = 1.5f, flawDescription = "Weapon edge degrades 20% faster when clashing with heavy stone."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
                 wordId = TalentWordID.Spoon, displayWord = "[ SPOON ]", isWildcardRandomPool = true,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.SlicingCulinary, AffinityElement.Protection },
                 giftDescription = "Curved props, ladles, woks & shields scoop up enemy projectiles/puddles mid-swipe and fling them back!",
-                flawDescription = "-30% straight piercing/thrust damage with rapiers and spears."
+                critOrSpecialMultiplier = 1.4f, flawDescription = "-30% straight piercing/thrust damage with rapiers and spears."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Lizard, displayWord = "[ LIZARD ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Healing },
+                giftDescription = "Basking in direct sunlight restores 2% max HP and Stamina every 3 seconds while resting.",
+                favoredExpMultiplier = 1.20f, flawDescription = "Movement speed and attack cadence slowed by 30% in freezing snow biomes."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Fan, displayWord = "[ FAN ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Wind },
+                giftDescription = "Blade swipes kick up swirling miniature typhoons that draw surrounding mob clusters inward.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Single-target focus damage reduced by 20%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Fool, displayWord = "[ FOOL ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.ChaosLuck },
+                giftDescription = "Attacks randomly trigger bizarre spectacle debuffs (confuse, tickle, spin) that stun foes for 2s.",
+                critOrSpecialMultiplier = 1.6f, flawDescription = "Base magical ward integrity weakened by 15%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Machine, displayWord = "[ MACHINE ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.ArcaneKnowledge },
+                giftDescription = "Clockwork Precision: 1:1 fingertip blade tracking with zero latency jitter.",
+                weaponLagReductionBonus = -0.35f, flawDescription = "Mana regeneration halts for 3.0s following any spell cast."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Lantern, displayWord = "[ LANTERN ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Protection },
+                giftDescription = "Radiates an astral golden aura that dispels darkness, reveals camouflaged monsters and secret doors.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Night stealth detection radius expanded by 30%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Showman, displayWord = "[ SHOWMAN ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Wind },
+                giftDescription = "Landing continuous 4+ hit combos builds up crowd adrenaline, boosting damage up to +40%.",
+                critOrSpecialMultiplier = 1.4f, flawDescription = "Whiffed or missed swipes drain 15% extra stamina."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Wonka, displayWord = "[ WONKA ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.ChaosLuck },
+                giftDescription = "Crafting confections and potions yields double batch output with whimsical buff surges.",
+                favoredExpMultiplier = 1.30f, flawDescription = "Savory life-sim cooking recipes suffer a 20% potency penalty."
             });
 
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
                 wordId = TalentWordID.Salaryman, displayWord = "[ SALARYMAN ]", isWildcardRandomPool = true,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.Time },
                 giftDescription = "-35% stamina/mana cost for the first 60s of combat; can 'Clock Out' to drop a 65% Time-Slow commuter bubble.",
-                flawDescription = "Unpaid Overtime: Fights lasting longer than 3 minutes inflict +25% fatigue blade lag unless you drink coffee/tea."
+                spellCraftStabilityDiscount = 0.15f, flawDescription = "Unpaid Overtime: Fights lasting longer than 3 minutes inflict +25% fatigue blade lag unless you drink coffee/tea."
             });
 
             masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
                 wordId = TalentWordID.Pinpoint, displayWord = "[ PINPOINT ]", isWildcardRandomPool = true,
                 grantedAffinities = new List<AffinityElement> { AffinityElement.Time },
                 giftDescription = "Striking an exact armor seam blooms a micro Time-Slow bubble on that limb and deals 2.5x Piercing Crit.",
-                critOrSpecialMultiplier = 2.5f, weaponLagReductionBonus = -0.30f,
-                flawDescription = "Wide horizontal AoE crowd-cleaves lose 40% damage and knockback."
+                critOrSpecialMultiplier = 2.5f, weaponLagReductionBonus = -0.30f, flawDescription = "Wide horizontal AoE crowd-cleaves lose 40% damage and knockback."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Sponge, displayWord = "[ SPONGE ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Water },
+                giftDescription = "Absorbs 30% of incoming elemental projectile impact damage, converting it into instant mana.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Physical blunt kinetic impact damage taken increased by 15%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Magnet, displayWord = "[ MAGNET ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Lightning },
+                giftDescription = "Dropped metallic loot, coins, and ore shards within a 12m radius magnetically drift toward player.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Incoming Lightning damage increased by 20%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Balloon, displayWord = "[ BALLOON ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Wind },
+                giftDescription = "Fall velocity halved; enables extended jump apex hang-time and aerial dive maneuvers.",
+                favoredExpMultiplier = 1.20f, flawDescription = "Strong wind blasts and boss knockback effects push player 40% farther."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Cactus, displayWord = "[ CACTUS ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Plant },
+                giftDescription = "Direct melee attackers suffer 25% reflected piercing thorn retaliation damage.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Hydration and drink stamina consumption doubled in desert biomes."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Boomerang, displayWord = "[ BOOMERANG ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Wind },
+                giftDescription = "Thrown blades and projectiles loop backward, automatically striking enemy rear flank weak spots.",
+                critOrSpecialMultiplier = 1.5f, flawDescription = "Initial linear forward projectile speed reduced by 25%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Wax, displayWord = "[ WAX ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Protection },
+                giftDescription = "Forms a hardened candle glaze over player armor that completely negates the first lethal blow.",
+                favoredExpMultiplier = 1.30f, flawDescription = "Fire attacks melt the glaze, inflicting 20% vulnerability for 4 seconds."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Static, displayWord = "[ STATIC ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Lightning },
+                giftDescription = "Continuous movement builds up kinetic sparks that discharge 150% shock damage on next strike.",
+                critOrSpecialMultiplier = 1.5f, flawDescription = "Standing still for longer than 2.0 seconds dissipates stored charge."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Crab, displayWord = "[ CRAB ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Water, AffinityElement.Protection },
+                giftDescription = "Lateral strafe speed increased by 50%; side armor plating deflects 35% incoming damage.",
+                favoredExpMultiplier = 1.25f, flawDescription = "Forward sprint startup acceleration reduced by 15%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Zipper, displayWord = "[ ZIPPER ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Void },
+                giftDescription = "Instantaneous weapon and grimoire switching with zero recovery delay.",
+                weaponLagReductionBonus = -0.20f, flawDescription = "Equipment durability drains 10% faster during frequent stance swaps."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Doll, displayWord = "[ DOLL ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.ArcaneKnowledge },
+                giftDescription = "Substitutes an animated cloth puppet decoy on fatal damage, avoiding death once per day.",
+                favoredExpMultiplier = 1.30f, flawDescription = "Max Health permanently reduced by a flat 10%."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Salt, displayWord = "[ SALT ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Protection },
+                giftDescription = "Purifies cursed terrain; deals 2.0x Pure/Holy damage against ethereal specters and undead.",
+                critOrSpecialMultiplier = 2.0f, flawDescription = "Consuming acidic potions or poisons inflicts accelerated corrosion."
+            });
+
+            masterTalentRegistry.Add(new DoubleEdgedTalentDefinition {
+                wordId = TalentWordID.Pendulum, displayWord = "[ PENDULUM ]", isWildcardRandomPool = true,
+                grantedAffinities = new List<AffinityElement> { AffinityElement.Time },
+                giftDescription = "Rhythmic combat cadence oscillates between +30% Attack Power and +30% Damage Mitigation every 4s.",
+                critOrSpecialMultiplier = 1.3f, flawDescription = "Strikes landing off-beat outside the rhythmic pulse deal -15% damage."
             });
         }
 

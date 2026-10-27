@@ -93,13 +93,31 @@ namespace BattleSummoner.Spellcraft
             }
 
             string formulaHash = $"{delivery}_{behavior}_{affinity}_{timeMode}_{Mathf.RoundToInt(safeDuration)}_{Mathf.RoundToInt(safeRadius)}_{Mathf.RoundToInt(safePotency * 10f)}";
-            bool patentExists = _serverPatentLedger.TryGetValue(formulaHash, out string originalInventor);
+            bool patentExists = false;
+            string originalInventor = "LocalDreamer";
 
-            if (patentExists) rawLoad *= 0.85f;
+            if (GuildPatentOffice.Instance != null)
+            {
+                patentExists = GuildPatentOffice.Instance.CheckPatentCollision(formulaHash, out var matchedPatent, out float discount, out float royaltyCut);
+                if (patentExists && matchedPatent != null)
+                {
+                    rawLoad *= (1.0f - discount); // -15% Instability discount
+                    originalInventor = matchedPatent.inventorName;
+                }
+                else
+                {
+                    GuildPatentOffice.Instance.RegisterNewPatent(formulaHash, spellName, "LocalDreamer", drawnInnerRuneNotationId);
+                }
+            }
             else
             {
-                _serverPatentLedger[formulaHash] = "LocalDreamer";
-                originalInventor = "LocalDreamer";
+                patentExists = _serverPatentLedger.TryGetValue(formulaHash, out originalInventor);
+                if (patentExists) rawLoad *= 0.85f;
+                else
+                {
+                    _serverPatentLedger[formulaHash] = "LocalDreamer";
+                    originalInventor = "LocalDreamer";
+                }
             }
 
             var compiled = new CustomConstructedSpell
