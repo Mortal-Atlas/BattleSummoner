@@ -37,27 +37,30 @@ namespace BattleSummoner.WorldActivities
         public int goldValue = 35;
 
         [Header("Interaction Settings")]
-        public float interactionDistance = 3.2f;
+        public float interactionDistance = 3.4f;
         public KeyCode interactKey = KeyCode.E;
         public bool isHarvested = false;
         public float respawnTime = 75f;
+        public bool previewBillboardInEditor = false;
 
         [Header("Visual Feedback")]
-        [SerializeField] private GameObject visualRoot;
-        [SerializeField] private Light auraLight;
-        [SerializeField] private ParticleSystem ambientVFX;
-        [SerializeField] private ParticleSystem harvestVFX;
-        [SerializeField] private AudioSource audioSource;
-        [SerializeField] private AudioClip harvestSoundClip;
+        public GameObject visualRoot;
+        public Light auraLight;
+        public ParticleSystem ambientVFX;
+        public ParticleSystem harvestVFX;
+        public GameObject harvestVFXPrefab;
+        public AudioSource audioSource;
+        public AudioClip harvestSoundClip;
 
         [Header("Interactive 3D Billboard Prompt")]
-        [SerializeField] private GameObject promptCanvasObj;
-        [SerializeField] private TextMeshPro promptTextTMP;
+        public GameObject promptCanvasObj;
+        public TextMeshPro promptTextTMP;
 
         private float currentRespawnTimer = 0f;
         private Vector3 initialScale;
         private bool isPlayerNearby = false;
         private Transform cachedPlayer;
+        private float billboardBaseY = 1.4f;
 
         public static event Action<DesertAndBeachInteractable> OnInteracted;
 
@@ -82,7 +85,7 @@ namespace BattleSummoner.WorldActivities
                 }
             }
 
-            SetupPromptBillboard();
+            SetupPromptBillboard(previewBillboardInEditor);
             UpdateVisualAura();
         }
 
@@ -98,29 +101,65 @@ namespace BattleSummoner.WorldActivities
             else if (Camera.main != null) cachedPlayer = Camera.main.transform;
         }
 
-        private void SetupPromptBillboard()
+        public void SetupPromptBillboard(bool forceShow = false)
         {
-            if (promptCanvasObj != null) return;
+            billboardBaseY = GetBillboardHeight();
 
-            promptCanvasObj = new GameObject("InteractionPromptBillboard");
-            promptCanvasObj.transform.SetParent(transform, false);
-            promptCanvasObj.transform.localPosition = Vector3.up * 1.6f;
+            if (promptCanvasObj == null)
+            {
+                var existingChild = transform.Find("InteractionPromptBillboard");
+                if (existingChild != null)
+                {
+                    promptCanvasObj = existingChild.gameObject;
+                    promptTextTMP = promptCanvasObj.GetComponent<TextMeshPro>();
+                }
+            }
 
-            promptTextTMP = promptCanvasObj.AddComponent<TextMeshPro>();
-            promptTextTMP.text = GetInteractionPromptText();
-            promptTextTMP.fontSize = 4.2f;
+            if (promptCanvasObj == null)
+            {
+                promptCanvasObj = new GameObject("InteractionPromptBillboard");
+                promptCanvasObj.transform.SetParent(transform, false);
+            }
+
+            promptCanvasObj.transform.localPosition = Vector3.up * billboardBaseY;
+
+            if (promptTextTMP == null)
+            {
+                promptTextTMP = promptCanvasObj.GetComponent<TextMeshPro>() ?? promptCanvasObj.AddComponent<TextMeshPro>();
+            }
+
+            string hex = ColorUtility.ToHtmlStringRGB(GetPromptTextColor());
+            promptTextTMP.richText = true;
+            promptTextTMP.text = $"<color=#{hex}><b>[E / Tap]</b></color>  {displayName}";
+            promptTextTMP.fontSize = 2.4f;
             promptTextTMP.alignment = TextAlignmentOptions.Center;
-            promptTextTMP.color = GetPromptTextColor();
-            promptTextTMP.outlineWidth = 0.22f;
-            promptTextTMP.outlineColor = new Color32(15, 15, 20, 255);
+            promptTextTMP.color = Color.white;
+            promptTextTMP.outlineWidth = 0.28f;
+            promptTextTMP.outlineColor = new Color32(10, 10, 15, 255);
 
             var rt = promptCanvasObj.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(5f, 1.2f);
+            if (rt != null) rt.sizeDelta = new Vector2(8f, 1.4f);
 
-            promptCanvasObj.SetActive(false);
+            promptCanvasObj.SetActive(forceShow || previewBillboardInEditor);
         }
 
-        private string GetInteractionPromptText()
+        private float GetBillboardHeight()
+        {
+            return kind switch
+            {
+                DesertBeachInteractableKind.DesertSolarCactus => 3.5f,
+                DesertBeachInteractableKind.SunStoneObelisk => 5.8f,
+                DesertBeachInteractableKind.BuriedSandstoneUrn => 1.4f,
+                DesertBeachInteractableKind.FlotsamCargoCrate => 1.4f,
+                DesertBeachInteractableKind.BeachPearlescentShell => 1.0f,
+                DesertBeachInteractableKind.TidalGeode => 1.4f,
+                DesertBeachInteractableKind.DesertSunAgave => 2.6f,
+                DesertBeachInteractableKind.MiragedewSucculent => 1.5f,
+                _ => 1.6f
+            };
+        }
+
+        public string GetInteractionPromptText()
         {
             return kind switch
             {
@@ -136,29 +175,29 @@ namespace BattleSummoner.WorldActivities
             };
         }
 
-        private Color GetPromptTextColor()
+        public Color GetPromptTextColor()
         {
             return kind switch
             {
-                DesertBeachInteractableKind.DesertSunAgave => new Color(1.0f, 0.78f, 0.25f),
-                DesertBeachInteractableKind.DesertSolarCactus => new Color(0.65f, 0.95f, 0.40f),
-                DesertBeachInteractableKind.MiragedewSucculent => new Color(0.40f, 0.90f, 1.0f),
-                DesertBeachInteractableKind.BuriedSandstoneUrn => new Color(1.0f, 0.85f, 0.35f),
-                DesertBeachInteractableKind.SunStoneObelisk => new Color(1.0f, 0.92f, 0.45f),
-                DesertBeachInteractableKind.BeachPearlescentShell => new Color(0.85f, 0.95f, 1.0f),
-                DesertBeachInteractableKind.FlotsamCargoCrate => new Color(0.95f, 0.78f, 0.55f),
-                DesertBeachInteractableKind.TidalGeode => new Color(0.35f, 0.85f, 1.0f),
+                DesertBeachInteractableKind.DesertSunAgave => new Color(1.0f, 0.78f, 0.22f),
+                DesertBeachInteractableKind.DesertSolarCactus => new Color(0.60f, 0.95f, 0.38f),
+                DesertBeachInteractableKind.MiragedewSucculent => new Color(0.35f, 0.92f, 0.95f),
+                DesertBeachInteractableKind.BuriedSandstoneUrn => new Color(1.0f, 0.82f, 0.30f),
+                DesertBeachInteractableKind.SunStoneObelisk => new Color(1.0f, 0.88f, 0.35f),
+                DesertBeachInteractableKind.BeachPearlescentShell => new Color(0.82f, 0.94f, 1.0f),
+                DesertBeachInteractableKind.FlotsamCargoCrate => new Color(0.96f, 0.80f, 0.50f),
+                DesertBeachInteractableKind.TidalGeode => new Color(0.30f, 0.85f, 1.0f),
                 _ => Color.white
             };
         }
 
-        private void UpdateVisualAura()
+        public void UpdateVisualAura()
         {
             if (auraLight == null)
             {
                 var lightGo = new GameObject("AuraLight");
                 lightGo.transform.SetParent(transform, false);
-                lightGo.transform.localPosition = Vector3.up * 0.6f;
+                lightGo.transform.localPosition = Vector3.up * (billboardBaseY * 0.45f);
                 auraLight = lightGo.AddComponent<Light>();
                 auraLight.type = LightType.Point;
                 auraLight.range = (kind == DesertBeachInteractableKind.SunStoneObelisk) ? 14f : 4.5f;
@@ -245,7 +284,12 @@ namespace BattleSummoner.WorldActivities
             }
 
             // Spawn harvest particle VFX burst
-            if (harvestVFX != null)
+            if (harvestVFXPrefab != null)
+            {
+                var vfx = Instantiate(harvestVFXPrefab, transform.position + Vector3.up * (billboardBaseY * 0.6f), Quaternion.identity);
+                Destroy(vfx, 3.5f);
+            }
+            else if (harvestVFX != null)
             {
                 harvestVFX.transform.SetParent(null);
                 harvestVFX.Play();
@@ -314,6 +358,10 @@ namespace BattleSummoner.WorldActivities
             else if (PlayerHUDController.Instance != null)
             {
                 PlayerHUDController.Instance.ShowToast(toastMsg, 3.0f);
+            }
+            else if (DevClassLoadoutManager.Instance != null)
+            {
+                DevClassLoadoutManager.Instance.ShowToast(toastMsg);
             }
             else
             {

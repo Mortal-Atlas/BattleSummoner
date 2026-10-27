@@ -46,8 +46,6 @@ namespace BattleSummoner.EditorScripts
         private const string PLANT_SUCCULENT_BIG_PATH = "Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/Plant_7_Big.fbx";
         private const string PLANT_AGAVE_PATH = "Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/Plant_1.fbx";
         private const string PLANT_SUCCULENT_PATH = "Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/Plant_7.fbx";
-        private const string DEAD_TREE_PATH = "Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/DeadTree_1.fbx";
-        private const string TWISTED_TREE_PATH = "Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/TwistedTree_2.fbx";
         private const string BEACH_GRASS_PATH = "Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/Grass_Wispy_Short.fbx";
         private const string PALM_TREE_PATH = "Assets/Anime Trees/Prefabs/Tree_07.prefab";
         private const string DESERT_BUSH_PATH = "Assets/Anime Trees/Prefabs/Bush_01.prefab";
@@ -58,7 +56,8 @@ namespace BattleSummoner.EditorScripts
         private const string BARREL_PATH = "Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Barrel_03.prefab";
         private const string GEODE_CRYSTAL_PATH = "Assets/PurePoly/Mining_Free_Assets/Prefabs/PP_Stone_Crystal_02_Gold.prefab";
         private const string MANA_CRYSTAL_PATH = "Assets/Models/TownProps/Prop_ManaCrystals_Cluster.fbx";
-        private const string STARS_VFX_PATH = "Assets/PurePoly/Mining_Free_Assets/Prefabs/FX/FX_Stars_01.prefab";
+        private const string HARVEST_VFX_PATH = "Assets/Vefects/Anime Star VFX URP/VFX/Particles/VFX_Anime_Star_01.prefab";
+        private const string HARVEST_CLIP_PATH = "Assets/Vefects/Anime Star VFX/SFX/SFX_Vefects_Anime_Star_VFX_Star_01_One_Shot.wav";
 
         // Stylized Materials Directory
         private const string MAT_DIR = "Assets/Materials/Environment";
@@ -124,11 +123,16 @@ namespace BattleSummoner.EditorScripts
             var pfbSucculentBig = AssetDatabase.LoadAssetAtPath<GameObject>(PLANT_SUCCULENT_BIG_PATH);
             var pfbAgave = AssetDatabase.LoadAssetAtPath<GameObject>(PLANT_AGAVE_PATH);
             var pfbSucculent = AssetDatabase.LoadAssetAtPath<GameObject>(PLANT_SUCCULENT_PATH);
-            var pfbDeadTree = AssetDatabase.LoadAssetAtPath<GameObject>(DEAD_TREE_PATH);
-            var pfbTwistedTree = AssetDatabase.LoadAssetAtPath<GameObject>(TWISTED_TREE_PATH);
             var pfbBeachGrass = AssetDatabase.LoadAssetAtPath<GameObject>(BEACH_GRASS_PATH);
             var pfbPalm = AssetDatabase.LoadAssetAtPath<GameObject>(PALM_TREE_PATH);
             var pfbBush = AssetDatabase.LoadAssetAtPath<GameObject>(DESERT_BUSH_PATH);
+
+            var pfbDeadTrees = new List<GameObject>();
+            for (int i = 1; i <= 5; i++)
+            {
+                var dt = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Models/QuaterniusMegaKits/StylizedNatureMegaKit/FBX (Unity)/DeadTree_{i}.fbx");
+                if (dt != null) pfbDeadTrees.Add(dt);
+            }
 
             var pfbJar = AssetDatabase.LoadAssetAtPath<GameObject>(URN_JAR_PATH);
             var pfbPot = AssetDatabase.LoadAssetAtPath<GameObject>(URN_POT_PATH);
@@ -136,7 +140,8 @@ namespace BattleSummoner.EditorScripts
             var pfbBarrel = AssetDatabase.LoadAssetAtPath<GameObject>(BARREL_PATH);
             var pfbGeode = AssetDatabase.LoadAssetAtPath<GameObject>(GEODE_CRYSTAL_PATH);
             var pfbManaCrystal = AssetDatabase.LoadAssetAtPath<GameObject>(MANA_CRYSTAL_PATH);
-            var pfbStarsVFX = AssetDatabase.LoadAssetAtPath<GameObject>(STARS_VFX_PATH);
+            var harvestVfx = AssetDatabase.LoadAssetAtPath<GameObject>(HARVEST_VFX_PATH);
+            var harvestClip = AssetDatabase.LoadAssetAtPath<AudioClip>(HARVEST_CLIP_PATH);
 
             UnityEngine.Random.InitState(77319);
 
@@ -196,6 +201,9 @@ namespace BattleSummoner.EditorScripts
                         interactable.yieldAmount = 1;
                         interactable.goldValue = UnityEngine.Random.Range(45, 120);
                         interactable.itemDescription = "Ancient terracotta urn unearthed from desert sand. Filled with sunstone shards and minted old-world coins.";
+                        interactable.harvestSoundClip = harvestClip;
+                        interactable.harvestVFXPrefab = harvestVfx;
+                        interactable.SetupPromptBillboard(false);
 
                         desertInteractsCount++;
                     }
@@ -224,6 +232,9 @@ namespace BattleSummoner.EditorScripts
                             interactable.itemDescription = isAgave
                                 ? "Radiant golden succulent storing solar aether. Restores MP and crafts high-tier fire tonics."
                                 : "Rare crystalline desert succulent condensing morning mirage dew. Potent alchemical elixir catalyst.";
+                            interactable.harvestSoundClip = harvestClip;
+                            interactable.harvestVFXPrefab = harvestVfx;
+                            interactable.SetupPromptBillboard(false);
 
                             desertInteractsCount++;
                         }
@@ -255,6 +266,9 @@ namespace BattleSummoner.EditorScripts
                                     interactable.yieldAmount = UnityEngine.Random.Range(2, 5);
                                     interactable.goldValue = 25;
                                     interactable.itemDescription = "Succulent red prickly pear fruit and purifying cactus water. Restores HP and provides desert stamina.";
+                                    interactable.harvestSoundClip = harvestClip;
+                                    interactable.harvestVFXPrefab = harvestVfx;
+                                    interactable.SetupPromptBillboard(false);
                                     desertInteractsCount++;
                                 }
 
@@ -263,9 +277,9 @@ namespace BattleSummoner.EditorScripts
                         }
                     }
                     // D. Arid Weathered Trees & Sun-Bleached Driftwood (20% chance)
-                    else if (roll < 0.72f && (pfbTwistedTree != null || pfbDeadTree != null))
+                    else if (roll < 0.72f && pfbDeadTrees.Count > 0)
                     {
-                        var treePrefab = (UnityEngine.Random.value < 0.5f && pfbTwistedTree != null) ? pfbTwistedTree : pfbDeadTree;
+                        var treePrefab = pfbDeadTrees[UnityEngine.Random.Range(0, pfbDeadTrees.Count)];
                         var tree = (GameObject)PrefabUtility.InstantiatePrefab(treePrefab, desertFloraTr);
                         tree.name = $"Desert_Weathered_ThornTree_{desertPlantsCount + 1}";
                         tree.transform.position = hit.point;
@@ -302,7 +316,7 @@ namespace BattleSummoner.EditorScripts
                 Ray oRay = new Ray(obeliskLocations[i] + Vector3.up * 80f, Vector3.down);
                 if (terrainCollider.Raycast(oRay, out RaycastHit oHit, 160f) && oHit.point.y >= 18.8f)
                 {
-                    var obeliskGo = BuildAncientSunStoneObelisk(oHit.point, desertInteractTr, i + 1, matObelisk);
+                    var obeliskGo = BuildAncientSunStoneObelisk(oHit.point, desertInteractTr, i + 1, matObelisk, harvestClip, harvestVfx);
                     desertInteractsCount++;
                 }
             }
@@ -347,7 +361,7 @@ namespace BattleSummoner.EditorScripts
                     // A. Interactive Pearlescent Shell Bed (18% chance)
                     if (roll < 0.18f)
                     {
-                        var shellGo = BuildPearlescentShellBed(bHit.point, beachInteractTr, beachInteractsCount + 1, matShell);
+                        var shellGo = BuildPearlescentShellBed(bHit.point, beachInteractTr, beachInteractsCount + 1, matShell, harvestClip, harvestVfx);
                         beachInteractsCount++;
                     }
                     // B. Interactive Washed-Up Cargo Flotsam (14% chance)
@@ -371,6 +385,9 @@ namespace BattleSummoner.EditorScripts
                         interactable.yieldAmount = 1;
                         interactable.goldValue = UnityEngine.Random.Range(30, 85);
                         interactable.itemDescription = "Sturdy wooden merchant crate washed ashore by the tides. Contains salvaged nautical timber, iron rivets, and trade coins.";
+                        interactable.harvestSoundClip = harvestClip;
+                        interactable.harvestVFXPrefab = harvestVfx;
+                        interactable.SetupPromptBillboard(false);
 
                         beachInteractsCount++;
                     }
@@ -394,6 +411,9 @@ namespace BattleSummoner.EditorScripts
                         interactable.yieldAmount = UnityEngine.Random.Range(1, 3);
                         interactable.goldValue = 60;
                         interactable.itemDescription = "Crystalline geode mineralized by saltwater tides and lunar pulls. Yields pristine oceanic mana prisms.";
+                        interactable.harvestSoundClip = harvestClip;
+                        interactable.harvestVFXPrefab = harvestVfx;
+                        interactable.SetupPromptBillboard(false);
 
                         beachInteractsCount++;
                     }
@@ -414,9 +434,10 @@ namespace BattleSummoner.EditorScripts
                         beachFloraCount++;
                     }
                     // E. Shoreline Driftwood Trunks & Logs (16% chance)
-                    else if (roll < 0.80f && pfbDeadTree != null)
+                    else if (roll < 0.80f && pfbDeadTrees.Count > 0)
                     {
-                        var driftwood = (GameObject)PrefabUtility.InstantiatePrefab(pfbDeadTree, beachFloraTr);
+                        var driftwoodPfb = pfbDeadTrees[UnityEngine.Random.Range(0, pfbDeadTrees.Count)];
+                        var driftwood = (GameObject)PrefabUtility.InstantiatePrefab(driftwoodPfb, beachFloraTr);
                         driftwood.name = $"Beach_Driftwood_Trunk_{beachFloraCount + 1}";
                         driftwood.transform.position = bHit.point + Vector3.down * 0.15f;
                         driftwood.transform.rotation = Quaternion.Euler(UnityEngine.Random.Range(-15f, 15f), UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(-15f, 15f));
@@ -445,7 +466,7 @@ namespace BattleSummoner.EditorScripts
             Debug.Log($"🎉 [DESERT & BEACH MASTER SUCCESS] Created comprehensive living ecosystems: {desertPlantsCount + beachFloraCount} flora/props & {desertInteractsCount + beachInteractsCount} rich interactive nodes!");
         }
 
-        private static GameObject BuildAncientSunStoneObelisk(Vector3 pos, Transform parent, int index, Material matObelisk)
+        private static GameObject BuildAncientSunStoneObelisk(Vector3 pos, Transform parent, int index, Material matObelisk, AudioClip harvestClip, GameObject harvestVfx)
         {
             var obeliskRoot = new GameObject($"SunStone_Ancient_Obelisk_{index}");
             obeliskRoot.transform.SetParent(parent, false);
@@ -498,11 +519,14 @@ namespace BattleSummoner.EditorScripts
             interactable.goldValue = 150;
             interactable.interactionDistance = 4.5f;
             interactable.itemDescription = "Ancient monolith carved by the First Sun Scribes. Resonating grants the Solar Strider explorer blessing, boosting sprint speed.";
+            interactable.harvestSoundClip = harvestClip;
+            interactable.harvestVFXPrefab = harvestVfx;
+            interactable.SetupPromptBillboard(false);
 
             return obeliskRoot;
         }
 
-        private static GameObject BuildPearlescentShellBed(Vector3 pos, Transform parent, int index, Material matShell)
+        private static GameObject BuildPearlescentShellBed(Vector3 pos, Transform parent, int index, Material matShell, AudioClip harvestClip, GameObject harvestVfx)
         {
             var shellRoot = new GameObject($"Pearlescent_Shell_Bed_{index}");
             shellRoot.transform.SetParent(parent, false);
@@ -534,6 +558,9 @@ namespace BattleSummoner.EditorScripts
             interactable.yieldAmount = UnityEngine.Random.Range(1, 4);
             interactable.goldValue = 40;
             interactable.itemDescription = "Lustrous sea pearl and iridescent mother-of-pearl clam shell gathered from the tidal surf. Essential for water alchemy and jewelry.";
+            interactable.harvestSoundClip = harvestClip;
+            interactable.harvestVFXPrefab = harvestVfx;
+            interactable.SetupPromptBillboard(false);
 
             return shellRoot;
         }
@@ -567,7 +594,17 @@ namespace BattleSummoner.EditorScripts
             if (go == null || mat == null) return;
             foreach (var r in go.GetComponentsInChildren<MeshRenderer>(true))
             {
-                r.sharedMaterial = mat;
+                var count = r.sharedMaterials.Length;
+                if (count > 1)
+                {
+                    var mats = new Material[count];
+                    for (int m = 0; m < count; m++) mats[m] = mat;
+                    r.sharedMaterials = mats;
+                }
+                else
+                {
+                    r.sharedMaterial = mat;
+                }
             }
         }
 
@@ -587,6 +624,58 @@ namespace BattleSummoner.EditorScripts
             {
                 var sph = go.AddComponent<SphereCollider>();
                 sph.radius = 1.0f;
+            }
+        }
+
+        private static void PurgeStrayWoodlandFoliageFromDesert(out int purgedCount)
+        {
+            purgedCount = 0;
+            var foliageRoots = new GameObject[]
+            {
+                GameObject.Find("World_AnimeNature_Foliage"),
+                GameObject.Find("--- ANIME NATURE & VEGETATION ---"),
+                GameObject.Find("Floor01_AnimeNature_EndemicFoliage")
+            };
+
+            var toDestroy = new HashSet<GameObject>();
+            foreach (var root in foliageRoots)
+            {
+                if (root == null) continue;
+                foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (t == null || t == root.transform) continue;
+                    Vector3 pos = t.position;
+                    if (pos.x <= -380f && pos.z <= -200f && pos.y >= 18.5f)
+                    {
+                        string n = t.name.ToLowerInvariant();
+                        if (t.parent != null && (t.parent.name.StartsWith("ForestChunk_") || t.parent == root.transform || t.parent.name.StartsWith("Vegetation_Quadrant")))
+                        {
+                            toDestroy.Add(t.gameObject);
+                        }
+                        else if (t.parent != null && t.parent.parent != null && t.parent.parent.name.StartsWith("ForestChunk_"))
+                        {
+                            toDestroy.Add(t.parent.gameObject);
+                        }
+                        else if (n.Contains("tree") || n.Contains("willow") || n.Contains("pine") || n.Contains("broadleaf") || n.Contains("blossom"))
+                        {
+                            toDestroy.Add(t.gameObject);
+                        }
+                    }
+                }
+            }
+
+            foreach (var go in toDestroy)
+            {
+                if (go != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(go);
+                    purgedCount++;
+                }
+            }
+
+            if (purgedCount > 0)
+            {
+                Debug.Log($"🧹 [Desert Purge] Cleaned up {purgedCount} stray woodland forest trees from the SW Desert dunes!");
             }
         }
     }
