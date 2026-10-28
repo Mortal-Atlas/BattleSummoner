@@ -99,6 +99,14 @@ public class MargoGuideCompanion : MonoBehaviour
         }
 
         ResolveDependencies();
+
+        var pcController = GetComponent<BattleSummoner.Core.PCModeDungeonTestingController>();
+        if (pcController != null && pcController.isPCModeEnabled)
+        {
+            enabled = false;
+            return;
+        }
+
         BuildFamiliarVisualRig();
         BuildWorldDialogueBubble();
         BuildScreenGothicToastHUD();
@@ -106,6 +114,13 @@ public class MargoGuideCompanion : MonoBehaviour
 
     private void Start()
     {
+        var pcController = GetComponent<BattleSummoner.Core.PCModeDungeonTestingController>();
+        if (pcController != null && pcController.isPCModeEnabled)
+        {
+            enabled = false;
+            return;
+        }
+
         HookSubsystemEvents();
 
         // Initial welcoming gothic remark after floor load
@@ -115,6 +130,27 @@ public class MargoGuideCompanion : MonoBehaviour
     private void OnDestroy()
     {
         UnhookSubsystemEvents();
+        if (familiarRoot != null) Destroy(familiarRoot);
+        if (worldBubbleObj != null) Destroy(worldBubbleObj);
+        if (screenHudCard != null) Destroy(screenHudCard);
+    }
+
+    private void OnDisable()
+    {
+        if (familiarRoot != null) familiarRoot.SetActive(false);
+        if (worldBubbleObj != null) worldBubbleObj.SetActive(false);
+        if (screenHudCard != null) screenHudCard.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        var pcController = GetComponent<BattleSummoner.Core.PCModeDungeonTestingController>();
+        if (pcController != null && pcController.isPCModeEnabled)
+        {
+            enabled = false;
+            return;
+        }
+        if (familiarRoot != null) familiarRoot.SetActive(true);
     }
 
     private void Update()

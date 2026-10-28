@@ -3,7 +3,12 @@ guid: 2d3d84942879378459a5b478495290d7
 ModelImporter:
   serializedVersion: 24300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Hero_Starter
+    second: {fileID: 2100000, guid: 5342329b61695074fbc4e391560868e8, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

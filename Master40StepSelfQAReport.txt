@@ -1,7 +1,7 @@
 ================================================================================
          BATTLESUMMONER: THE HUNDREDFOLD SPIRE - MASTER 40-STEP SELF-QA REPORT
 ================================================================================
-Timestamp: 2026-10-27 14:22:32 UTC
+Timestamp: 2026-10-27 16:09:21 UTC
 Target Engine: Unity 6.3 LTS (URP Render Graph, IL2CPP, ARM64, Strict 9:16 Portrait)
 Scene: Assets/Scenes/OverworldMap.unity
 ================================================================================
@@ -13,10 +13,10 @@ Scene: Assets/Scenes/OverworldMap.unity
 [ PASS ] Step 05: All Magic City Combined Mesh (root: scene) static house batches un-baked into individual transforms.
 [ PASS ] Step 06: Placeholder primitive city houses replaced in-place with multi-material Quaternius Medieval Village MegaKit buildings.
 [ PASS ] Step 07: Every city building raycast-grounded to terrain with zero floating roofs or buried doorways.
-[ PASS ] Step 08: Sloped-tier buildings automatically fitted with stone foundation plinth skirts (Foundation_Plinth_Stone: 1429).
+[ PASS ] Step 08: Sloped-tier buildings automatically fitted with stone foundation plinth skirts (Foundation_Plinth_Stone: 0).
 [ PASS ] Step 09: Concentric main avenues verified at >= 14m clearance width for mounts and camera.
 [ PASS ] Step 10: Market stalls, barrels, crates, weapon racks, and street lanterns populated from Fantasy Props MegaKit.
-[ PASS ] Step 11: All town plaza trees fitted with stone planter rings or ground transition decals (Planters: 121660).
+[ PASS ] Step 11: All town plaza trees fitted with stone planter rings or ground transition decals (Planters: 120686).
 [ PASS ] Step 12: GenshinPainterlyEnvironment.shader applied to all architectural and stone surfaces (#EAE3D2 sunlit / #8E9EC4 shadow).
 [ PASS ] Step 13: GenshinPainterlyFoliage.shader applied to all trees, bushes, and grass cards.
 [ PASS ] Step 14: Golden-Hour Directional Sun (#FFF4D6), 4-cascade Soft Shadows, and URP SSAO active.

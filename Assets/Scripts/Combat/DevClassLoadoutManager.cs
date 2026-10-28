@@ -91,12 +91,27 @@ public class DevClassLoadoutManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
+
+        var pc = GetComponent<BattleSummoner.Core.PCModeDungeonTestingController>();
+        if (pc != null && pc.isPCModeEnabled)
+        {
+            enabled = false;
+            return;
+        }
+
         ResolveReferences();
         CreateVisualWeapons();
     }
 
     private void Start()
     {
+        var pc = GetComponent<BattleSummoner.Core.PCModeDungeonTestingController>();
+        if (pc != null && pc.isPCModeEnabled)
+        {
+            enabled = false;
+            return;
+        }
+
         CreateDevHUDOverlay();
         // Initialize default loadout
         ApplyClassLoadout(currentClass, true);
@@ -115,6 +130,13 @@ public class DevClassLoadoutManager : MonoBehaviour
 
     private void OnEnable()
     {
+        var pc = GetComponent<BattleSummoner.Core.PCModeDungeonTestingController>();
+        if (pc != null && pc.isPCModeEnabled)
+        {
+            enabled = false;
+            return;
+        }
+
         PortraitGestureCanvas.OnBladeSlash += HandleBladeSlash;
         PortraitGestureCanvas.OnSpellTapCast += HandleSpellTapCast;
         MelodyRecognizer.OnNotePushedToBuffer += HandleBardNotePushed;

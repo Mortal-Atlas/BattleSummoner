@@ -1,7 +1,14 @@
 fileFormatVersion: 2
 guid: f93ee15cf869aee4d828618c15ad9c15
+AssetOrigin:
+  serializedVersion: 1
+  productId: 335880
+  packageName: Human Archer Animations FREE
+  packageVersion: 1.0
+  assetPath: Assets/Kevin Iglesias/Human Animations/Animations/Female/Idles/HumanF@Idle04-Idle01.fbx
+  uploadId: 825246
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24300
   internalIDToNameTable: []
   externalObjects: {}
   materials:
@@ -9,6 +16,7 @@ ModelImporter:
     materialName: 0
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -31,7 +39,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: HumanF@Idle04-Idle01
+      name: Idle04-Idle01
       takeName: HumanF@Idle04-Idle01
       internalID: -5304497276074909061
       firstFrame: 0
@@ -42,140 +50,22 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 1
       loopBlendPositionY: 1
-      loopBlendPositionXZ: 1
+      loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
       keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 1
+      keepOriginalPositionXZ: 0
       heightFromFeet: 0
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events: []
-      transformMask:
-      - path: 
-        weight: 1
-      - path: HumanF_BodyMesh
-        weight: 0
-      - path: Rig
-        weight: 1
-      - path: Rig/B-root
-        weight: 1
-      - path: Rig/B-root/B-hips
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-neck
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-neck/B-head
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-neck/B-head/B-jaw
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-handProp.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-indexFinger01.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-indexFinger01.L/B-indexFinger02.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-indexFinger01.L/B-indexFinger02.L/B-indexFinger03.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-middleFinger01.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-middleFinger01.L/B-middleFinger02.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-middleFinger01.L/B-middleFinger02.L/B-middleFinger03.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-pinky01.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-pinky01.L/B-pinky02.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-pinky01.L/B-pinky02.L/B-pinky03.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-ringFinger01.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-ringFinger01.L/B-ringFinger02.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-ringFinger01.L/B-ringFinger02.L/B-ringFinger03.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-thumb01.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-thumb01.L/B-thumb02.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.L/B-upperArm.L/B-forearm.L/B-hand.L/B-thumb01.L/B-thumb02.L/B-thumb03.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-handProp.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-indexFinger01.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-indexFinger01.R/B-indexFinger02.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-indexFinger01.R/B-indexFinger02.R/B-indexFinger03.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-middleFinger01.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-middleFinger01.R/B-middleFinger02.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-middleFinger01.R/B-middleFinger02.R/B-middleFinger03.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-pinky01.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-pinky01.R/B-pinky02.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-pinky01.R/B-pinky02.R/B-pinky03.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-ringFinger01.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-ringFinger01.R/B-ringFinger02.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-ringFinger01.R/B-ringFinger02.R/B-ringFinger03.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-thumb01.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-thumb01.R/B-thumb02.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-spine/B-chest/B-shoulder.R/B-upperArm.R/B-forearm.R/B-hand.R/B-thumb01.R/B-thumb02.R/B-thumb03.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.L/B-shin.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.L/B-shin.L/B-foot.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.L/B-shin.L/B-foot.L/B-toe.L
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.R/B-shin.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.R/B-shin.R/B-foot.R
-        weight: 1
-      - path: Rig/B-root/B-hips/B-thigh.R/B-shin.R/B-foot.R/B-toe.R
-        weight: 1
-      - path: Rig/B-root/B-spineProxy
-        weight: 1
-      maskType: 1
-      maskSource: {fileID: 31900000, guid: 89527f5525238ee44b3182458d85143a, type: 2}
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     isReadable: 0
   meshes:
@@ -203,6 +93,9 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -951,8 +844,7 @@ ModelImporter:
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: 1841c298173cdad4db8df8602c8f1c8d,
-    type: 3}
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 3
   humanoidOversampling: 1
@@ -964,10 +856,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 335880
-  packageName: Human Archer Animations FREE
-  packageVersion: 1.0
-  assetPath: Assets/Kevin Iglesias/Human Animations/Animations/Female/Idles/HumanF@Idle04-Idle01.fbx
-  uploadId: 825246
