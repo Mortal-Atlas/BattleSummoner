@@ -145,6 +145,12 @@ namespace BattleSummoner.EditorTools.Combat
                     bridge.rightHandWeaponSocket = socketR;
                     bridge.leftHandOffHandSocket = socketL;
 
+                    var hybridLaser = variantInstance.GetComponent<HybridLaserSwordController>();
+                    if (hybridLaser == null) hybridLaser = variantInstance.AddComponent<HybridLaserSwordController>();
+                    hybridLaser.playerRoot = playerRoot.transform;
+                    hybridLaser.rightHandWeaponSocket = socketR;
+                    hybridLaser.bladeLength = 0.85f;
+
                     if (i == 0) primaryBridge = bridge;
                     variantInstance.SetActive(i == 0); // MaleStarter active by default
                     variants[i] = variantInstance;

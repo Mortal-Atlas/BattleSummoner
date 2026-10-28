@@ -221,6 +221,14 @@ namespace BattleSummoner.Core
                     var bridge = characterModelVariants[i].GetComponentInChildren<ProceduralSlashIKAndAnimatorBridge>();
                     if (bridge != null) combatAnimatorBridge = bridge;
                     else if (combatAnimatorBridge != null && anim != null) combatAnimatorBridge.characterAnimator = anim;
+
+                    var swordSolver = characterModelVariants[i].GetComponentInChildren<WorldSpaceSwordHandOverrideSolver>(true);
+                    if (swordSolver != null) swordSolver.enabled = true;
+                }
+                else
+                {
+                    var swordSolver = characterModelVariants[i].GetComponentInChildren<WorldSpaceSwordHandOverrideSolver>(true);
+                    if (swordSolver != null) swordSolver.enabled = false;
                 }
             }
 
@@ -374,6 +382,10 @@ namespace BattleSummoner.Core
             {
                 _dashCooldownTimer = 0.55f;
                 characterController.Move(moveDir * (dashImpulse * Time.deltaTime * 4f));
+                if (combatAnimatorBridge != null && combatAnimatorBridge.characterAnimator != null)
+                {
+                    combatAnimatorBridge.characterAnimator.SetTrigger("Trig_Dash");
+                }
             }
 
             // Face movement direction smoothly
@@ -392,6 +404,10 @@ namespace BattleSummoner.Core
             if (jumpPressed && characterController.isGrounded)
             {
                 _verticalVelocity.y = jumpForce;
+                if (combatAnimatorBridge != null && combatAnimatorBridge.characterAnimator != null)
+                {
+                    combatAnimatorBridge.characterAnimator.SetTrigger("Trig_Jump");
+                }
             }
 
             _verticalVelocity.y += gravity * Time.deltaTime;
@@ -402,11 +418,12 @@ namespace BattleSummoner.Core
                 characterController.Move(finalMove * Time.deltaTime);
             }
 
-            // Drive Animator MoveSpeed parameter
+            // Drive Animator parameters
             if (combatAnimatorBridge != null && combatAnimatorBridge.characterAnimator != null)
             {
-                float targetSpeedParam = moveDir.magnitude * (isSprinting ? 1.0f : 0.5f);
+                float targetSpeedParam = moveDir.magnitude * (isSprinting ? 1.0f : 0.45f);
                 combatAnimatorBridge.characterAnimator.SetFloat("MoveSpeed", targetSpeedParam, 0.08f, Time.deltaTime);
+                combatAnimatorBridge.characterAnimator.SetBool("IsGrounded", characterController.isGrounded);
             }
         }
 
@@ -667,13 +684,13 @@ namespace BattleSummoner.Core
 
             weaponLoadouts = new List<WeaponLoadoutDef>
             {
-                // 1. Steel Sword & Shield
+                // 1. Bronze Sword & Wooden Shield (Fantasy Props MegaKit)
                 new WeaponLoadoutDef
                 {
-                    weaponName = "Steel Sword & Knight Shield",
+                    weaponName = "Bronze Sword & Wooden Shield",
                     stanceTag = "Sword & Board (1H + Shield)",
-                    rightWeaponPath = "Assets/Kevin Iglesias/Human Animations/Unity Demo Scenes/Human Melee Animations/Models/Human_Sword.fbx",
-                    leftOffHandPath = "Assets/Kevin Iglesias/Human Animations/Unity Demo Scenes/Human Melee Animations/Models/Human_Shield.fbx",
+                    rightWeaponPath = "Assets/Models/QuaterniusMegaKits/FantasyPropsMegaKit/Exports/FBX/Sword_Bronze.fbx",
+                    leftOffHandPath = "Assets/Models/QuaterniusMegaKits/FantasyPropsMegaKit/Exports/FBX/Shield_Wooden.fbx",
                     rightPosOffset = new Vector3(0f, 0f, 0f),
                     rightRotOffset = new Vector3(0f, 0f, 0f),
                     leftPosOffset = new Vector3(0f, 0f, 0f),
