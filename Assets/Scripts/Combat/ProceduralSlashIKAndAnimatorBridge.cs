@@ -63,6 +63,22 @@ namespace BattleSummoner.Combat
             _lastFramePosition = transform.position;
         }
 
+        private void OnEnable()
+        {
+            PortraitGestureCanvas.OnBladeSlash += HandlePortraitBladeSlash;
+        }
+
+        private void OnDisable()
+        {
+            PortraitGestureCanvas.OnBladeSlash -= HandlePortraitBladeSlash;
+        }
+
+        private void HandlePortraitBladeSlash(Vector2 direction, float velocity)
+        {
+            float angleDeg = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            ExecuteDirectionalBladeSlash(0, angleDeg, velocity, false);
+        }
+
         private void Ensure3DWeaponTrails()
         {
             if (rightHandWeaponSocket != null && rightBladeTrail3D == null)
@@ -239,4 +255,3 @@ namespace BattleSummoner.Combat
         }
     }
 }
-

@@ -32,8 +32,8 @@ namespace BattleSummoner.Combat
         [SerializeField] private float unrecognizedFadeDelay = 1.4f;
 
         [Header("Fruit Ninja Melee Slicing")]
-        [SerializeField] private float minSlashVelocity = 450f;
-        [SerializeField] private float minSlashDistance = 45f;
+        [SerializeField] private float minSlashVelocity = 200f;
+        [SerializeField] private float minSlashDistance = 25f;
         [SerializeField] private int maxBladeTrailPoints = 12;
 
         private RectTransform rectTransform;
@@ -138,9 +138,9 @@ namespace BattleSummoner.Combat
                 isCurrentlyDrawing = true;
                 meleeSwipedInCurrentStroke = false;
                 meleeTouchStartScreenPos = eventData.position;
-                meleeTouchStartTime = Time.time;
+                meleeTouchStartTime = Time.unscaledTime;
                 lastDragScreenPos = eventData.position;
-                lastDragScreenTime = Time.time;
+                lastDragScreenTime = Time.unscaledTime;
 
                 if (inkGraphic != null)
                 {
@@ -186,7 +186,7 @@ namespace BattleSummoner.Combat
                 fadeCoroutine = null;
             }
 
-            if (completedStrokes.Count > 0 && lastStrokeEndTime > 0 && (Time.time - lastStrokeEndTime > multiStrokeWindow * 8f))
+            if (completedStrokes.Count > 0 && lastStrokeEndTime > 0 && (Time.unscaledTime - lastStrokeEndTime > multiStrokeWindow * 8f))
             {
                 completedStrokes.Clear();
                 if (inkGraphic != null) inkGraphic.ClearAll();
@@ -236,7 +236,7 @@ namespace BattleSummoner.Combat
                 // Only trigger the strike once per drag stroke when swipe criteria are met
                 if (!meleeSwipedInCurrentStroke)
                 {
-                    float dt = Time.time - lastDragScreenTime;
+                    float dt = Time.unscaledTime - lastDragScreenTime;
                     if (dt >= 0.025f)
                     {
                         Vector2 delta = eventData.position - lastDragScreenPos;
@@ -249,7 +249,7 @@ namespace BattleSummoner.Combat
                         if ((totalDist >= minSlashDistance && velocity >= minSlashVelocity) || (dist >= 35f && velocity >= 650f))
                         {
                             meleeSwipedInCurrentStroke = true;
-                            lastSliceTriggerTime = Time.time;
+                            lastSliceTriggerTime = Time.unscaledTime;
                             // Fire blade slash event with screen coordinates
                             PortraitGestureCanvas.TriggerBladeSlash(meleeTouchStartScreenPos, eventData.position, velocity);
                             if (BattleSummonerAudioMaster.Instance != null)
@@ -259,7 +259,7 @@ namespace BattleSummoner.Combat
                         }
 
                         lastDragScreenPos = eventData.position;
-                        lastDragScreenTime = Time.time;
+                        lastDragScreenTime = Time.unscaledTime;
                     }
                 }
                 return;
@@ -299,7 +299,7 @@ namespace BattleSummoner.Combat
                 if (!meleeSwipedInCurrentStroke)
                 {
                     Vector2 totalDelta = eventData.position - meleeTouchStartScreenPos;
-                    float duration = Mathf.Max(0.001f, Time.time - meleeTouchStartTime);
+                    float duration = Mathf.Max(0.001f, Time.unscaledTime - meleeTouchStartTime);
                     float velocity = totalDelta.magnitude / duration;
 
                     if (totalDelta.magnitude >= minSlashDistance && velocity >= minSlashVelocity)
@@ -321,7 +321,7 @@ namespace BattleSummoner.Combat
             // -------------------------------------------------------------
             // MODE B: MAGIC ITEM CASTING (Recognize & Show Central Magic Circle)
             // -------------------------------------------------------------
-            lastStrokeEndTime = Time.time;
+            lastStrokeEndTime = Time.unscaledTime;
 
             if (currentStroke.Count > 1)
             {

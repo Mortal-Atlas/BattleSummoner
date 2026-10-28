@@ -26,12 +26,13 @@ public enum InteractionMode
 
 public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
+    public static PortraitGestureCanvas Instance { get; private set; }
     [Header("Mode Configuration")]
     public InteractionMode currentMode = InteractionMode.CombatSlash;
 
     [Header("Swipe Parameters")]
-    [SerializeField] private float minSlashDistance = 60f;
-    [SerializeField] private float minSlashVelocity = 750f;
+    [SerializeField] private float minSlashDistance = 25f;
+    [SerializeField] private float minSlashVelocity = 200f;
 
     [Header("Rune Detection")]
     [SerializeField] private float circleTolerance = 0.35f;
@@ -62,8 +63,8 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
 
     public static void TriggerBladeSlash(Vector2 direction, float velocity)
     {
-        if (Time.time - lastGlobalBladeSlashTime < MIN_SLASH_COOLDOWN) return;
-        lastGlobalBladeSlashTime = Time.time;
+        if (Application.isPlaying && Time.unscaledTime - lastGlobalBladeSlashTime < MIN_SLASH_COOLDOWN) return;
+        lastGlobalBladeSlashTime = Time.unscaledTime;
 
         OnBladeSlash?.Invoke(direction, velocity);
         Vector2 center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
@@ -72,8 +73,8 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
 
     public static void TriggerBladeSlash(Vector2 startScreenPos, Vector2 endScreenPos, float velocity)
     {
-        if (Time.time - lastGlobalBladeSlashTime < MIN_SLASH_COOLDOWN) return;
-        lastGlobalBladeSlashTime = Time.time;
+        if (Application.isPlaying && Time.unscaledTime - lastGlobalBladeSlashTime < MIN_SLASH_COOLDOWN) return;
+        lastGlobalBladeSlashTime = Time.unscaledTime;
 
         Vector2 dir = (endScreenPos - startScreenPos).normalized;
         OnBladeSlash?.Invoke(dir, velocity);
@@ -104,6 +105,17 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
             img.color = c;
             img.raycastTarget = true;
         }
+
+        // Auto-ensure SpellDrawingInkCanvas if missing
+        if (GetComponent<SpellDrawingInkCanvas>() == null)
+        {
+            gameObject.AddComponent<SpellDrawingInkCanvas>();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -118,9 +130,9 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         }
 
         startTouchPosition = eventData.position;
-        startTouchTime = Time.time;
+        startTouchTime = Time.unscaledTime;
         swipeStartPos = eventData.position;
-        swipeStartTime = Time.time;
+        swipeStartTime = Time.unscaledTime;
         touchTrail.Clear();
         touchTrail.Add(eventData.position);
         trackingTouch = true;
@@ -290,7 +302,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         if (currentMode == InteractionMode.CombatSlash || currentMode == InteractionMode.Combat)
         {
             Vector2 delta = eventData.position - swipeStartPos;
-            float duration = Time.time - swipeStartTime;
+            float duration = Time.unscaledTime - swipeStartTime;
 
             if (delta.magnitude > 50f && duration < 0.4f)
             {
@@ -335,7 +347,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         if (currentMode == InteractionMode.RelicInspection || currentMode == InteractionMode.RelicInspect)
         {
             OnRelicPointerUp?.Invoke(eventData.position);
-            float touchDur = Mathf.Max(0.001f, Time.time - startTouchTime);
+            float touchDur = Mathf.Max(0.001f, Time.unscaledTime - startTouchTime);
             Vector2 touchDelta = eventData.position - startTouchPosition;
             if (touchDur <= 0.28f && touchDelta.magnitude <= 24f)
             {
@@ -354,7 +366,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         if (currentMode == InteractionMode.CookingMamaSlicing)
         {
             Vector2 deltaSlice = eventData.position - startTouchPosition;
-            float dur = Mathf.Max(0.001f, Time.time - startTouchTime);
+            float dur = Mathf.Max(0.001f, Time.unscaledTime - startTouchTime);
             if (deltaSlice.magnitude >= minSlashDistance && (deltaSlice.magnitude / dur) >= minSlashVelocity)
             {
                 FruitNinjaBladeCutter.Instance?.HandleScreenBladeSlash(startTouchPosition, eventData.position, deltaSlice.magnitude / dur);
@@ -377,7 +389,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         if (currentMode == InteractionMode.PracticeRoomRecording)
         {
             Vector2 deltaPractice = eventData.position - startTouchPosition;
-            float durPractice = Mathf.Max(0.001f, Time.time - startTouchTime);
+            float durPractice = Mathf.Max(0.001f, Time.unscaledTime - startTouchTime);
             float velPractice = deltaPractice.magnitude / durPractice;
             if (deltaPractice.magnitude >= minSlashDistance && velPractice >= minSlashVelocity)
             {
@@ -404,12 +416,12 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
         }
 
         // Multi-stroke tracking & shape recognition (Cartoon Heart & V with Dash)
-        if (Time.time - lastStrokeTime > MULTI_STROKE_WINDOW)
+        if (Time.unscaledTime - lastStrokeTime > MULTI_STROKE_WINDOW)
         {
             completedStrokes.Clear();
         }
         completedStrokes.Add(new List<Vector2>(touchTrail));
-        lastStrokeTime = Time.time;
+        lastStrokeTime = Time.unscaledTime;
 
         if (touchTrail.Count >= 6)
         {
@@ -426,7 +438,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
             }
         }
 
-        float durationGeneral = Mathf.Max(0.001f, Time.time - startTouchTime);
+        float durationGeneral = Mathf.Max(0.001f, Time.unscaledTime - startTouchTime);
         Vector2 deltaGeneral = eventData.position - startTouchPosition;
         float distance = deltaGeneral.magnitude;
         float velocity = distance / durationGeneral;
@@ -441,11 +453,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
 
             if (distance >= minSlashDistance && velocity >= minSlashVelocity)
             {
-                if (Time.time - lastGlobalBladeSlashTime >= MIN_SLASH_COOLDOWN)
-                {
-                    lastGlobalBladeSlashTime = Time.time;
-                    OnBladeSlash?.Invoke(deltaGeneral.normalized, velocity);
-                }
+                TriggerBladeSlash(startTouchPosition, eventData.position, velocity);
             }
         }
         else if (currentMode == InteractionMode.Spellcraft || currentMode == InteractionMode.RuneCast)
@@ -466,7 +474,7 @@ public class PortraitGestureCanvas : MonoBehaviour, IPointerDownHandler, IPointe
             {
                 if (distance >= minSlashDistance && velocity >= minSlashVelocity)
                 {
-                    OnBladeSlash?.Invoke(deltaGeneral.normalized, velocity);
+                    TriggerBladeSlash(startTouchPosition, eventData.position, velocity);
                 }
                 else if (durationGeneral <= 0.4f && distance <= 45f)
                 {

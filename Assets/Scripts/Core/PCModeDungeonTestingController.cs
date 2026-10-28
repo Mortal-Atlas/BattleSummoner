@@ -64,6 +64,10 @@ namespace BattleSummoner.Core
         public ProceduralSlashIKAndAnimatorBridge combatAnimatorBridge;
         public Camera activeMainCamera;
 
+        [Header("UI Canvas References")]
+        public GameObject pcHudCanvas;
+        public GameObject portraitHudCanvas;
+
         private Vector3 _verticalVelocity;
         private float _dashCooldownTimer;
         private Vector2 _mouseSlashStartPos;
@@ -416,6 +420,14 @@ namespace BattleSummoner.Core
             {
                 if (combatAnimatorBridge != null) combatAnimatorBridge.ExecuteUniversalTwoFingerParry();
                 BroadcastParryToNearbyBestiaryMonsters();
+                if (FruitNinjaBladeCutter.Instance != null) FruitNinjaBladeCutter.Instance.TriggerTwoFingerParry();
+            }
+
+            // Hold R = Switch touch canvas to Rune Drawing Mode
+            bool rKeyHeld = GetKeyHeld(KeyCode.R, () => Keyboard.current != null && Keyboard.current.rKey.isPressed);
+            if (PortraitGestureCanvas.Instance != null)
+            {
+                PortraitGestureCanvas.Instance.currentMode = rKeyHeld ? InteractionMode.RuneCast : InteractionMode.CombatSlash;
             }
 
             // Active Shield Guard while Right Mouse is held
@@ -471,11 +483,9 @@ namespace BattleSummoner.Core
                 bool altHeld = GetKeyHeld(KeyCode.LeftAlt, () => Keyboard.current != null && Keyboard.current.leftAltKey.isPressed);
                 int simulatedFinger = altHeld ? 1 : 0;
 
-                if (combatAnimatorBridge != null)
-                {
-                    combatAnimatorBridge.ExecuteDirectionalBladeSlash(
-                        simulatedFinger, swipeAngleDeg, swipeSpeed, _isChargingHeavyArt);
-                }
+                // Trigger screen-space blade slash for FruitNinjaBladeCutter (screen cuts, slice wave VFX, audio)
+                // and ProceduralSlashIKAndAnimatorBridge (torso roll & Mecanim slash trigger)
+                PortraitGestureCanvas.TriggerBladeSlash(_mouseSlashStartPos, endPos, swipeSpeed);
 
                 DeliverDirectionalSlashToDungeonTargets(swipeAngleDeg, _isChargingHeavyArt, altHeld);
 
@@ -554,8 +564,46 @@ namespace BattleSummoner.Core
             }
         }
 
+        private void EnsureCanvasReferences()
+        {
+            if (pcHudCanvas == null)
+            {
+                var pc = GameObject.Find("PCHUDCanvas");
+                if (pc == null)
+                {
+                    foreach (var c in Resources.FindObjectsOfTypeAll<Canvas>())
+                    {
+                        if (c.name == "PCHUDCanvas" && c.gameObject.scene.IsValid() && c.gameObject.scene.isLoaded)
+                        {
+                            pc = c.gameObject;
+                            break;
+                        }
+                    }
+                }
+                pcHudCanvas = pc;
+            }
+
+            if (portraitHudCanvas == null)
+            {
+                var mob = GameObject.Find("PortraitHUDCanvas");
+                if (mob == null)
+                {
+                    foreach (var c in Resources.FindObjectsOfTypeAll<Canvas>())
+                    {
+                        if (c.name == "PortraitHUDCanvas" && c.gameObject.scene.IsValid() && c.gameObject.scene.isLoaded)
+                        {
+                            mob = c.gameObject;
+                            break;
+                        }
+                    }
+                }
+                portraitHudCanvas = mob;
+            }
+        }
+
         private void ApplyPlatformModeState(PlatformTestingMode mode)
         {
+            EnsureCanvasReferences();
             bool isPC = (mode == PlatformTestingMode.PCStandaloneTesting);
 
             // 1. Mobile Movement Controller
@@ -577,8 +625,24 @@ namespace BattleSummoner.Core
             }
 
             // 3. UI Canvases
-            var mobileCanvas = GameObject.Find("PortraitHUDCanvas");
-            if (mobileCanvas != null) mobileCanvas.SetActive(!isPC);
+            if (portraitHudCanvas != null)
+            {
+                portraitHudCanvas.SetActive(!isPC);
+                if (!isPC)
+                {
+                    var cgc = portraitHudCanvas.transform.Find("SafeAreaContainer/CentralGestureCanvas");
+                    if (cgc != null) cgc.gameObject.SetActive(true);
+                }
+            }
+            if (pcHudCanvas != null)
+            {
+                pcHudCanvas.SetActive(isPC);
+                if (isPC)
+                {
+                    var cgc = pcHudCanvas.transform.Find("CentralGestureCanvas");
+                    if (cgc != null) cgc.gameObject.SetActive(true);
+                }
+            }
 
             if (PCDungeonHUDController.Instance != null)
             {

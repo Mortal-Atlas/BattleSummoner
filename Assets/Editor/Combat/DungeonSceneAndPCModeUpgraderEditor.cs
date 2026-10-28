@@ -190,9 +190,66 @@ namespace BattleSummoner.EditorTools.Combat
 
         private static void UpgradeDungeonHUDForPC()
         {
-            // 1. Hide mobile portrait touch canvas
+            // 1. Locate mobile portrait touch canvas
             GameObject mobileCanvas = GameObject.Find("PortraitHUDCanvas");
-            if (mobileCanvas != null) mobileCanvas.SetActive(false);
+            if (mobileCanvas == null)
+            {
+                foreach (var c in Resources.FindObjectsOfTypeAll<Canvas>())
+                {
+                    if (c.name == "PortraitHUDCanvas" && !EditorUtility.IsPersistent(c))
+                    {
+                        mobileCanvas = c.gameObject;
+                        break;
+                    }
+                }
+            }
+            if (mobileCanvas != null)
+            {
+                var mobCanvasComp = mobileCanvas.GetComponent<Canvas>();
+                if (mobCanvasComp != null) mobCanvasComp.renderMode = RenderMode.ScreenSpaceOverlay;
+
+                // Ensure CentralGestureCanvas inside mobileCanvas covers the entire screen at first sibling
+                var cgc = mobileCanvas.transform.Find("SafeAreaContainer/CentralGestureCanvas");
+                if (cgc != null)
+                {
+                    cgc.SetAsFirstSibling();
+                    var rt = cgc.GetComponent<RectTransform>();
+                    if (rt != null)
+                    {
+                        rt.anchorMin = Vector2.zero;
+                        rt.anchorMax = Vector2.one;
+                        rt.offsetMin = Vector2.zero;
+                        rt.offsetMax = Vector2.zero;
+                    }
+                    var img = cgc.GetComponent<Image>();
+                    if (img != null)
+                    {
+                        img.color = new Color(0f, 0f, 0f, 0.002f);
+                        img.raycastTarget = true;
+                    }
+                    var pgcMob = cgc.GetComponent<PortraitGestureCanvas>();
+                    if (pgcMob == null) pgcMob = cgc.gameObject.AddComponent<PortraitGestureCanvas>();
+                    pgcMob.currentMode = InteractionMode.CombatSlash;
+
+                    var ink = cgc.GetComponent<SpellDrawingInkCanvas>();
+                    if (ink == null) ink = cgc.gameObject.AddComponent<SpellDrawingInkCanvas>();
+                    ink.EnsureInkGraphic();
+                }
+
+                // Ensure action drawer doesn't block touches when closed
+                var drawer = mobileCanvas.transform.Find("SafeAreaContainer/SlideOutActionDrawer");
+                if (drawer != null)
+                {
+                    var cg = drawer.GetComponent<CanvasGroup>();
+                    if (cg != null)
+                    {
+                        cg.blocksRaycasts = false;
+                        cg.interactable = false;
+                    }
+                }
+
+                mobileCanvas.SetActive(false);
+            }
 
             GameObject stanceCanvas = GameObject.Find("CombatStanceHUDCanvas");
             if (stanceCanvas != null) stanceCanvas.SetActive(false);
@@ -206,16 +263,7 @@ namespace BattleSummoner.EditorTools.Combat
 
             Canvas canvas = pcCanvasGo.GetComponent<Canvas>();
             if (canvas == null) canvas = pcCanvasGo.AddComponent<Canvas>();
-            if (Camera.main != null)
-            {
-                canvas.renderMode = RenderMode.ScreenSpaceCamera;
-                canvas.worldCamera = Camera.main;
-                canvas.planeDistance = 1.0f;
-            }
-            else
-            {
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            }
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 50;
 
             CanvasScaler scaler = pcCanvasGo.GetComponent<CanvasScaler>();
@@ -240,6 +288,26 @@ namespace BattleSummoner.EditorTools.Combat
             {
                 UnityEngine.Object.DestroyImmediate(pcCanvasGo.transform.GetChild(i).gameObject);
             }
+
+            // Full-screen Central Gesture / Touch Canvas for 1:1 mouse drag slashes and touch swipes
+            GameObject gestureObj = new GameObject("CentralGestureCanvas");
+            gestureObj.transform.SetParent(pcCanvasGo.transform, false);
+
+            RectTransform gestureRt = gestureObj.AddComponent<RectTransform>();
+            gestureRt.anchorMin = Vector2.zero;
+            gestureRt.anchorMax = Vector2.one;
+            gestureRt.offsetMin = Vector2.zero;
+            gestureRt.offsetMax = Vector2.zero;
+
+            Image gestureImg = gestureObj.AddComponent<Image>();
+            gestureImg.color = new Color(0f, 0f, 0f, 0.002f); // Non-zero transparent raycast target
+            gestureImg.raycastTarget = true;
+
+            var pgc = gestureObj.AddComponent<PortraitGestureCanvas>();
+            pgc.currentMode = InteractionMode.CombatSlash;
+
+            var inkCanvas = gestureObj.AddComponent<SpellDrawingInkCanvas>();
+            inkCanvas.EnsureInkGraphic();
 
             // Create UI Panels:
             // Top-Left Panel (Player HP, MP, Active Hero)
@@ -341,6 +409,30 @@ namespace BattleSummoner.EditorTools.Combat
                 12, TextAlignmentOptions.Bottom, new Vector2(0f, 6f), new Vector2(480f, 18f), Color.white);
 
             bossFrame.SetActive(false);
+
+            // Ensure gesture canvas stays at sibling 0 behind HUD frames
+            gestureObj.transform.SetAsFirstSibling();
+
+            // Wire canvases to Player_Hero PCModeDungeonTestingController
+            var playerHero = GameObject.Find("Player_Hero");
+            if (playerHero != null)
+            {
+                var pcCtrl = playerHero.GetComponent<PCModeDungeonTestingController>();
+                if (pcCtrl != null)
+                {
+                    pcCtrl.pcHudCanvas = pcCanvasGo;
+                    pcCtrl.portraitHudCanvas = mobileCanvas;
+                }
+            }
+
+            // Ensure CombatSystemManagers exist with FruitNinjaBladeCutter, RuneShapeCastingEngine, MultiTouch
+            GameObject csm = GameObject.Find("CombatSystemManagers");
+            if (csm == null) csm = new GameObject("CombatSystemManagers");
+            if (csm.GetComponent<FruitNinjaBladeCutter>() == null) csm.AddComponent<FruitNinjaBladeCutter>();
+            if (csm.GetComponent<RuneShapeCastingEngine>() == null) csm.AddComponent<RuneShapeCastingEngine>();
+            if (csm.GetComponent<MultiTouchCombatAndRuneDispatcher>() == null) csm.AddComponent<MultiTouchCombatAndRuneDispatcher>();
+
+            pcCanvasGo.SetActive(true);
         }
 
         private static GameObject CreateUIPanel(
